@@ -1,0 +1,18 @@
+<!doctype html>
+
+<html>
+	<head>
+		<script>
+			function load_canvas(){
+				var base_canvas = document.getElementById("canvas");
+				canvas = base_canvas.getContext("2d");
+			}
+		</script>
+		<script src="wow_warrior_class.js"></script>
+		<script src="warrior_file.js"></script>
+	</head>
+	
+	<body onload="load_canvas();">
+		<canvas id="canvas" width=1000 height=1000></canvas>
+	</body>
+</html>
