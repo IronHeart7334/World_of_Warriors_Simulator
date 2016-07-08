@@ -2,6 +2,8 @@
 var OFFENSE = 33.73;
 var HP = 107.0149;
 var BENCH_HIT_PEN = 0.75;
+var POISON_PEN = 0.67;
+var splash;
 
 function Element(name, color, weakness){
 	this.name = name;
@@ -15,6 +17,38 @@ function Element(name, color, weakness){
 function swordbar(){
 	canvas.fillStyle = "rgb(200, 200, 200)";
 	canvas.fillRect(400, 750, 200, 50);
+}
+
+
+
+function Splash(text, color, x, y, size){
+	this.text = text;
+	this.color = color;
+	this.x = x;
+	this.y = y;
+	this.size = size;
+}
+
+Splash.prototype = {
+	update:function(){
+		if (this.size == 1){
+			this.kill();
+			return;
+		}
+		this.size -= 1;
+		canvas.font = this.size.toString() + "px " + "Arial";
+		canvas.clearRect(0, 0, 500, 500);
+		canvas.fillText(this.text, this.x, this.y);
+	},
+	
+	run:function(){
+		splash = this;
+		splash.timer = setInterval(function(){ splash.update();}, 5);
+	},
+	
+	kill:function(){
+		clearInterval(this.timer);
+	}
 }
 
 
@@ -52,7 +86,11 @@ Warrior.prototype = {
 	},
 	
 	get_ele:function(){
-		return this.ele;
+		var mult = 1;
+		for (var boosts of this.ele_boosts){
+			mult += boosts[0];
+		}
+		return this.ele * mult;
 	},
 	
 	get_armor:function(){
@@ -60,8 +98,8 @@ Warrior.prototype = {
 	},
 	
 	print_stats:function(){
-		console.log(this.phys);
-		console.log(this.ele);
+		console.log(this.get_phys());
+		console.log(this.get_ele());
 		console.log(this.max_hp);
 	},
 	
@@ -127,7 +165,7 @@ Warrior.prototype = {
 		this.card_special(x, y, w, h);
 	},
 	
-	calc_damage_taken:function(attacker, damage){
+	calc_damage_taken:function(attacker, damage, heart_coll){
 		var physical_damage = damage[0] * this.get_armor();
 		var elemental_damage = damage[1];
 		
@@ -139,11 +177,48 @@ Warrior.prototype = {
 			elemental_damage *= 0.28;
 		}
 		
-		return [Math.round(physical_damage), Math.round(elemental_damage)];
+		this.take_damage([Math.round(physical_damage), Math.round(elemental_damage)], heart_coll);
 	},
 	
 	check_if_ko:function(){
 		return this.hp_rem <= 0;
+	},
+	
+	take_damage:function(damage, heart_coll){
+		var dmg = damage[0] + damage[1];
+		console.log(dmg, this.hp_rem);
+		this.hp_rem -= dmg;
+		console.log(this.hp_rem);
+		if (!this.check_if_ko()){
+			if (heart_coll){
+				this.heal(dmg * 0.4);
+			}
+		}
+		console.log(this.hp_rem);
+		this.hp_rem = Math.round(this.hp_rem);
+	},
+	
+	heal:function(hp){
+		this.hp_rem += hp;
+		if (this.hp_rem > this.max_hp){
+			this.hp_rem = this.max_hp;
+		}
+	},
+	
+	check_durations:function(){
+		var boosts_rem = [];
+		for (var boost of this.ele_boosts){
+			if (boost[1] !== 1){
+				boosts_rem.push([boost[0], boost[1] - 1]);
+			}
+		}
+		this.ele_boosts = boosts_rem;
+	},
+	
+	calc_poison:function(){
+		if (!this.poisoned){return;}
+		this.hp_rem -= this.poisoned[0];
+		this.poisoned[1] -= 1;
 	},
 	
 	draw_prep:function(){
@@ -282,8 +357,8 @@ Warrior.prototype = {
 		this.torso_bend = degrees;
 	},
 	
-	use_special:function(target){
-		this.special.attack(this, target);
+	use_special:function(){
+		this.special.attack(this);
 	}
 }
 
@@ -296,25 +371,52 @@ function Team(members){
 Team.prototype = {
 	assign_enemy:function(enemy_team){
 		this.enemy_team = enemy_team;
+		for (var member of this.members_rem){
+			member.enemy_team = enemy_team;
+		}
 	},
 	
 	init_for_battle:function(){
 		for (var member of this.members_rem){
+			member.team = this;
 			member.calc_stats();
 			member.hp_rem = member.max_hp;
+			member.ele_boosts = [];
+			member.poisoned = false;
+		}
+		this.leader = this.members_rem[0];
+		this.active = this.members_rem[0];
+	},
+	
+	// work here
+	check_lead:function(){
+		if (!this.leader.check_if_ko()){
+			console.log("leader skill");
+		}
+	},
+	
+	check_durations:function(){
+		for (var member of this.members_rem){
+			member.check_durations();
+			member.calc_poison();
 		}
 	},
 	
 	check_if_ko:function(){
-		var to_remove = [];
+		var new_members_rem = [];
 		for (var member of this.members_rem){
-			if (member.check_if_ko()){
-				to_remove.push(this.members_rem.indexOf(member));
+			if (!member.check_if_ko()){
+				new_members_rem.push(member);
 			}
 		}
-		for (warrior of to_remove){
-			this.members_rem.splice(warrior, 1);
-		}
+		this.members_rem = new_members_rem;
+	},
+	
+	//modify later
+	turn:function(){
+		this.check_durations();
+		this.check_if_ko();
+		this.check_lead();
 	}
 }
 
@@ -330,11 +432,16 @@ function Battle(team1, team2){
 }
 
 Battle.prototype = {
-
+	init:function(){
+		for (var team of this.teams){
+			team.init_for_battle();
+		}
+	}
 }
 
 
 
+// Special moves
 function Ele_beat(mod, pip, variation){
 	this.mod = mod;
 	this.pip = pip;
@@ -357,13 +464,14 @@ function Ele_beat(mod, pip, variation){
 }
 
 Ele_beat.prototype = {
-	attack:function(user, target){
+	attack:function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
 		
-		return target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
+		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
 	}
 }
+
 
 
 function AOE(mod, pip, variation){
@@ -388,12 +496,113 @@ function AOE(mod, pip, variation){
 }
 
 AOE.prototype = {
-	attack:function(user, target_team){
+	attack:function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele() * this.mod;
 		
+		var target_team = user.enemy_team;
+		
 		for (var member of target_team.members_rem){
-			console.log(member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]));
+			if (target_team.active == member){
+				var coll_hearts = true;
+			} else {
+				var coll_hearts = false;
+			}
+			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+		}
+	}
+}
+
+
+
+function Boost(mod, pip, variation){
+	this.element = variation;
+	switch(variation){
+		case fire:
+			this.name = "Fire Boost";
+			break;
+		case earth:
+			this.name = "Earth Boost";
+			break;
+		case air:
+			this.name = "Air Boost";
+			break;
+		case water:
+			this.name = "Water Boost";
+			break;
+		default:
+			this.name = "Nothing boost";
+	}
+}
+
+Boost.prototype = {
+	attack:function(user){
+		for (var member of user.team.members_rem){
+			if (member.element !== this.element){
+				continue;
+			}
+			var add_boost = true;
+			for (var boost of member.ele_boosts){
+				if (boost[0] == 1.35){
+					boost[1] = 3;
+					add_boost = false;
+				}
+			}
+			
+			if (add_boost){
+				member.ele_boosts.push([1.35, 3]);
+			}
+		}
+	}
+}
+
+
+
+
+function Poison(mod, pip){
+	this.mod = mod * Math.pow(POISON_PEN, 2);
+	this.pip = pip;
+	this.name = "Poison";
+}
+
+Poison.prototype = {
+	attack:function(user){
+		var dmg = user.get_phys() * this.mod;
+		user.enemy_team.active.poisoned = [dmg, 3];	
+	}
+}
+
+
+
+function Rolling_thunder(mod, pip){
+	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
+	this.pip = pip;
+	this.name = "Rolling Thunder";
+}
+
+Rolling_thunder.prototype = {
+	attack:function(user){
+		var physical_damage = user.get_phys() * this.mod;
+		var elemental_damage = user.get_ele() * this.mod;
+		
+		var hits = 3;
+		
+		var target_team = user.enemy_team;
+		
+		var num_targ = target_team.members_rem.length;
+		
+		while(hits !== 0){
+			var target = target_team.members_rem[Math.floor(Math.random() * num_targ)];
+			console.log(target.name);
+			
+			if (target_team.active == target){
+				var coll_hearts = true;
+			} else {
+				var coll_hearts = false;
+			}
+			target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+			
+			hits -= 1;
 		}
 	}
 }
