@@ -4,8 +4,12 @@
 	<head>
 		<script>
 			function load_canvas(){
-				var base_canvas = document.getElementById("canvas");
+				base_canvas = document.getElementById("canvas");
 				canvas = base_canvas.getContext("2d");
+			}
+			function clear_canvas(){
+				canvas.fillStyle = "rgb(0, 155, 155)";
+				canvas.fillRect(0, 0, 1000, 500);
 			}
 		</script>
 		<script src="wow_warrior_class.js"></script>
@@ -13,6 +17,6 @@
 	</head>
 	
 	<body onload="load_canvas();">
-		<canvas id="canvas" width=1000 height=1000></canvas>
+		<canvas id="canvas" width=1000 height=500 onclick="check_click(event)"></canvas>
 	</body>
 </html>
