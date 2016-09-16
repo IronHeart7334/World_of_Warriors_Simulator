@@ -12,35 +12,45 @@ var classic_white_data = ["No name set", [1.027, 0.45, 0.87, 1], air, new Ele_be
 var classic_blue_data = ["No name set", [0.887, 0.4, 1.08, 1], water, new Ele_beat(2.1, 1, "w"), new Lead(-15, "w")];
 
 var black_falcon_data = ["No name set", [0.967, 0.25, 1.1, 1], water, new Ele_beat(2.2, 2, undefined), new Lead(-15, "a")];
-var dragon_knight_data = ["No name set", [1.127, 0.4, 0.86, 1], fire, new Ele_beat(2.1, 2, "f"), new Lead(-15, "f")];
+var dragon_knight_data = ["No name set", [1.127, 0.4, 0.86, 1], fire, new Ele_beat(2.1, 2, "f"), new Lead(15, "f")];
 var dwarf_data = ["No name set", [1.087, 0.4, 0.82, 2], earth, new AOE(1.6, 2, "e"), new Lead(-15, "f")];
+var black_knight_data = ["No name set", [1.107, 0.4, 1.12, 1], earth, new Ele_beat(1.67, 1, "e"), new Lead(5, "p")];
+var royal_knight_data = ["No name set", [0.807, 0.4, 1.17, 1], air, new Boost(1, 2, air), new Lead(15, "a")];
+//var jester_data
+var crusader_data = ["No name set", [0.807, 0.25, 1.05, 1], fire, new Healing(1.89, 2), new Lead(15, "f")];
+//var dark_forest_data
+var wolfpack_data = ["No name set", [1.217, 0.1, 0.83, 0], earth, new Leech_blade(1.35, 2), new Lead(5, "p")];
+//var lead_general_data
+var troll_data = ["No name set", [1.057, 0.1, 1.08, 0], earth, new Leech_blade(1.4, 1), new Lead(15, "e")];
 
 var cedric_data = ["Cedric the Bull", [0.817, 0.4, 1.23, 1], fire, new Boost(1, 2, fire), new Lead(-30, "w")];
+var gilbert_data = ["Gilbert the Bad", [1.117, 0.25, 0.82, 2], earth, new Vengeance(1.99, 3), new Lead(10, "p")];
 var weezil_data = ["Weezil", [0.717, 0.25, 1.17, 1], fire, new Poison(2, 1), new Lead(10, "h")];
-var princess_storm_data = ["Princess Storm", [1.087, 0.4, 0.93, 1], fire, new Boost(1, 2, fire), new Lead(-30, "w")];
+
+var princess_storm_data = ["Princess Storm", [1.087, 0.4, 0.78, 1], fire, new Boost(1, 2, fire), new Lead(-30, "w")];
 
 var gi_dan_data = ["Gi-Dan", [1.177, 0.4, 0.81, 2], water, new Ele_beat(1.87, 2, "w"), new Lead(10, "p")];
+var basil_data = ["Basil the Bat Lord", [0.707, 0.1, 0.71, 1], fire, new Leech_blade(3.03, 4), new Lead(10, "p")]
 
-var black_knight_data = ["No name set", [1.107, 0.4, 1.12, 1], earth, new Ele_beat(1.67, 1, "e"), new Lead(5, "p")];
-
-var jayko_data = ["Jayko", [0.897, 0.25, 1.02, 1], water, new Ele_beat(1.95, 1, undefined), new Lead(5, "p")];
-var danju_data = ["Danju", [0.757, 0.25, 1.13, 1], air, new Healing(2.35, 3), new Lead(-30, "e")];
-var santis_data = ["Santis", [1.017, 0.25, 1.03, 1], fire, new Armor_break(1.99, 3), new Lead(10, "p")];
-var rascus_data = ["Rascus", [0.867, 0.25, 1.2, 1], earth, new Stealth_strike(2.11, 2), new Lead(30, "e")];
+var jayko_data = ["Jayko", [0.897, 0.25, 1.02, 2], water, new Ele_beat(1.95, 1, undefined), new Lead(5, "p")];
+var danju_data = ["Danju", [0.757, 0.25, 1.13, 2], air, new Healing(2.35, 3), new Lead(-30, "e")];
+var santis_data = ["Santis", [1.017, 0.25, 1.03, 2], fire, new Armor_break(1.99, 3), new Lead(10, "p")];
+var rascus_data = ["Rascus", [0.867, 0.25, 1.2, 2], earth, new Stealth_strike(2.11, 2), new Lead(30, "e")];
 
 var shadow_knight_data = ["No name set", [1.167, 0.4, 0.78, 1], earth, new Ele_beat(1.92, 2, "e"), new Lead(+5, "p")];
-var vladek_data = ["Vladek", [1.277, 0.45, 0.65, 1], earth, new Ele_beat(2.81, 4, "e"), new Lead(-30, "f")];
-var dracus_data = ["Dracus", [1.137, 0.3, 1.02, 1], air, new Boost(1, 2, air), new Lead(10, "p")];
-var karzon_data = ["Karzon", [0.937, 0.25, 1.12, 1], water, new Poison(1.89, 2), new Lead(-30, "w")];
+var vladek_data = ["Vladek", [1.277, 0.45, 0.65, 2], earth, new Ele_beat(2.81, 4, "e"), new Lead(-30, "f")];
+var dracus_data = ["Dracus", [1.137, 0.3, 1.02, 2], air, new Boost(1, 2, air), new Lead(10, "p")];
+var karzon_data = ["Karzon", [0.937, 0.25, 1.06, 2], water, new Poison(1.89, 2), new Lead(-30, "w")];
 
 var bonsai_data = ["Bonsai", [1.167, 0.1, 1.12, 0], earth, new Boost(1, 2, earth), new Lead(5, "p")];
 var kahuka_data = ["King Kahuka", [0.657, 0.2, 0.83, 0], air, new Poison(4, 4), new Lead(10, "h")];
 
-var levahk_data = ["Levahk", [0.687, 0.5, 0.83, 1], air, new Ele_beat(3.95, 2, "a"), new Lead(30, "a")];
+var levahk_data = ["Levahk", [0.687, 0.5, 0.93, 1], air, new Ele_beat(3.95, 2, "a"), new Lead(30, "a")];
 var nuhvok_data = ["Nuhvok", [0.687, 0.45, 1.04, 1], earth, new AOE(3.2, 3, "e"), new Lead(-30, "e")];
+var pahrak_data = ["Pahrak", [0.687, 0.4, 0.78, 1], earth, new Poison_hive(4, 3), new Lead(-30, "f")];
 
 var kai_data = ["Kai", [1.317, 0.5, 0.65, 0], fire, new Ele_beat(1.72, 2, "f"), new Lead(30, "f")];
-var jay_data = ["Jay", [0.877, 0.5, 0.86, 0], water, new Rolling_thunder(2.4, 4), new Lead(-30, "a")];
+var jay_data = ["Jay", [0.877, 0.5, 0.72, 0], water, new Rolling_thunder(2.4, 4), new Lead(-30, "a")];
 var cole_data = ["Cole", [0.967, 0.5, 0.87, 0], earth, new AOE(2.6, 4, "e"), new Lead(-30, "e")];
 var zane_data = ["Zane", [0.837, 0.5, 0.95, 0], water, new AOE(2.96, 4, "w"), new Lead(30, "w")];
 
@@ -58,15 +68,16 @@ var lewa_data = ["Lewa", [0.983, 0.05, 1.2, 1], air, new Ele_beat(1.6, 1, "a"), 
 var tahu_u_data = ["Tahu Uniter", [1.123, 0.5, 1.12, 2], fire, new Ele_beat(2.1, 2, "f"), new Lead(30, "f")];
 var kopaka_u_data = ["Kopaka Uniter", [1.033, 0.25, 1.07, 1], water, new Ele_beat(1.8, 2, "w"), new Lead(10, "p")];
 
-var MNTS = new Team([new Warrior(levahk_data, 34), new Warrior(dragon_knight_data, 34), new Warrior(gi_dan_data, 34)]);
-var M_dual_boosts = new Team([new Warrior(karzon_data, 34), new Warrior(dracus_data, 34), new Warrior(princess_storm_data, 34)]);
-var morcia = new Team([new Warrior(danju_data, 34), new Warrior(santis_data, 34), new Warrior(rascus_data, 34)]);
 
-var NNTS = new Team([new Warrior(kopaka_u_data, 34), new Warrior(tahu_u_data, 34), new Warrior(lewa_data, 34)]);
 
-var paul_team = new Team([new Warrior(anyo_data, 34), new Warrior(lanze_data, 34), new Warrior(peter_data, 34)]);
+var teams = [];
 
-var team1 = morcia;
-var team2 = M_dual_boosts;
-b = new Battle(team1, team2);
-b.init();
+var MNTS = new Team([new Warrior(levahk_data, 34), new Warrior(dragon_knight_data, 34), new Warrior(gi_dan_data, 34)], "MNTS");
+var M_dual_boosts = new Team([new Warrior(karzon_data, 34), new Warrior(dracus_data, 34), new Warrior(princess_storm_data, 34)], "M_dual_boosts");
+var morcia = new Team([new Warrior(santis_data, 34), new Warrior(rascus_data, 34), new Warrior(danju_data, 34)], "morcia");
+var stall = new Team([new Warrior(basil_data, 34), new Warrior(pahrak_data, 34), new Warrior(danju_data, 34)], "Stall");
+var kk_villains = new Team([new Warrior(cedric_data, 34), new Warrior(weezil_data, 34), new Warrior(gilbert_data, 34)], "Villains of Knights' Kingdom I");
+
+var NNTS = new Team([new Warrior(kopaka_u_data, 34), new Warrior(tahu_u_data, 34), new Warrior(lewa_data, 34)], "NNTS");
+
+var paul_team = new Team([new Warrior(anyo_data, 34), new Warrior(lanze_data, 34), new Warrior(peter_data, 34)], "paul_team");
