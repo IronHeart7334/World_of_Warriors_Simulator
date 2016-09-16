@@ -6,6 +6,7 @@
 			function load_canvas(){
 				base_canvas = document.getElementById("canvas");
 				canvas = base_canvas.getContext("2d");
+				update_team_select();
 			}
 			function clear_canvas(){
 				canvas.fillStyle = "rgb(0, 155, 155)";
@@ -14,6 +15,7 @@
 		</script>
 		<script src="wow_warrior_class.js"></script>
 		<script src="warrior_file.js"></script>
+		<script src="team_selector.js"></script>
 	</head>
 	
 	<body onload="load_canvas();">
