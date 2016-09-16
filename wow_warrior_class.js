@@ -11,15 +11,22 @@ function check_click(event){
 
 var active_buttons = [];
 
+//var canvas_data = document.getElementById("canvas");
+var canvas_width = 1000;
+
+
 // The base values for both stats, might change them later
 var OFFENSE = 33.73;
 var HP = 107.0149;
+
 var BENCH_HIT_PEN = 0.75;
 var POISON_PEN = 0.67;
 var STEALTH_PEN = 0.8;
 var ARMOR_IGNORE_PEN = 0.88;
 var SELFHEAL_PEN = 0.8;
+var RECOIL_MOD = 1.2;
 
+var b;
 function Element(name, color, weakness){
 	this.name = name;
 	this.color = color;
@@ -49,11 +56,13 @@ function Button(text, color, x, y, width, height, functions){
 Button.prototype = {
 	// change this to scale text based on length of this.text
 	draw:function(){
-		canvas.fillStyle = this.color;
-		canvas.fillRect(this.x, this.y, this.w, this.h);
+		if (this.color !== "none"){
+			canvas.fillStyle = this.color;
+			canvas.fillRect(this.x, this.y, this.w, this.h);
+		}
 		canvas.font = "10px Arial";
 		canvas.fillStyle = "rgb(0, 0, 0)";
-		canvas.fillText(this.text, this.x, this.y + 50);
+		canvas.fillText(this.text, this.x, this.y + this.h / 2);
 	},
 	
 	check_if_click:function(x, y){
@@ -149,7 +158,21 @@ Warrior.prototype = {
 	},
 	
 	hp_perc:function(){
-		return 100 * (this.hp_rem / this.max_hp);
+	/*
+	Returns the percentage of your HP remaining
+	AS A VALUE BETWEEN 0 AND 1
+	NOT 0 AND 100
+	*/
+		return this.hp_rem / this.max_hp;
+	},
+	
+	perc_hp:function(perc){
+	/*
+	Returns how much of your max HP will equal perc
+		Example:
+			With 200 HP, this.perc_hp(0.5) will return 100
+	*/
+		return this.max_hp * (perc);
 	},
 	
 	print_stats:function(){
@@ -249,6 +272,7 @@ Warrior.prototype = {
 		
 		var dmg = Math.round(physical_damage) + Math.round(elemental_damage);
 		this.take_damage(dmg, coll_hearts);
+		return dmg;
 	},
 	
 	check_if_ko:function(){
@@ -262,6 +286,7 @@ Warrior.prototype = {
 		var user = this;
 		
 		this.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+		this.enemy_team.turn_part1();
 	},
 	
 	take_damage:function(damage, heart_coll){
@@ -270,16 +295,55 @@ Warrior.prototype = {
 		this.hp_rem -= dmg;
 		if (!this.check_if_ko()){
 			if (heart_coll){
-				this.heal(dmg * 0.4);
+				this.last_dmg = dmg;
 			}
 		}
 		if (heart_coll){
-			this.team.gain_energy();
+			this.team.en_coll = true;
 		}
 		this.hp_rem = Math.round(this.hp_rem);
 	},
 	
+	heart_collection:function(){
+		var X = this;
+		active_buttons.push(new Button("", "rgb(255, 0, 0)", 300, 50, 100, 100, [X.nat_regen.bind(X)]));
+	},
+	
+	bomb:function(){
+		var X = this;
+		var f = function(){
+			var d = X.perc_hp(0.15);
+			X.hp_rem -= d;
+			if (X.hp_rem <= 1){
+				X.hp_rem = 1;
+			}
+			X.hp_rem = Math.round(X.hp_rem);
+		}
+		var t = X.team;
+		active_buttons.push(new Button("", "rgb(0, 0, 0)", 350, 150, 100, 100, [f, t.turn_part2.bind(t)]));
+	},
+	
+	energy_collection:function(){
+		var X = this.team;
+		active_buttons.push(new Button("", "rgb(0, 0, 255)", 400, 50, 100, 100, [X.gain_energy.bind(X), X.turn_part2.bind(X)]));
+	},
+	
+	nat_regen:function(){
+		var x = this;
+		this.heal(x.last_dmg * 0.4);
+	},
+	
+	reset_dmg:function(){
+		this.last_dmg = 0;
+	},
+	
 	heal:function(hp){
+	/*
+	Restore HP
+	Prevents from healing past full
+	Also rounds for you
+	*/
+		console.log("Healed " + hp);
 		this.hp_rem += hp;
 		if (this.hp_rem > this.max_hp){
 			this.hp_rem = this.max_hp;
@@ -291,7 +355,7 @@ Warrior.prototype = {
 		this.boost_up = false;
 		var phys_boosts_rem = [];
 		for (var boost of this.phys_boosts){
-			if (boost[1] !== 1){
+			if (boost[1] !== 0){
 				phys_boosts_rem.push([boost[0], boost[1] - 1]);
 			}
 		}
@@ -315,9 +379,21 @@ Warrior.prototype = {
 			this.poisoned = false;
 			return;
 		}
+		console.log("Poison damage: " + this.poisoned[0]);
 		this.hp_rem -= this.poisoned[0];
 		this.hp_rem = Math.round(this.hp_rem);
 		this.poisoned[1] -= 1;
+	},
+	
+	calc_regen:function(){
+		if (!this.regen){return;}
+		if (this.regen[1] == 0){
+			this.regen = false;
+			return;
+		}
+		this.hp_rem += this.regen[0];
+		this.hp_rem = Math.round(this.hp_rem);
+		this.regen[1] -= 1;
 	},
 	
 	display_health:function(x, y){
@@ -331,7 +407,7 @@ Warrior.prototype = {
 		canvas.arc(x - 50, y + 50, 50, 0, 2 * Math.PI);
 		canvas.fill();
 		
-		var bar_width = this.hp_perc();
+		var bar_width = this.hp_perc() * 100;
 		
 		canvas.fillStyle = "rgb(255, 0, 0)";
 		if (this.check_if_ko()){
@@ -345,7 +421,11 @@ Warrior.prototype = {
 		canvas.fillStyle = "rgb(0, 0, 0)";
 		canvas.font = "30px Ariel";
 		canvas.fillText(this.name, x, y + 20);
-		canvas.fillText(this.hp_rem, x, y + 45);
+		if (!this.regen){
+			canvas.fillText(this.hp_rem, x, y + 45);
+		} else {
+				canvas.fillText(this.hp_rem + "+", x, y + 45);
+			}
 	},
 	
 	say_name:function(){
@@ -493,8 +573,11 @@ Warrior.prototype = {
 	use_special:function(){
 		//var s = new Splash(this.special.name + "!", this.element.color, this.team.x, 250, 100);
 		//s.run();
+		this.team.switchback = this.team.active;
+		this.team.switchin(this);
 		this.special.attack(this);
 		this.team.energy -= 2;
+		this.team.enemy_team.turn_part1();
 	}
 }
 
@@ -508,13 +591,12 @@ function Lead(amount, type){
 // need healing effects
 Lead.prototype = {
 	apply:function(team){
-		if (this.amount > 0){
+		if (this.amount >= 0.05){
 			var target = team;
 		}
-		if (this.amount < 0){
+		if (this.amount < 0.05){
 			var target = team.enemy_team;
 		}
-		
 		if (this.type == "p"){
 			for (var member of target.members_rem){
 				member.phys_boosts.push([this.amount, 1]);
@@ -554,8 +636,10 @@ Lead.prototype = {
 
 
 
-function Team(members){
+function Team(members, name){
 	this.members_rem = members;
+	this.name = name;
+	teams.push(this);
 }
 
 Team.prototype = {
@@ -574,10 +658,13 @@ Team.prototype = {
 			member.phys_boosts = [];
 			member.ele_boosts = [];
 			member.poisoned = false;
+			member.regen = false;
 		}
 		this.leader = this.members_rem[0];
 		this.active = this.members_rem[0];
-		this.energy = 1;
+		this.energy = 2;
+		this.en_coll = false;
+		this.active.last_dmg = 0;
 	},
 	
 	display_vs: function(){
@@ -595,32 +682,37 @@ Team.prototype = {
 		for (var member of this.members_rem){
 			member.display_health(this.x, y);
 			var x = this.x - 100;
-			active_buttons.push(new Button("", "rgb(0, 0, 0, 0)", x, y, 100, 100, [member.display_stats.bind(member)]));
+			active_buttons.push(new Button("", "none", x, y, 100, 100, [member.display_stats.bind(member)]));
 			y += 100;
 		}
 	},
 	
+	
+	// shorten these buttons
 	display_nm:function(){
 		var team = this;
-		var new_button = new Button("Normal Move", team.active.element.color, 475, 325, 100, 100, [team.active.use_normal_move.bind(team.active), team.enemy_team.turn.bind(team.enemy_team)]);
+		var new_button = new Button("Normal Move", team.active.element.color, 475, 325, 100, 100, [team.active.use_normal_move.bind(team.active)]);
 		active_buttons.push(new_button);
 		new_button.draw();
 	},
 	
 	display_specials:function(){
-		var icons = [];
+	/*
+	List all of a team's Special Moves
+	as icons across the screen.
+	Click on them to use them.
+	*/
 		var x = this.x - 200;
 		var team = this;
 		for (var member of team.members_rem){
-			var new_button = new Button(member.special.name, member.element.color, x, 325, 100, 100, [member.use_special.bind(member), team.enemy_team.turn.bind(team.enemy_team)]);
-			icons.push(new_button);
+			var new_button = new Button(member.special.name, member.element.color, x, 325, 100, 100, [member.use_special.bind(member)]);
 			active_buttons.push(new_button);
-			x += 150;
-		}
-		for (var icon of icons){
-			icon.draw();
+			x += canvas_width * 0.1;
+			
 		}
 	},
+	
+	
 	
 	display_energy:function(){
 		canvas.fillStyle = "rgb(0, 100, 255)";
@@ -644,7 +736,8 @@ Team.prototype = {
 	
 	check_lead:function(){
 		if (!this.leader.check_if_ko()){
-			this.leader.lead_skill.apply(this);
+			var team = this;
+			this.leader.lead_skill.apply(team);
 		}
 	},
 	
@@ -690,6 +783,7 @@ Team.prototype = {
 		for (var member of this.members_rem){
 			member.check_durations();
 			member.calc_poison();
+			member.calc_regen();
 		}
 	},
 	
@@ -717,13 +811,48 @@ Team.prototype = {
 		}
 	},
 	
-	//modify later
-	turn:function(){ 
+	turn_part1:function(){
+		/*
+		Heart collection phase
+		*/
+		
 		clear_canvas();
 		active_buttons = [];
+		this.display_all_hp();
+		this.display_energy();
+		this.display_vs();
+		this.enemy_team.display_all_hp();
+		this.enemy_team.display_energy();
+		
+		if (this.en_coll){
+			this.active.energy_collection();
+		}
+		if (this.active.last_dmg > 0){
+			this.active.heart_collection();
+			this.active.bomb();
+		}
+		if (!this.en_coll && (this.active.last_dmg >= 0 || this.active.last_dmg == undefined)){
+			this.turn_part2();
+			return;
+		}
+		
+		for (var button of active_buttons){
+			button.draw();
+		}
+	},
+	
+	turn_part2:function(){
+		/*
+		Action phase
+		*/
+		
+		clear_canvas();
+		active_buttons = [];
+		this.active.reset_dmg();
+		this.en_coll = false;
+		this.check_lead();
 		this.check_durations();
 		this.check_if_ko();
-		this.check_lead();
 		this.display_all_hp();
 		this.display_energy();
 		this.display_nm();
@@ -735,10 +864,13 @@ Team.prototype = {
 		if (this.energy >= 2){
 			this.display_specials();
 		}
+		for (var button of active_buttons){
+			button.draw();
+		}
 	},
 	
 	win:function(){
-		console.log("You win!");
+		console.log(this.name + " wins!");
 	}
 }
 
@@ -760,12 +892,25 @@ Battle.prototype = {
 		for (var team of this.teams){
 			team.init_for_battle();
 		}
+	},
+	
+	start:function(){
+		//add random later
+		this.teams[0].turn_part1();
 	}
 }
 
 
+/*
+These are Special Moves, powerful attacks that warriors can use.
+Each warrior comes with a preselected Special Move, which is determined in their data.
+Each Special Move has 2-3 arguments:
+The mod, which determines how powerful the Special Move is compared to the user's Normal Move.
+The pip, which shows how strong the user's Special Move is compared to warriors with the same Special Move.
+And sometimes, the variation: Which is usually based on the user's Element.
+*/
 
-// Special moves
+// remove variation eventually
 function Ele_beat(mod, pip, variation){
 	this.mod = mod;
 	this.pip = pip;
@@ -787,15 +932,12 @@ function Ele_beat(mod, pip, variation){
 	}
 }
 
-Ele_beat.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Ele_beat.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
 		
 		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
 	}
-}
 
 
 
@@ -820,9 +962,7 @@ function AOE(mod, pip, variation){
 	} 
 }
 
-AOE.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+AOE.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele() * this.mod;
 		
@@ -837,7 +977,7 @@ AOE.prototype = {
 			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
 		}
 	}
-}
+
 
 
 
@@ -861,9 +1001,7 @@ function Boost(mod, pip, variation){
 	}
 }
 
-Boost.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Boost.prototype.attack = function(user){
 		for (var member of user.team.members_rem){
 			if (member.element !== this.element){
 				continue;
@@ -882,7 +1020,6 @@ Boost.prototype = {
 			}
 		}
 	}
-}
 
 
 
@@ -893,14 +1030,12 @@ function Poison(mod, pip){
 	this.name = "Poison";
 }
 
-Poison.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Poison.prototype.attack = function(user){
 		var dmg = user.get_phys() * this.mod;
 		user.enemy_team.active.poisoned = [dmg, 3];
-		user.enemy_team.gain_energy();	
+		user.enemy_team.en_coll = true;	
 	}
-}
+
 
 
 
@@ -910,9 +1045,7 @@ function Rolling_thunder(mod, pip){
 	this.name = "Rolling Thunder";
 }
 
-Rolling_thunder.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Rolling_thunder.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele() * this.mod;
 		
@@ -947,7 +1080,7 @@ Rolling_thunder.prototype = {
 			hits -= 1;
 		}
 	}
-}
+
 
 
 
@@ -957,18 +1090,14 @@ function Stealth_strike(mod, pip){
 	this.name = "Stealth Strike";
 }
 
-Stealth_strike.prototype = {
-	attack:function(user){
-		var switchback = user.team.active;
-		user.team.switchin(user);
-		
+Stealth_strike.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
 		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
 		
-		user.team.switchin(switchback);
+		user.team.switchin(user.team.switchback);
 	}
-}
+
 
 
 // update this later once Phantom shield / armor boost out
@@ -978,9 +1107,7 @@ function Armor_break(mod, pip){
 	this.name = "Armor Break";
 }
 
-Armor_break.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Armor_break.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele() * this.mod;
 		
@@ -993,7 +1120,6 @@ Armor_break.prototype = {
 		
 		target.armor = save;
 	}
-}
 
 
 
@@ -1003,27 +1129,128 @@ function Healing(mod, pip){
 	this.name = "Healing"
 }
 
-Healing.prototype = {
-	attack:function(user){
-		user.team.switchin(user);
+Healing.prototype.attack = function(user){
 		var to_heal = undefined;
-		var lowest = 100;
+		var lowest = 1;
 		for (var member of user.team.members_rem){
 			if (member == user){
 				continue;
 			}
 			if (member.hp_perc() < lowest){
 				to_heal = member;
+				lowest = member.hp_perc();
 			}
 		}
 		var total_heal = user.get_phys() * this.mod;
 		
-		console.log("Healed " + total_heal);
-		
 		user.heal(total_heal * 0.2);
-		
+		console.log(to_heal);
 		if (to_heal !== undefined){
 			to_heal.heal(total_heal * 0.8);
 		}
 	}
+
+
+
+function Leech_blade(mod, pip){
+	this.mod = mod * SELFHEAL_PEN;
+	this.pip = pip;
+	this.name = "Leech Blade";
 }
+
+Leech_blade.prototype.attack = function(user){
+		var physical_damage = user.get_phys() * this.mod;
+		user.heal(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), 0], true) * 0.3);
+	}
+
+
+
+function Berserk(mod, pip){
+	this.mod = mod * RECOIL_MOD;
+	this.pip = pip;
+	this.name = "Berserk";
+}
+
+Berserk.prototype.attack = function(user){
+		var physical_damage = user.get_phys() * this.mod;
+		var elemental_damage = user.get_ele();
+		
+		user.take_damage(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true) * 0.2, false);
+		if (user.hp_rem < 1){
+			user.hp_rem = 1;
+		}
+	}
+
+
+
+function Poison_hive(mod, pip){
+	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(POISON_PEN, 2);
+	this.pip = pip;
+	this.name = "Poison Hive";
+}
+
+Poison_hive.prototype.attack = function(user){
+		var dmg = user.get_phys() * this.mod;
+		for (var member of user.enemy_team.members_rem){
+			member.poisoned = [dmg, 3];		
+		}
+		user.enemy_team.en_coll = true;
+	}
+
+
+
+function Regeneration(mod, pip){
+	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(SELFHEAL_PEN, 3);
+	this.pip = pip;
+	this.name = "Regeneration";
+}
+
+Regeneration.prototype.attack = function(user){
+		var healing = user.get_phys() * this.mod;
+		for (var member of user.team.members_rem){
+			member.regen = [healing, 3];
+			member.calc_regen(); 
+		}
+	}
+
+
+// untested
+function Vengeance(mod, pip){
+	this.mod = mod;
+	this.pip = pip;
+	this.name = "Vengeance";
+	
+}
+
+Vengeance.prototype.attack = function(user){
+		var mod = this.mod * (1.5 - user.hp_perc());
+		var physical_damage = user.get_phys() * mod;
+		var elemental_damage = user.get_ele() * mod;
+		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true)
+	}
+
+
+//untested
+function Twister(mod, pip){
+	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
+	this.pip = pip;
+	this.name = "Twister";
+}
+
+Twister.prototype.attack = function(user){
+		var mod = this.mod * (1.5 - user.hp_perc());
+		console.log(mod);
+		var physical_damage = user.get_phys() * mod;
+		var elemental_damage = user.get_ele() * mod;
+		
+		var target_team = user.enemy_team;
+		
+		for (var member of target_team.members_rem){
+			if (target_team.active == member){
+				var coll_hearts = true;
+			} else {
+				var coll_hearts = false;
+			}
+			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+		}
+	}
