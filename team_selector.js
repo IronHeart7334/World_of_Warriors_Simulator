@@ -1,4 +1,8 @@
-var pass_teams = [teams[0], teams[1]];
+// update this to use Party later
+var players = [Matt, Nick];
+
+//var pass_teams = [players[0].teams[0], players[1].teams[0]];
+var pass_teams = [all_teams[0], all_teams[1]];
 
 function set_team(team_num, team){
 	return function(){
@@ -8,10 +12,16 @@ function set_team(team_num, team){
 
 function draw_teams(team_num, x){
 	var y = 0;
-	for (var team of teams){
+	//for (var team of players[team_num].teams){
+	for (var team of all_teams){
 		var new_button = new Button(team.name, "rgb(255, 255, 255)", x, y, 100, 40, [set_team(team_num, team), update_team_select]);
 		active_buttons.push(new_button);
 		y += 50;
+		
+		if (y >= 410){
+			x += 110;
+			y = 0;
+		}
 	}
 }
 

@@ -1,0 +1,37 @@
+<!doctype html>
+
+<html>
+	<head>
+		<script>
+			function load_canvas(){
+				base_canvas = document.getElementById("canvas");
+				canvas = base_canvas.getContext("2d");
+				choose_player();
+			}
+			function clear_canvas(){
+				canvas.fillStyle = "rgb(0, 0, 0)";
+				canvas.fillRect(0, 0, 1000, 1000);
+			}
+			function choose_player(){
+				clear_canvas();
+				canvas.fillStyle = "rgb(255, 255, 255)";
+				canvas.fillRect(300, 25, 400, 50);
+				var y = 100;
+				for (var player of parties){
+					active_buttons.push(new Button(player.name, "rgb(255, 255, 255)", 400, y, 200, 50, [player.create_team.bind(player)]));
+					y += 75;
+				}
+				for (var button of active_buttons){
+					button.draw();
+				}
+			}
+		</script>
+		<script src="wow_warrior_class.js"></script>
+		<script src="warrior_file.js"></script>
+		<script src="team_selector.js"></script>
+	</head>
+	
+	<body onload="load_canvas();">
+		<canvas id="canvas" width=1000 height=1000 onclick="check_click(event)"></canvas>
+	</body>
+</html>
