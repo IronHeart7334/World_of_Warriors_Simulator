@@ -1,2 +1,1 @@
-# world_of_warriors
-later
+# World of Warriors Simulator
