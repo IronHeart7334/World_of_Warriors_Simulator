@@ -1,3 +1,4 @@
+// Make these possible to have on teams
 var classic_red_data = ["No name set", [1.057, 0.4, 0.95, 1], fire, new Ele_beat(1.66, 1, "f"), new Lead(5, "p")];
 var classic_black_data = ["No name set", [0.967, 0.4, 1.05, 1], earth, new Ele_beat(1.81, 1, "e"), new Lead(-15, "f")];
 var classic_white_data = ["No name set", [1.027, 0.45, 0.87, 1], air, new Ele_beat(1.92, 1, "a"), new Lead(15, "a")];
@@ -111,6 +112,7 @@ var M_dual_boosts = new Team([new Warrior(karzon_data, 34), new Warrior(dracus_d
 var morcia = new Team([new Warrior(santis_data, 34), new Warrior(rascus_data, 34), new Warrior(danju_data, 34)], "morcia");
 var stall = new Team([new Warrior(basil_data, 34), new Warrior(pahrak_data, 34), new Warrior(danju_data, 34)], "Stall");
 var kk_villains = new Team([new Warrior(cedric_data, 34), new Warrior(weezil_data, 34), new Warrior(gilbert_data, 34)], "Villains of Knights' Kingdom I");
+var KKII_villains = new Team([new Warrior(karzon_data, 34), new Warrior(vladek_data, 34), new Warrior(dracus_data, 34)], "Villains of Knights' Kingdom II");
 var bohrok = new Team([new Warrior(pahrak_data, 34), new Warrior(levahk_data, 34), new Warrior(nuhvok_data, 34)], "Bohrok");
 var ninjago = new Team([new Warrior(nya_data, 34), new Warrior(jay_data, 34), new Warrior(kai_data, 34)], "Ninjago");
 var temp = new Team([new Warrior(kahuka_data, 34), new Warrior(kai_data, 34), new Warrior(saracen_data, 34)], "Temp");
@@ -132,11 +134,3 @@ var paul_team = new Team([new Warrior(anyo_data, 34), new Warrior(lanze_data, 34
 var OP_test = new Team([new Warrior(apgar_data, 34), new Warrior(ironhult_data, 34), new Warrior(cromwell_data, 34)], "OP team");
 var Air_scorp = new Team([new Warrior(james_data, 34), new Warrior(victor_data, 34), new Warrior(gideon_data, 34)], "Air storm team");
 var Water_scorp = new Team([new Warrior(louis_data, 34), new Warrior(adolf_data, 34), new Warrior(nicholas_data, 34)], "Flood gate team");
-
-// this stuff has no use yet
-var Matt = new Party("Matt");
-var Nick = new Party("Nick");
-
-Matt.add_members([[jayko_data, 34], [danju_data, 34], [rascus_data, 34], [santis_data, 34]]);
-Matt.add_teams([MNTS, morcia, stall, kk_villains, ninjago]);
-Nick.add_teams([NNTS, nick_protectors, skull_creatures]);

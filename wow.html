@@ -2,23 +2,15 @@
 
 <html>
 	<head>
-		<script>
-			function load_canvas(){
-				base_canvas = document.getElementById("canvas");
-				canvas = base_canvas.getContext("2d");
-				update_team_select();
-			}
-			function clear_canvas(){
-				canvas.fillStyle = "rgb(0, 155, 155)";
-				canvas.fillRect(0, 0, 1000, 500);
-			}
-		</script>
+		<script src="menus.js"></script>
 		<script src="wow_warrior_class.js"></script>
+		<script src="specials.js"></script>
 		<script src="warrior_file.js"></script>
-		<script src="team_selector.js"></script>
+		<script src="real_warriors.js"></script>
 	</head>
 	
-	<body onload="load_canvas();">
-		<canvas id="canvas" width=1000 height=500 onclick="check_click(event)"></canvas>
+	<body onload="load_canvas(); disp_menu();">
+	    <!--add resizing-->
+		<canvas id="canvas" width=1200 height=600 onclick="check_click(event)"></canvas>
 	</body>
 </html>
