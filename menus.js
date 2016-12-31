@@ -29,7 +29,12 @@ function disp_menu(){
 	    undefined
 	];
 	function set_page(page){
-	    return function(){
+	    if (page == undefined){
+			return function(){
+				alert("This page does not exist!");
+			}
+		}
+		return function(){
 		    page();
 	    }
     }
