@@ -227,6 +227,9 @@ Warrior.prototype = {
 		
 		var dmg = Math.round(physical_damage) + Math.round(elemental_damage);
 		this.take_damage(dmg, coll_hearts);
+		
+		console.log("Damage: " + dmg);
+		
 		return dmg;
 	},
 	
@@ -607,8 +610,8 @@ Team.prototype = {
 		as an index
 		*/
 		var prev = this.members_rem.indexOf(this.active) - 1;
-		if (prev <= this.members_rem.length){
-			prev = 0;
+		if (prev <= 0){
+			prev = this.members_rem.length - 1;
 		}
 		return this.members_rem[prev];
 	},
