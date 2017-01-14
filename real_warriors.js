@@ -22,4 +22,6 @@ var ram = ["Ram", [0.8334, 0.25, 1.13, 0], water, new Poison(2.1, 1), new Lead(1
 
 warriors = warriors.concat([abu, brutus, gunnar, osgood, blaine, toki, kendrix, le_roc, sakuma, zenghis, clovis, yada, ram]);
 
-var real_teams = [];
+var starter = new Team([new Warrior(abu, 5), new Warrior(zenghis, 5), new Warrior(toki, 5)], "Starter Team");
+var arena = new Team([new Warrior(abu, 5), new Warrior(gunnar, 5), new Warrior(sakuma, 5)], "Arena Favorites");
+var real_teams = [starter, arena];

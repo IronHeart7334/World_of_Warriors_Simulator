@@ -662,9 +662,9 @@ Team.prototype = {
 	
 	check_if_ko:function(){
 		// He's ded Jim!
-		var lead_ded = false;
+		var act_koed = false;
 		if (this.active.hp_rem <= 0){
-			lead_ded = true;
+			act_koed = true;
 			var index = this.members_rem.indexOf(this.active);
 		}
 		var new_members_rem = [];
@@ -691,12 +691,15 @@ Team.prototype = {
 		
 		clear_canvas();
 		active_buttons = [];
-		this.display_all_hp();
-		this.display_energy();
 		
-		if (this.won){
+		this.check_if_ko();
+		
+		if (this.won || this.enemy_team.won){
 			return;
 		}
+		
+		this.display_all_hp();
+		this.display_energy();
 		
 		this.display_vs();
 		this.enemy_team.display_all_hp();
