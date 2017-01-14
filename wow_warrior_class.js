@@ -499,7 +499,7 @@ Lead.prototype = {
 }
 
 function Team(members, name){
-	this.members_rem = members;
+	this.members = members;
 	this.name = name;
 	all_teams.push(this);
 }
@@ -507,13 +507,14 @@ function Team(members, name){
 Team.prototype = {
 	assign_enemy:function(enemy_team){
 		this.enemy_team = enemy_team;
-		for (var member of this.members_rem){
+		for (var member of this.members){
 			member.enemy_team = enemy_team;
 		}
 	},
 	
 	init_for_battle:function(){
-		for (var member of this.members_rem){
+		this.members_rem = [];
+		for (var member of this.members){
 			member.team = this;
 			member.calc_stats();
 			member.hp_rem = member.max_hp;
@@ -522,6 +523,7 @@ Team.prototype = {
 			member.poisoned = false;
 			member.regen = false;
 			member.last_dmg = 0;
+			this.members_rem.push(member);
 		}
 		this.leader = this.members_rem[0];
 		this.active = this.members_rem[0];
@@ -610,7 +612,7 @@ Team.prototype = {
 		as an index
 		*/
 		var prev = this.members_rem.indexOf(this.active) - 1;
-		if (prev <= 0){
+		if (prev == -1){
 			prev = this.members_rem.length - 1;
 		}
 		return this.members_rem[prev];
@@ -751,7 +753,7 @@ Team.prototype = {
 	
 	win:function(){
 		alert(this.name + " wins!");
-		this.won = true
+		this.won = true;
 		disp_menu();
 	}
 }
