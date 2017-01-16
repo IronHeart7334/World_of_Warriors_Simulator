@@ -82,8 +82,10 @@ AOE.prototype.attack = function(user){
 		}
 	}
 
-function Boost(mod, pip, variation){
+function Boost(variation){
 	this.element = variation;
+	this.mod = 1;
+	this.pip = 2;
 	switch(variation){
 		case fire:
 			this.name = "Fire Boost";

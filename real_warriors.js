@@ -20,7 +20,13 @@ var clovis = ["Clovis", [0.8, 0.3, 0.91, 1], water, new Healing(3.1, 2), new Lea
 var yada = ["Yada", [0.7, 0.25, 1.1, 2], water, new Ele_beat(2.1, 1, undefined), new Lead(10, "h")];
 var ram = ["Ram", [0.8334, 0.25, 1.13, 0], water, new Poison(2.1, 1), new Lead(15, "w")];
 
+var naro = ["Naro", [0.766, 0.25, 0.6, 1], fire, new Ele_beat(3.5, 3, undefined), new Lead(25, "p")];
+var aka = ["Aka", [1.0165, 0.4, 0.9, 0], earth, new Ele_beat(2.2, 2, "e"), new Lead(5, "p")];
+var crixus = ["Crixus", [0.8667, 0.4, 1.05, 2], air, new Boost(air), new Lead(-15, "e")];
+var alkan = ["Alkan", [0.9332, 0.5, 0.7, 1], water, new Ele_beat(3.9, 3, "w"), new Lead(15, "w")];
+
 warriors = warriors.concat([abu, brutus, gunnar, osgood, blaine, toki, kendrix, le_roc, sakuma, zenghis, clovis, yada, ram]);
+warriors = warriors.concat([naro, aka, crixus, alkan]);
 
 var starter = new Team([new Warrior(abu, 5), new Warrior(zenghis, 5), new Warrior(toki, 5)], "Starter Team");
 var arena = new Team([new Warrior(abu, 5), new Warrior(gunnar, 5), new Warrior(sakuma, 5)], "Arena Favorites");
