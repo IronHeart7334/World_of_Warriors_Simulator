@@ -7,7 +7,7 @@ The pip, which shows how strong the user's Special Move is compared to warriors 
 And sometimes, the variation: Which is usually based on the user's Element.
 */
 
-
+// get rid of these eventually
 var BENCH_HIT_PEN = 0.75;
 var POISON_PEN = 0.67;
 var STEALTH_PEN = 0.8;
@@ -251,7 +251,7 @@ Leech_blade.prototype.attack = function(user){
 	}
 
 function Berserk(mod, pip){
-	this.mod = mod * RECOIL_MOD;
+	this.mod = mod;
 	this.pip = pip;
 	this.name = "Berserk";
 }

@@ -83,7 +83,7 @@ var korgot_data = ["Korgot", [1.003, 0.2, 0.98, 2], earth, new AOE(1.8, 2, "e"),
 var vizuna_data = ["Vizuna", [0.763, 0.35, 0.96, 1], air, new Boost(1, 2, air), new Lead(-30, "e")];
 
 var skull_warrior_data = ["Skull Warrior", [1.283, 0.4, 0.83, 0], water, new Stealth_strike(1.6, 2), new Lead(-30, "w")];
-var skull_basher_data = ["Skull Basher", [1.123, 0.3, 0.93, 2], earth, new Berserk(2.2, 3), new Lead(-30, "e")];
+var skull_basher_data = ["Skull Basher", [1.123, 0.3, 0.93, 2], earth, new Berserk(2.64, 3), new Lead(-30, "e")];
 var gali_m_data = ["Gali Master", [1.133, 0.35, 1.13, 2], water, new Healing(1.56, 2), new Lead(30, "w")];
 var kivoda_data = ["Kivoda", [0.983, 0.45, 1.13, 2], water, new Regeneration(1.26, 1), new Lead(-30, "a")];
 var loss_data = ["L.o.S.S.", [0.933, 0.20, 1.45, 2], fire, new Poison_hive(1.05, 1), new Lead(-30, "f")];
