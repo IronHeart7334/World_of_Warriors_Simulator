@@ -407,3 +407,14 @@ Phantom_strike.prototype.attack = function(user){
 	console.log(target);
 	target.calc_damage_taken(user, [Math.round(pd), Math.round(ed)], false);
 }
+
+function Phantom_shield(){
+    this.pip = 2;
+    this.mod = 1;
+    this.name = "Phantom Shield";
+}
+Phantom_shield.prototype.attack = function(user){
+    for (var member of user.team.members_rem){
+        member.shield = 3;
+    }
+}

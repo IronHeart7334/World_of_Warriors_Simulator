@@ -11,7 +11,7 @@ function check_click(event){
 
 var active_buttons = [];
 
-//var canvas_data = document.getElementById("canvas");
+//var canvas_data = document.getElementById("canvas")[0];
 var canvas_width = 1000;
 
 
@@ -118,7 +118,12 @@ Warrior.prototype = {
 	},
 	
 	get_armor:function(){
-		return 1 - this.armor * 0.12;
+	    var reduction = 1 - this.armor * 0.12;
+		if (this.shield != false){
+		    reduction *= 0.45;
+		}
+		console.log(reduction);
+		return reduction;
 	},
 	
 	hp_perc:function(){
@@ -337,11 +342,13 @@ Warrior.prototype = {
 	
 	// update this once Phantom Shield and Armor Boost come out
 	check_durations:function(){
-	/*
-	Check to see how long each of your boosts has left
-	Then push whatever ones are left to a new array
-	Your boosts become the new array
-	*/
+	    /*
+	    Check to see how long each of your boosts has left
+	    Then push whatever ones are left to a new array
+	    Your boosts become the new array
+	    
+	    Next comes Phantom Shield
+	    */
 		var phys_boosts_rem = [];
 		for (var boost of this.phys_boosts){
 			if (boost[1] !== 0){
@@ -361,6 +368,14 @@ Warrior.prototype = {
 			}
 		}
 		this.ele_boosts = ele_boosts_rem;
+		
+		if (this.shield != false){
+		    if (this.shield == 0){
+		        this.shield = false;
+		    } else {
+		        this.shield -= 1;
+		    }
+		}
 	},
 	
 	calc_poison:function(){
@@ -432,6 +447,10 @@ Warrior.prototype = {
 		if (this.last_dmg != 0){
 		    canvas.fillStyle = "rgb(255, 0, 0)";
 		    canvas.fillText("-" + String(this.last_dmg), x, y + 75);
+		}
+		if (this.shield != false){
+		    canvas.fillStyle = "rgba(0, 0, 155, 0.5)";
+		    canvas.fillRect(x, y, 100, 50);
 		}
 	},
 	
@@ -522,6 +541,7 @@ Team.prototype = {
 			member.ele_boosts = [];
 			member.poisoned = false;
 			member.regen = false;
+			member.shield = false;
 			member.last_dmg = 0;
 			this.members_rem.push(member);
 		}
