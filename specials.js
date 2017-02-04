@@ -46,7 +46,7 @@ Ele_beat.prototype.attack = function(user){
 	}
 
 function AOE(mod, pip, variation){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
+	this.mod = mod * 0.41;
 	this.pip = pip;
 	switch(variation){
 		case "f":
