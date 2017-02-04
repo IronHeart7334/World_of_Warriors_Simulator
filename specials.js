@@ -20,6 +20,7 @@ var RECOIL_MOD = 1.2;
 function Ele_beat(mod, pip, variation){
 	this.mod = mod;
 	this.pip = pip;
+	this.gives_energy = true;
 	switch(variation){
 		case "f":
 			this.name = "Inferno";
@@ -42,12 +43,13 @@ Ele_beat.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
 		
-		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 	}
 
 function AOE(mod, pip, variation){
 	this.mod = mod * 0.41;
 	this.pip = pip;
+	this.gives_energy = true;
 	switch(variation){
 		case "f":
 			this.name = "Fire Storm";
@@ -73,12 +75,7 @@ AOE.prototype.attack = function(user){
 		var target_team = user.enemy_team;
 		
 		for (var member of target_team.members_rem){
-			if (target_team.active == member){
-				var coll_hearts = true;
-			} else {
-				var coll_hearts = false;
-			}
-			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		}
 	}
 
@@ -86,6 +83,7 @@ function Boost(variation){
 	this.element = variation;
 	this.mod = 1;
 	this.pip = 2;
+	this.gives_energy = false;
 	switch(variation){
 		case fire:
 			this.name = "Fire Boost";
@@ -127,6 +125,7 @@ Boost.prototype.attack = function(user){
 function Poison(mod, pip){
 	this.mod = mod * Math.pow(POISON_PEN, 2);
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Poison";
 }
 
@@ -139,6 +138,7 @@ Poison.prototype.attack = function(user){
 function Rolling_thunder(mod, pip){
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Rolling Thunder";
 }
 
@@ -166,13 +166,10 @@ Rolling_thunder.prototype.attack = function(user){
 			if (gained_energy){
 				target_team.energy -= 1;
 			}
-			var coll_hearts = true;
 			gained_energy = true;
-		} else {
-			var coll_hearts = false;
 		}
 			
-		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		target_team.check_if_ko();
 		hits -= 1;
 	}
@@ -181,13 +178,14 @@ Rolling_thunder.prototype.attack = function(user){
 function Stealth_strike(mod, pip){
 	this.mod = mod * STEALTH_PEN;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Stealth Strike";
 }
 
 Stealth_strike.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
-		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		
 		user.team.switchin(user.team.switchback);
 	}
@@ -196,6 +194,7 @@ Stealth_strike.prototype.attack = function(user){
 function Armor_break(mod, pip){
 	this.mod = mod * Math.pow(ARMOR_IGNORE_PEN, 2);
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Armor Break";
 }
 
@@ -208,7 +207,7 @@ Armor_break.prototype.attack = function(user){
 		
 		target.armor = 0;
 		
-		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		
 		target.armor = save;
 	}
@@ -216,6 +215,7 @@ Armor_break.prototype.attack = function(user){
 function Healing(mod, pip){
 	this.mod = mod * SELFHEAL_PEN;
 	this.pip = pip;
+	this.gives_energy = false;
 	this.name = "Healing"
 }
 
@@ -242,17 +242,19 @@ Healing.prototype.attack = function(user){
 function Leech_blade(mod, pip){
 	this.mod = mod * SELFHEAL_PEN;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Leech Blade";
 }
 
 Leech_blade.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
-		user.heal(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), 0], true) * 0.3);
+		user.heal(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), 0]) * 0.3);
 	}
 
 function Berserk(mod, pip){
 	this.mod = mod;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Berserk";
 }
 
@@ -260,7 +262,7 @@ Berserk.prototype.attack = function(user){
 		var physical_damage = user.get_phys() * this.mod;
 		var elemental_damage = user.get_ele();
 		
-		user.take_damage(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true) * 0.2, false);
+		user.take_damage(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]) * 0.2);
 		if (user.hp_rem < 1){
 			user.hp_rem = 1;
 		}
@@ -269,6 +271,7 @@ Berserk.prototype.attack = function(user){
 function Poison_hive(mod, pip){
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(POISON_PEN, 2);
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Poison Hive";
 }
 
@@ -283,6 +286,7 @@ Poison_hive.prototype.attack = function(user){
 function Regeneration(mod, pip){
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(SELFHEAL_PEN, 3);
 	this.pip = pip;
+	this.gives_energy = false;
 	this.name = "Regeneration";
 }
 
@@ -297,6 +301,7 @@ Regeneration.prototype.attack = function(user){
 function Vengeance(mod, pip){
 	this.mod = mod;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Vengeance";
 	
 }
@@ -305,13 +310,14 @@ Vengeance.prototype.attack = function(user){
 	var mod = this.mod * (1.5 - user.hp_perc());
 	var physical_damage = user.get_phys() * mod;
 	var elemental_damage = user.get_ele() * mod;
-	user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+	user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 }
 
 //untested
 function Twister(mod, pip){
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Twister";
 }
 
@@ -324,18 +330,14 @@ Twister.prototype.attack = function(user){
 		var target_team = user.enemy_team;
 		
 		for (var member of target_team.members_rem){
-			if (target_team.active == member){
-				var coll_hearts = true;
-			} else {
-				var coll_hearts = false;
-			}
-			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		}
 	}
 
 function Stealth_assault(mod, pip){
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * STEALTH_PEN;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Stealth Assault";
 }
 
@@ -344,12 +346,7 @@ Stealth_assault.prototype.attack = function(user){
 	var elemental_damage = user.get_ele() * this.mod;
 	var target_team = user.enemy_team;
 	for (var member of target_team.members_rem){
-		if (target_team.active == member){
-			var coll_hearts = true;
-		} else {
-			var coll_hearts = false;
-		}
-		member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
+		member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 	}
 		
 	user.team.switchin(user.team.switchback);
@@ -358,6 +355,7 @@ Stealth_assault.prototype.attack = function(user){
 function Team_strike(mod, pip){
 	this.mod = mod;
 	this.pip = pip;
+	this.gives_energy = true;
 	this.name = "Team Strike";
 }
 
@@ -367,7 +365,7 @@ Team_strike.prototype.attack = function(user){
 	var physical_damage = user.get_phys() * mod;
 	var elemental_damage = user.get_ele() * mod;
 	
-	var dmg = user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true); 
+	var dmg = user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]); 
 	for (var member of user.team.members_rem){
 		member.hp_rem -= dmg / 6;
 		member.hp_rem = Math.round(member.hp_rem);
@@ -380,6 +378,7 @@ Team_strike.prototype.attack = function(user){
 function Phantom_strike(mod, pip){
 	this.pip = pip;
 	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
+	this.gives_energy = true;
 	this.name = "Phantom Strike"; 
 }
 
@@ -391,13 +390,13 @@ Phantom_strike.prototype.attack = function(user){
 	//first hit
 	var pd = physical_damage * 1.33;
 	var ed = elemental_damage * 1.33;
-	target_team.active.calc_damage_taken(user, [Math.round(pd), Math.round(ed)], true);
+	target_team.active.calc_damage_taken(user, [Math.round(pd), Math.round(ed)]);
 	if (target_team.members_rem.length < 2){return;}
 	
 	//second hit
 	var target = target_team.next();
 	console.log(target);
-	target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], false);
+	target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 	if (target_team.members_rem.length < 3){return;}
 	
 	//third hit
@@ -405,12 +404,13 @@ Phantom_strike.prototype.attack = function(user){
 	ed = elemental_damage * 0.67;
 	target = target_team.prev();
 	console.log(target);
-	target.calc_damage_taken(user, [Math.round(pd), Math.round(ed)], false);
+	target.calc_damage_taken(user, [Math.round(pd), Math.round(ed)]);
 }
 
 function Phantom_shield(){
     this.pip = 2;
     this.mod = 1;
+    this.gives_energy = false;
     this.name = "Phantom Shield";
 }
 Phantom_shield.prototype.attack = function(user){

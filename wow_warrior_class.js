@@ -218,7 +218,7 @@ Warrior.prototype = {
 		canvas.fillText("Armor: " + this.armor.toString(), 300, 290);
 	},
 	
-	calc_damage_taken:function(attacker, damage, coll_hearts){
+	calc_damage_taken:function(attacker, damage){
 		var physical_damage = damage[0] * this.get_armor();
 		var elemental_damage = damage[1];
 		
@@ -231,7 +231,7 @@ Warrior.prototype = {
 		}
 		
 		var dmg = Math.round(physical_damage) + Math.round(elemental_damage);
-		this.take_damage(dmg, coll_hearts);
+		this.take_damage(dmg);
 		
 		console.log("Damage: " + dmg);
 		
@@ -253,26 +253,20 @@ Warrior.prototype = {
 		var elemental_damage = this.get_ele();
 		
 		var user = this;
-		
-		this.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], true);
+		this.enemy_team.gain_energy();
+		this.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		this.enemy_team.turn_part1();
 	},
 	
-	take_damage:function(damage, heart_coll){
+	take_damage:function(damage){
 	/*
 	Lose HP equal to the damage you took
 	If you survive, you can heal some of it off
 	*/
 		var dmg = damage;
 		this.hp_rem -= dmg;
-		if (!this.check_if_ko()){
-			if (heart_coll){
-				this.last_dmg += dmg;
-			}
-		}
-		if (heart_coll){
-			this.team.gain_energy();
-		}
+		this.last_dmg += dmg;
+		
 		this.hp_rem = Math.round(this.hp_rem);
 	},
 	
@@ -462,6 +456,11 @@ Warrior.prototype = {
 		this.team.switchin(this);
 		this.special.attack(this);
 		this.team.energy -= 2;
+		
+		if (this.special.gives_energy){
+			this.team.enemy_team.gain_energy();
+		}
+		
 		this.team.enemy_team.turn_part1();
 	}
 }
@@ -611,7 +610,7 @@ Team.prototype = {
 	
 	gain_energy:function(){
 		if (this.energy < 0){
-			this.energy = 0;
+			this.energy = 1;
 		}
 		if (this.energy < 4){
 			this.energy += 1;
