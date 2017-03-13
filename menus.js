@@ -9,6 +9,9 @@ function clear_canvas(){
 }
 
 function disp_menu(){
+	if (t){
+		ex_menu();
+	}
 	active_buttons = [];
 	var colors = [
 		"rgb(0, 255, 0)",
@@ -141,6 +144,9 @@ function load_team_select(){
         return;
         }
     update_team_select();
+	if(t){
+		ex_team_sel();
+	}
 }
 
 function update_team_select(){
@@ -189,4 +195,7 @@ function begin_fight(){
 	b = new Battle(pass_teams[0], pass_teams[1]);
 	b.init();
 	b.start();
+	if (t) {
+		ex_gui();
+	}
 }
