@@ -9,9 +9,6 @@ function clear_canvas(){
 }
 
 function disp_menu(){
-	if (t){
-		ex_menu();
-	}
 	active_buttons = [];
 	var colors = [
 		"rgb(0, 255, 0)",
@@ -41,14 +38,16 @@ function disp_menu(){
 		    page();
 	    }
     }
+    
 	for (var c = 0; c < 4; c++){
 		canvas.fillStyle = colors[c];
 		var x = base_canvas.width / 4 * c;
 			        
 		active_buttons.push(new Button(mes[c], colors[c], x, 0, base_canvas.width / 4, base_canvas.height, [set_page(pages[c])]));
-		for (var button of active_buttons){
-			button.draw();
-		}
+	}
+	help_button(ex_menu);
+	for (var button of active_buttons){
+		button.draw();
 	}
 }
 
@@ -142,11 +141,8 @@ function load_team_select(){
         alert("You must have at least 2 teams constructed to do this!");
         disp_menu();
         return;
-        }
+    }
     update_team_select();
-	if(t){
-		ex_team_sel();
-	}
 }
 
 function update_team_select(){
@@ -184,7 +180,9 @@ function update_team_select(){
 	canvas.font = "40px Ariel";
 	var msg = pass_teams[0].name + " VS " + pass_teams[1].name + ": Fight!";
 	canvas.fillText(msg, 70, 470);
+	
 	active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 950, 450, 50, 50, [begin_fight]));
+	help_button(ex_team_sel);
 	
 	for (var button of active_buttons){
 		button.draw();
@@ -195,7 +193,4 @@ function begin_fight(){
 	b = new Battle(pass_teams[0], pass_teams[1]);
 	b.init();
 	b.start();
-	if (t) {
-		ex_gui();
-	}
 }

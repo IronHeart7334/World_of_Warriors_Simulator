@@ -1,13 +1,5 @@
-// BUG: Doesn't draw before executing
-
-
-function ask(){
-	if (confirm("Do you wish for me to walk you through the battle process?")){
-		alert("Great! Let's get started, shall we?");
-		return true;
-	} else {
-		alert("Allright, I know a good player when I see one. ;)");
-	}
+function help_button(help_with){
+    active_buttons.push(new Button("?", "rgb(100, 100, 100)", base_canvas.width * 0.95, base_canvas.height * 0.95, base_canvas.width * 0.95, base_canvas.height 0.95, [help_with]));
 }
 
 function ex_menu() {

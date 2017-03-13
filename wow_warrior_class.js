@@ -736,6 +736,8 @@ Team.prototype = {
 			return;
 		}
 		
+		help_button(ex_gui);
+		
 		for (var button of active_buttons){
 			button.draw();
 		}
@@ -765,6 +767,9 @@ Team.prototype = {
 		if (this.energy >= 2){
 			this.display_specials();
 		}
+		
+		help_button(ex_gui);
+		
 		for (var button of active_buttons){
 			button.draw();
 		}
