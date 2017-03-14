@@ -127,4 +127,4 @@ Bomb.prototype.attack = function(user){
 var matt = ["Matt", [1.1557, 0.3, 1.13, 1], earth, new Arcphantom_strike(1.4, 2), new Lead(-30, "f")];
 var nick = ["Nick", [1.2, 0.2, 0.98, 1], earth, new Combo_rolling_thunder(1.6, 3), new Lead(10, "h")];
 var paul = ["Paul", [1, 0.3, 1.3, 2], water, new Bomb(1.75, 3), new Lead(-30, "f")];
-warriors = warriors.concat([matt, nick, paul]);
+//warriors = warriors.concat([matt, nick, paul]);

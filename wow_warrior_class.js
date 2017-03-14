@@ -52,7 +52,7 @@ Button.prototype = {
 		}
 		canvas.font = "10px Arial";
 		canvas.fillStyle = "rgb(0, 0, 0)";
-		canvas.fillText(this.text, this.x, this.y + this.h / 2);
+		canvas.fillText(this.text, this.x + this.w / 2 - this.text.length * 10, this.y + this.h / 2);
 	},
 	
 	check_if_click:function(x, y){
@@ -320,13 +320,17 @@ Warrior.prototype = {
 		this.last_dmg = 0;
 	},
 	
+	reset_heal:function(){
+	    this.last_healed = 0;
+	},
+	
 	heal:function(hp){
 	/*
 	Restore HP
 	Prevents from healing past full
 	Also rounds for you
 	*/
-		console.log("Healed " + hp);
+		this.last_healed += Math.round(hp);
 		this.hp_rem += hp;
 		if (this.hp_rem > this.max_hp){
 			this.hp_rem = this.max_hp;
@@ -441,6 +445,9 @@ Warrior.prototype = {
 		if (this.last_dmg != 0){
 		    canvas.fillStyle = "rgb(255, 0, 0)";
 		    canvas.fillText("-" + String(this.last_dmg), x, y + 75);
+		} else if (this.last_healed != 0){
+		    canvas.fillStyle = "rgb(0, 255, 0)";
+		    canvas.fillText("+" + String(this.last_healed), x, y + 75);
 		}
 		if (this.shield != false){
 		    canvas.fillStyle = "rgba(0, 0, 155, 0.5)";
@@ -542,6 +549,7 @@ Team.prototype = {
 			member.regen = false;
 			member.shield = false;
 			member.last_dmg = 0;
+			member.last_healed = 0;
 			this.members_rem.push(member);
 		}
 		this.leader = this.members_rem[0];
@@ -712,6 +720,9 @@ Team.prototype = {
 		
 		clear_canvas();
 		active_buttons = [];
+		for (var member of this.members_rem){
+			member.reset_heal();
+		}
 		
 		this.check_if_ko();
 		

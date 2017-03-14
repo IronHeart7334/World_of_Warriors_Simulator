@@ -1,5 +1,5 @@
 function help_button(help_with){
-    active_buttons.push(new Button("?", "rgb(100, 100, 100)", base_canvas.width * 0.95, base_canvas.height * 0.95, base_canvas.width * 0.95, base_canvas.height 0.95, [help_with]));
+    active_buttons.push(new Button("?", "rgb(100, 100, 100)", base_canvas.width * 0.95, base_canvas.height * 0.95, base_canvas.width * 0.05, base_canvas.height * 0.05, [help_with]));
 }
 
 function ex_menu() {
