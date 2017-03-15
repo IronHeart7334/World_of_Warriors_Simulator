@@ -11,7 +11,7 @@ function check_click(event){
 
 var active_buttons = [];
 
-//var canvas_data = document.getElementById("canvas")[0];
+//var canvas_data = document.getElementById("canvas");
 var canvas_width = 1000;
 
 
@@ -197,6 +197,12 @@ Warrior.prototype = {
 		canvas.fillText(this.ele, x + 75, y + h * 0.5 + 35);
 		canvas.fillText(this.max_hp, x + 75, y + h * 0.625 + 35);
 		
+		//Armor: replace with shield sprite later
+		canvas.fillStyle = "rgb(100, 100, 100)";
+		for(var i = 0; i <= this.armor; i++){
+			canvas.fillRect(x + 75 + (w * 0.1 * i), y + h * 0.75, w * 0.05, h * 0.05);
+		}
+
 		// Name
 		canvas.fillText(this.name, x + 110, y + 50);
 		
