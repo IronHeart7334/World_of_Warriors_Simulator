@@ -1,3 +1,6 @@
+// chuck this somewhere
+var all_teams = [];
+
 // move this to another doc later
 // buggy, scrolling messes it up
 function check_click(event){
@@ -74,10 +77,13 @@ function Warrior(data, level) {
 	this.ele_rat = data[1][1];
 	this.hp_mult = data[1][2];
 	this.armor = data[1][3];
+	this.pip = data[1][4];
 	this.element = data[2];
 	this.special = data[3];
 	this.lead_skill = data[4];
 	this.level = level;
+	
+	this.special.set_user(this);
 }
 
 Warrior.prototype = {

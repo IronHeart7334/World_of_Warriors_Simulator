@@ -15,6 +15,67 @@ var ARMOR_IGNORE_PEN = 0.88;
 var SELFHEAL_PEN = 0.8;
 var RECOIL_MOD = 1.2;
 
+class Special_move {
+    constructor(name, base_damage, mult_ele){
+        this.name = name;
+        this.base = base_damage;
+        this.multiplies_ele = mult_ele;
+    }
+    set_user(user){
+        this.user = user;
+        super.calc_mod(user, user.pip);
+    }
+    calc_mod(user, pip){
+        var mod = 1.0;
+        var dmg = this.base * Math.pow(1.2, pip - 1);
+        var multiplied = user.base_phys;
+        if(this.multiplies_ele){
+            multiplied += user.base_ele;
+        }
+        
+        if(this.multiplies_ele){
+            mod = dmg / multiplied;
+        } else {
+            mod = (dmg - user.base_ele) / multiplied;
+        }
+        return mod;
+    }
+}
+class Beat extends Special_move {
+    constructor(check_ele){
+        super("Thunder Strike", 50, false);
+        this.should_check_ele = check_ele;
+    }
+    set_user(user){
+        this.user = user;
+        super.calc_mod(user, user.pip);
+        
+        if(this.should_check_ele){
+            switch(user.element.name){
+            case "Fire":
+			    this.name = "Inferno";
+			    break;
+		    case "Earth":
+			    this.name = "Claw Crush";
+			    break;
+		    case "Air":
+			    this.name = "Tornado Strike";
+			    break;
+		    case "Water":
+			    this.name = "Frozen Crunch";
+			    break;
+		    default:
+			    this.name = "Thunder Strike";    
+            }
+        }
+    }
+    attack(){
+        var physical_damage = this.user.get_phys() * this.mod;
+		var elemental_damage = this.user.get_ele();
+		
+		this.user.enemy_team.active.calc_damage_taken(this.user, [Math.round(physical_damage), Math.round(elemental_damage)]);
+    }
+}
 
 // remove variation eventually
 function Ele_beat(mod, pip, variation){

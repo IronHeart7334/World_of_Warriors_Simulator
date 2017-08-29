@@ -101,10 +101,6 @@ var nilkuu_data = ["Nilkuu", [1.13, 0.35, 0.86, 1], earth, new Twister(1.5, 1), 
 
 var kindra_data = ["Kindra", [1.24, 0.4, 0.92, 1], fire, new Ele_beat(2.7, 4, "f"), new Lead(30, "f")];
 
-
-
-var all_teams = [];
-
 var classics = new Team([new Warrior(black_knight_data, 34), new Warrior(crusader_data, 34), new Warrior(black_falcon_data, 34)], "Classic Knights");
 var earth_boost_team = new Team([new Warrior(bonsai_data, 34), new Warrior(dwarf_data, 34), new Warrior(kahuka_data, 34)], "BONSAI!");
 var MNTS = new Team([new Warrior(levahk_data, 34), new Warrior(dragon_knight_data, 34), new Warrior(gi_dan_data, 34)], "MNTS");

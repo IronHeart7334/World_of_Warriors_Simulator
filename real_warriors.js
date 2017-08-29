@@ -1,5 +1,5 @@
 var warriors = [];
-
+/*
 var abu = ["Abu", [0.9334, 0.4, 1.05, 1], fire, new Ele_beat(1.7, 1, "f"), new Lead(15, "f")];
 // mod?
 var brutus = ["Brutus", [0.9334, 0.1, 0.8, 2], fire, new Leech_blade(2.05, 2), new Lead(-15, "f")];
@@ -36,3 +36,9 @@ warriors = warriors.concat([agoolik, sama]);
 var starter = new Team([new Warrior(abu, 5), new Warrior(zenghis, 5), new Warrior(toki, 5)], "Starter Team");
 var arena = new Team([new Warrior(abu, 5), new Warrior(gunnar, 5), new Warrior(sakuma, 5)], "Arena Favorites");
 var real_teams = [starter, arena];
+*/
+var abu = ["Abu", [0.9334, 0.4, 1.05, 1, 1], fire, new Beat(true), new Lead(15, "f")];
+warriors.push(abu);
+var abu1 = new Team([new Warrior(abu, 5), new Warrior(abu, 5), new Warrior(abu, 5)], "ABU");
+var abu2 = new Team([new Warrior(abu, 5), new Warrior(abu, 5), new Warrior(abu, 5)], "ABU");
+var real_teams = [abu1, abu2];
