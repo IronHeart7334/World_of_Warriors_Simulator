@@ -1,6 +1,10 @@
 // chuck this somewhere
 var all_teams = [];
 
+// seperate into more files
+
+
+
 // move this to another doc later
 // buggy, scrolling messes it up
 function check_click(event){
@@ -67,27 +71,26 @@ Button.prototype = {
 	}
 }
 
-function Warrior(data, level) {
-	/*
-	The warrior Class takes data from an array:
-	new Warrior([name, [off, ele, hp, arm], element, special, leader_skill], level);
-	*/
-	this.name = data[0]
-	this.off_mult = data[1][0];
-	this.ele_rat = data[1][1];
-	this.hp_mult = data[1][2];
-	this.armor = data[1][3];
-	this.pip = data[1][4];
-	this.element = data[2];
-	this.special = data[3];
-	this.lead_skill = data[4];
-	this.level = level;
-	
-	this.special.set_user(this);
-}
-
-Warrior.prototype = {
-	calc_stats:function(){
+class Warrior{
+    constructor(data, level){
+	    /*
+	    The warrior Class takes data from an array:
+	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill], level);
+	    */
+	    this.name = data[0]
+	    this.off_mult = data[1][0];
+	    this.ele_rat = data[1][1];
+	    this.hp_mult = data[1][2];
+	    this.armor = data[1][3];
+	    this.pip = data[1][4];
+	    this.element = data[2];
+	    this.special = data[3];
+	    this.lead_skill = data[4];
+	    this.level = level;
+	    
+	    this.special.set_user(this);
+    }
+	calc_stats(){
 		/*
 		Calculate a warrior's stats
 		Increases by 7% per level
@@ -105,53 +108,53 @@ Warrior.prototype = {
 		this.phys = Math.round(this.phys);
 		this.ele = Math.round(this.ele);
 		this.max_hp = Math.round(this.max_hp);
-	},
+	}
 	
-	get_phys:function(){
+	get_phys(){
 		var mult = 1;
 		for (var boosts of this.phys_boosts){
 			mult += boosts[0];
 		}
 		return Math.round(this.phys * mult);
-	},
+	}
 	
-	get_ele:function(){
+	get_ele(){
 		var mult = 1;
 		for (var boosts of this.ele_boosts){
 			mult += boosts[0];
 		}
 		return Math.round(this.ele * mult);
-	},
+	}
 	
-	get_armor:function(){
+	get_armor(){
 	    var reduction = 1 - this.armor * 0.12;
 		if (this.shield != false){
 		    reduction *= 0.45;
 		}
 		console.log(reduction);
 		return reduction;
-	},
+	}
 	
-	hp_perc:function(){
+	hp_perc(){
 	/*
 	Returns the percentage of your HP remaining
 	AS A VALUE BETWEEN 0 AND 1
 	NOT 0 AND 100
 	*/
 		return this.hp_rem / this.max_hp;
-	},
+	}
 	
-	perc_hp:function(perc){
+	perc_hp(perc){
 	/*
 	Returns how much of your max HP will equal perc
 		Example:
 			With 200 HP, this.perc_hp(0.5) will return 100
 	*/
 		return this.max_hp * (perc);
-	},
+	}
 	
 	// make scale better
-	display_warrior_card:function(x, y, size){
+	display_warrior_card(x, y, size){
 		/*
 		Draws a card displaying information about a warrior.
 		*/
@@ -215,9 +218,9 @@ Warrior.prototype = {
 		// Special
 		var spec_shift = this.special.name.length * font_size + fg_shift;
         canvas.fillText(this.special.name, x + w - spec_shift, y + h * 0.15);
-	},
+	}
 	
-	display_stats:function(){
+	display_stats(){
 		canvas.fillStyle = "rgb(255, 255, 255)";
 		canvas.fillRect(300, 100, 400, 200);
 		
@@ -228,9 +231,9 @@ Warrior.prototype = {
 		canvas.fillText("Elemental: " + this.get_ele().toString(), 300, 210);
 		canvas.fillText("Max HP: " + this.max_hp.toString(), 300, 250);
 		canvas.fillText("Armor: " + this.armor.toString(), 300, 290);
-	},
+	}
 	
-	calc_damage_taken:function(attacker, damage){
+	calc_damage_taken(attacker, damage){
 		var physical_damage = damage[0] * this.get_armor();
 		var elemental_damage = damage[1];
 		
@@ -242,22 +245,20 @@ Warrior.prototype = {
 			elemental_damage *= 0.3;
 		}
 		
-		var dmg = Math.round(physical_damage) + Math.round(elemental_damage);
+		var dmg = Math.round(physical_damage + elemental_damage);
 		this.take_damage(dmg);
 		
-		console.log("Damage: " + dmg);
-		
 		return dmg;
-	},
+	}
 	
-	check_if_ko:function(){
+	check_if_ko(){
 	/*
 	An I dead yet?
 	*/
 		return this.hp_rem <= 0;
-	},
+	}
 	
-	use_normal_move:function(){
+	use_normal_move(){
 	/*
 	Strike at your enemy team's active warrior with your sword!
 	*/
@@ -268,9 +269,9 @@ Warrior.prototype = {
 		this.enemy_team.gain_energy();
 		this.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
 		this.enemy_team.turn_part1();
-	},
+	}
 	
-	take_damage:function(damage){
+	take_damage(damage){
 	/*
 	Lose HP equal to the damage you took
 	If you survive, you can heal some of it off
@@ -280,9 +281,9 @@ Warrior.prototype = {
 		this.last_dmg += dmg;
 		
 		this.hp_rem = Math.round(this.hp_rem);
-	},
+	}
 	
-	heart_collection:function(){
+	heart_collection(){
 	/*
 	Adds a button that, when clicked, heals you based on how much damage you took
 	*/
@@ -292,9 +293,9 @@ Warrior.prototype = {
 		var x = canvas_width * 0.5 - button_size;
 		var y = canvas_width * 0.1;
 		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", x, y, button_size, button_size, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
-	},
+	}
 	
-	bomb:function(){
+	bomb(){
 	/*
 	Or maybe you'd like to take damage instead?
 	Useful for vengeance/Twister warriors
@@ -313,30 +314,30 @@ Warrior.prototype = {
 			w.hp_rem = Math.round(w.hp_rem);
 		}
 		active_buttons.push(new Button("", "rgb(0, 0, 0)", x, y, button_size, button_size, [f, t.turn_part2.bind(t)]));
-	},
+	}
 
 	// update this once Resilience out
-	nat_regen:function(){
+	nat_regen(){
 	/*
 	*/
 		var x = this;
 		this.heal(x.last_dmg * 0.4);
-	},
+	}
 	
-	reset_dmg:function(){
+	reset_dmg(){
 	/*
 	Reset your most recent damage to 0
 	DOES NOT HEAL YOU
 	Used for heart collection
 	*/
 		this.last_dmg = 0;
-	},
+	}
 	
-	reset_heal:function(){
+	reset_heal(){
 	    this.last_healed = 0;
-	},
+	}
 	
-	heal:function(hp){
+	heal(hp){
 	/*
 	Restore HP
 	Prevents from healing past full
@@ -348,10 +349,10 @@ Warrior.prototype = {
 			this.hp_rem = this.max_hp;
 		}
 		this.hp_rem = Math.round(this.hp_rem);
-	},
+	}
 	
 	// update this once Phantom Shield and Armor Boost come out
-	check_durations:function(){
+	check_durations(){
 	    /*
 	    Check to see how long each of your boosts has left
 	    Then push whatever ones are left to a new array
@@ -386,9 +387,9 @@ Warrior.prototype = {
 		        this.shield -= 1;
 		    }
 		}
-	},
+	}
 	
-	calc_poison:function(){
+	calc_poison(){
 	/*
 	Check to see if you are poisoned
 	Then take damage
@@ -402,9 +403,9 @@ Warrior.prototype = {
 		this.hp_rem -= this.poisoned[0];
 		this.hp_rem = Math.round(this.hp_rem);
 		this.poisoned[1] -= 1;
-	},
+	}
 	
-	calc_regen:function(){
+	calc_regen(){
 		/*
 		Check if the Regeneration Special Move has been used on your team
 		Then heal accordingly
@@ -416,9 +417,9 @@ Warrior.prototype = {
 		}
 		this.heal(this.regen[0]);
 		this.regen[1] -= 1;
-	},
+	}
 	
-	display_health:function(x, y){
+	display_health(x, y){
 		/*
 		Display a Warrior's icon, showing:
 			If their boost is up
@@ -465,9 +466,9 @@ Warrior.prototype = {
 		    canvas.fillStyle = "rgba(0, 0, 155, 0.5)";
 		    canvas.fillRect(x, y, 100, 50);
 		}
-	},
+	}
 	
-	use_special:function(){
+	use_special(){
 		/*
 		Use your powerful Special Move!
 		*/
@@ -479,7 +480,6 @@ Warrior.prototype = {
 		if (this.special.gives_energy){
 			this.team.enemy_team.gain_energy();
 		}
-		
 		this.team.enemy_team.turn_part1();
 	}
 }

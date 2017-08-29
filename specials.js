@@ -7,6 +7,8 @@ The pip, which shows how strong the user's Special Move is compared to warriors 
 And sometimes, the variation: Which is usually based on the user's Element.
 */
 
+// currently in the process of redoing
+
 // get rid of these eventually
 var BENCH_HIT_PEN = 0.75;
 var POISON_PEN = 0.67;
@@ -20,10 +22,12 @@ class Special_move {
         this.name = name;
         this.base = base_damage;
         this.multiplies_ele = mult_ele;
+        this.gives_energy = true;
     }
     set_user(user){
         this.user = user;
-        super.calc_mod(user, user.pip);
+        user.calc_stats();
+        this.calc_mod(user, user.pip);
     }
     calc_mod(user, pip){
         var mod = 1.0;
@@ -32,23 +36,21 @@ class Special_move {
         if(this.multiplies_ele){
             multiplied += user.base_ele;
         }
-        
         if(this.multiplies_ele){
             mod = dmg / multiplied;
         } else {
             mod = (dmg - user.base_ele) / multiplied;
         }
-        return mod;
+        this.mod = mod;
     }
 }
 class Beat extends Special_move {
     constructor(check_ele){
-        super("Thunder Strike", 50, false);
+        super("Thunder Strike", 40, false);
         this.should_check_ele = check_ele;
     }
     set_user(user){
-        this.user = user;
-        super.calc_mod(user, user.pip);
+        super.set_user(user);
         
         if(this.should_check_ele){
             switch(user.element.name){
@@ -72,100 +74,54 @@ class Beat extends Special_move {
     attack(){
         var physical_damage = this.user.get_phys() * this.mod;
 		var elemental_damage = this.user.get_ele();
-		
-		this.user.enemy_team.active.calc_damage_taken(this.user, [Math.round(physical_damage), Math.round(elemental_damage)]);
+		this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
     }
 }
-
-// remove variation eventually
-function Ele_beat(mod, pip, variation){
-	this.mod = mod;
-	this.pip = pip;
-	this.gives_energy = true;
-	switch(variation){
-		case "f":
-			this.name = "Inferno";
-			break;
-		case "e":
-			this.name = "Claw Crush";
-			break;
-		case "a":
-			this.name = "Tornado Strike";
-			break;
-		case "w":
-			this.name = "Frozen Crunch";
-			break;
-		default:
-			this.name = "Thunder Strike";
-	}
-}
-
-Ele_beat.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		var elemental_damage = user.get_ele();
-		
-		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-	}
-
-function AOE(mod, pip, variation){
-	this.mod = mod * 0.41;
-	this.pip = pip;
-	this.gives_energy = true;
-	switch(variation){
-		case "f":
+class AOE extends Special_move{
+    constructor(){
+        super("null", 20, true);
+    }
+    set_user(user){
+        super.set_user(user);
+        switch(user.element.name){
+        case "Fire":
 			this.name = "Fire Storm";
 			break;
-		case "e":
+		case "Earth":
 			this.name = "Boulder Bash";
 			break;
-		case "a":
+		case "Air":
 			this.name = "Tempest";
 			break;
-		case "w":
+		case "Water":
 			this.name = "Ice Storm";
 			break;
 		default:
-			this.name = "AOE no name set";
-	} 
-}
-
-AOE.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		var elemental_damage = user.get_ele() * this.mod;
+			this.name = "null";    
+        }    
+    }
+    attack(){
+        var physical_damage = this.user.get_phys() * this.mod;
+		var elemental_damage = this.user.get_ele() * this.mod;
 		
-		var target_team = user.enemy_team;
-		
-		for (var member of target_team.members_rem){
-			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
+		for (var member of this.user.enemy_team.members_rem){
+			member.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
 		}
-	}
-
-function Boost(variation){
-	this.element = variation;
-	this.mod = 1;
-	this.pip = 2;
-	this.gives_energy = false;
-	switch(variation){
-		case fire:
-			this.name = "Fire Boost";
-			break;
-		case earth:
-			this.name = "Earth Boost";
-			break;
-		case air:
-			this.name = "Air Boost";
-			break;
-		case water:
-			this.name = "Water Boost";
-			break;
-		default:
-			this.name = "Nothing boost";
-	}
+    }
 }
-
-Boost.prototype.attack = function(user){
-		for (var member of user.team.members_rem){
-			if (member.element !== this.element){
+class Boost extends Special_move{
+    constructor(){
+        super("null", 0, false);
+        this.gives_energy = false;
+    }
+    set_user(user){
+        this.user = user;
+        this.mod = 1;
+        this.name = user.element.name + " Boost";
+    }
+    attack(){
+		for (var member of this.user.team.members_rem){
+			if (member.element !== this.user.element){
 				continue;
 			}
 			member.boost_up = true;
@@ -180,8 +136,14 @@ Boost.prototype.attack = function(user){
 			if (add_boost){
 				member.ele_boosts.push([1.35, 3]);
 			}
-		}
-	}
+		}    
+    }
+}
+
+
+
+
+
 
 function Poison(mod, pip){
 	this.mod = mod * Math.pow(POISON_PEN, 2);
