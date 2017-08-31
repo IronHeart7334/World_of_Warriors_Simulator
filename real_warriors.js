@@ -5,13 +5,8 @@ var zazan = ["Zazan", [0.9, 0.25, 0.96, 1], fire, new Phantom_shield(), new Lead
 var gunnar = ["Gunnar", [1.0665, 0.1, 0.78, 2], earth, new Berserk(2.05, 3), new Lead(15, "e")];
 var blaine = ["Blaine", [0.9167, 0.25, 0.75, 2], earth, new Regeneration(2.6, 2), new Lead(15, "e")];
 var kendrix = ["Kendrix", [0.9334, 0.1, 1.1, 1], air, new Berserk(1.68, 2), new Lead(-15, "3")];
-var le_roc = ["Le Roc", [1.05, 0.25, 0.7, 2], air, new Ele_beat(2.15, 3, undefined), new Lead(15, "a")];
 var sakuma = ["Sakuma", [1.1665, 0.15, 0.75, 2], air, new Phantom_strike(1.4, 2), new Lead(5, "p")];
 var clovis = ["Clovis", [0.8, 0.3, 0.91, 1], water, new Healing(3.1, 2), new Lead(-15, "w")];
-var yada = ["Yada", [0.7, 0.25, 1.1, 2], water, new Ele_beat(2.1, 1, undefined), new Lead(10, "h")];
-var ram = ["Ram", [0.8334, 0.25, 1.13, 0], water, new Poison(2.1, 1), new Lead(15, "w")];
-
-var naro = ["Naro", [0.766, 0.25, 0.6, 1], fire, new Ele_beat(3.5, 3, undefined), new Lead(25, "p")];
 
 var breth = ["Breth", [1.1834, 0.25, 0.85, 1], water, new Phantom_shield(), new Lead(-30, "a")];
 
@@ -29,6 +24,24 @@ var real_teams = [starter, arena];
 */
 
 // eventually autoconcat warriors to array
+class Naro extends Warrior{
+    constructor(level){
+        super(["Naro", [0.766, 0.25, 0.6, 1, 3], fire, new Beat(false), new Lead(25, "p")], level);
+    }
+}
+class Lance extends Warrior{
+
+}
+class Le_roc extends Warrior{
+    constructor(level){
+        super(["Le Roc", [1.05, 0.25, 0.7, 2, 3], air, new Beat(false), new Lead(15, "a")], level);
+    }
+}
+class Yada extends Warrior{
+    constructor(level){
+        super(["Yada", [0.7, 0.25, 1.1, 2, 1], water, new Beat(false), new Lead(10, "h")], level);
+    }
+}
 class Abu extends Warrior{
     constructor(level){
         super(["Abu", [0.9334, 0.4, 1.05, 1, 1], fire, new Beat(true), new Lead(15, "f")], level);
@@ -164,6 +177,46 @@ class Manawa extends Warrior{
 
 }
 
+class Ram extends Warrior{
+    constructor(level){
+        super(["Ram", [0.8334, 0.25, 1.13, 0, 1], water, new Poison(), new Lead(15, "w")], level);
+    }
+}
+class Soaring_eagle extends Warrior{
+
+}
+class Zuma extends Warrior{
+
+}
+class Amina extends Warrior{
+
+}
+class Akbar extends Warrior{
+
+}
+class Zafir extends Warrior{
+
+}
+class Anchaly extends Warrior{
+
+}
+class Zenobia extends Warrior{
+
+}
+class Hua extends Warrior{
+
+}
+class Kazumi extends Warrior{
+
+}
+class Wulf extends Warrior{
+
+}
+class Kuro extends Warrior{
+
+}
+
+
 var abu1 = new Team([new Abu(5), new Osgood(5), new Crixus(5)], "ABU");
-var abu2 = new Team([new Abu(5), new Osgood(5), new Crixus(5)], "ABU");
+var abu2 = new Team([new Naro(5), new Ram(5), new Le_roc(5)], "NOT ABU");
 var real_teams = [abu1, abu2];

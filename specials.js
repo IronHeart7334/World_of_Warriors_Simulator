@@ -43,6 +43,14 @@ class Special_move {
         }
         this.mod = mod;
     }
+    attack(){
+        var physical_damage = this.user.get_phys() * this.mod;
+		var elemental_damage = this.user.get_ele();
+		if(this.multiplies_ele){
+		    elemental_damage *= this.mod;
+		}
+		this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
+    }
 }
 class Beat extends Special_move {
     constructor(check_ele){
@@ -70,11 +78,6 @@ class Beat extends Special_move {
 			    this.name = "Thunder Strike";    
             }
         }
-    }
-    attack(){
-        var physical_damage = this.user.get_phys() * this.mod;
-		var elemental_damage = this.user.get_ele();
-		this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
     }
 }
 class AOE extends Special_move{
@@ -139,79 +142,68 @@ class Boost extends Special_move{
 		}    
     }
 }
-
-
-
-
-
-
-function Poison(mod, pip){
-	this.mod = mod * Math.pow(POISON_PEN, 2);
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Poison";
+class Poison extends Special_move{
+    constructor(){
+        super("Poison", 15, false);
+    }
+    set_user(user){
+        this.user = user;
+        user.calc_stats(); 
+        this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.base_phys;
+    }
+    attack(){
+		var dmg = this.user.get_phys() * this.mod;
+		this.user.enemy_team.active.poisoned = [dmg, 3];
+		this.user.enemy_team.gain_energy();        
+    }
 }
-
-Poison.prototype.attack = function(user){
-		var dmg = user.get_phys() * this.mod;
-		user.enemy_team.active.poisoned = [dmg, 3];
-		user.enemy_team.gain_energy();
-}
-
-function Rolling_thunder(mod, pip){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Rolling Thunder";
-}
-
-Rolling_thunder.prototype.attack = function(user){
-	var physical_damage = user.get_phys() * this.mod;
-	var elemental_damage = user.get_ele() * this.mod;
+// will need to be changed once I update energy
+class Rolling_thunder extends Special_move{
+    constructor(){
+        super("Rolling Thunder", 7, true);
+    }
+    attack(){
+        var physical_damage = this.user.get_phys() * this.mod;
+	    var elemental_damage = this.user.get_ele() * this.mod;
 		
-	var hits = 3;
+	    var gained_energy = false;
 		
-	var gained_energy = false;
-		
-	while(hits !== 0){
-		
-		var target_team = user.enemy_team;
-		var num_targ = target_team.members_rem.length;
-		
-		if(num_targ == 0){
-			return;
-		}
+	    for(var i = 0; i < 3; i++){
+		    var target_team = this.user.enemy_team;
+		    var num_targ = target_team.members_rem.length;
+		    
+		    if(num_targ == 0){
+			    return;
+		    }
 			
-		var target = target_team.members_rem[Math.floor(Math.random() * num_targ)];
-		console.log(target.name);
-		
-		if (target_team.active == target){
-			if (gained_energy){
-				target_team.energy -= 1;
-			}
-			gained_energy = true;
-		}
+		    var target = target_team.members_rem[Math.floor(Math.random() * num_targ)];
+		    
+		    if (target_team.active == target){
+			    // this part
+			    if (gained_energy){
+				    target_team.energy -= 1;
+			    }
+			    gained_energy = true;
+		    }
 			
-		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-		target_team.check_if_ko();
-		hits -= 1;
-	}
+		    target.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
+		    target_team.check_if_ko();
+	    }
+    }
+}
+class Stealth_strike extends Special_move{
+    constructor(){
+        super("Stealth Strike", 40, false);
+    }
+    attack(){
+        super.attack();
+		this.user.team.switchin(this.user.team.switchback);        
+    }
 }
 
-function Stealth_strike(mod, pip){
-	this.mod = mod * STEALTH_PEN;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Stealth Strike";
-}
 
-Stealth_strike.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		var elemental_damage = user.get_ele();
-		user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-		
-		user.team.switchin(user.team.switchback);
-	}
+
+
 
 // update this later once Phantom shield / armor boost out
 function Armor_break(mod, pip){
