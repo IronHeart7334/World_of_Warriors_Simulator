@@ -7,7 +7,7 @@ The pip, which shows how strong the user's Special Move is compared to warriors 
 And sometimes, the variation: Which is usually based on the user's Element.
 */
 
-// currently in the process of redoing
+// currently in the process of redoing, balancing
 
 // get rid of these eventually
 var BENCH_HIT_PEN = 0.75;
@@ -53,7 +53,7 @@ class Special_move {
 		if(this.multiplies_ele){
 		    elemental_damage *= this.mod;
 		}
-		this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
+		this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);
     }
 }
 class Beat extends Special_move {
@@ -251,7 +251,47 @@ class Soul_steal extends Special_move{
     }
     attack(){
 		var physical_damage = this.user.get_phys() * this.mod;
-		this.user.heal(this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, 0]) * 0.3);        
+		this.user.heal(this.user.enemy_team.active.calc_damage_taken([physical_damage, 0]) * 0.3);        
+    }
+}
+class Berserk extends Special_move{
+    constructor(){
+        super("Berserk", 50, false);
+    }
+    attack(){
+		var physical_damage = this.user.get_phys() * this.mod;
+		var elemental_damage = this.user.get_ele();
+		
+		this.user.take_damage(this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]) * 0.2);
+		if (this.user.hp_rem < 1){
+			this.user.hp_rem = 1;
+		}        
+    }
+}
+class Poison_hive extends Special_move{
+    constructor(){
+        super("Poison Hive", 10, false);
+        this.ignores_ele = true;
+    }
+    attack(){
+		var dmg = this.user.get_phys() * this.mod;
+		for (var member of this.user.enemy_team.members_rem){
+			member.poisoned = [dmg, 3];		
+		}
+		this.user.enemy_team.gain_energy();    
+    }
+}
+class Regeneration extends Special_move{
+    constructor(){
+        super("Regeneration", 3, false);
+        this.ignores_ele = true;
+    }
+    attack(){
+		var healing = this.user.get_phys() * this.mod;
+		for (var member of this.user.team.members_rem){
+			member.regen = [healing, 3];
+			member.calc_regen(); 
+		}
     }
 }
 
@@ -259,52 +299,6 @@ class Soul_steal extends Special_move{
 
 
 
-function Berserk(mod, pip){
-	this.mod = mod;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Berserk";
-}
-
-Berserk.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		var elemental_damage = user.get_ele();
-		
-		user.take_damage(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]) * 0.2);
-		if (user.hp_rem < 1){
-			user.hp_rem = 1;
-		}
-	}
-
-function Poison_hive(mod, pip){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(POISON_PEN, 2);
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Poison Hive";
-}
-
-Poison_hive.prototype.attack = function(user){
-		var dmg = user.get_phys() * this.mod;
-		for (var member of user.enemy_team.members_rem){
-			member.poisoned = [dmg, 3];		
-		}
-		user.enemy_team.gain_energy();
-}
-
-function Regeneration(mod, pip){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * Math.pow(SELFHEAL_PEN, 3);
-	this.pip = pip;
-	this.gives_energy = false;
-	this.name = "Regeneration";
-}
-
-Regeneration.prototype.attack = function(user){
-		var healing = user.get_phys() * this.mod;
-		for (var member of user.team.members_rem){
-			member.regen = [healing, 3];
-			member.calc_regen(); 
-		}
-	}
 
 function Vengeance(mod, pip){
 	this.mod = mod;
