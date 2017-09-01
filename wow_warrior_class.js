@@ -127,12 +127,18 @@ class Warrior{
 	}
 	
 	get_armor(){
-	    var reduction = 1 - this.armor * 0.12;
+	    var reduction = this.armor * 0.12;
+	    
+	    for(var boost of this.armor_boosts){
+	        reduction += boost.amount;
+	    }
+		/*
+		move this to shield
 		if (this.shield != false){
 		    reduction *= 0.45;
 		}
-		console.log(reduction);
-		return reduction;
+		*/
+		return 1 - reduction;
 	}
 	
 	hp_perc(){
@@ -380,13 +386,18 @@ class Warrior{
 		}
 		this.ele_boosts = ele_boosts_rem;
 		
-		if (this.shield != false){
-		    if (this.shield == 0){
-		        this.shield = false;
-		    } else {
-		        this.shield -= 1;
+		// Armor boosts
+		var armor_boosts_rem = [];
+		for(var boost of this.armor_boosts){
+		    boost.update();
+		    if(!boost.should_terminate){
+		        armor_boosts_rem.push(boost);
+		        if(boost.id == "Phantom Shield"){
+		            this.shield = true;
+		        }
 		    }
 		}
+		this.armor_boosts = armor_boosts_rem;
 	}
 	
 	calc_poison(){
@@ -484,6 +495,22 @@ class Warrior{
 	}
 }
 
+class Stat_boost{
+    constructor(id, amount, dur){
+        this.id = id;
+        this.amount = amount;
+        this.max_dur = dur;
+        this.dur_rem = dur;
+        this.should_terminate = false;
+    }
+    update(){
+        this.dur_rem -= 1;
+        if(this.dur_rem <= 0){
+            this.should_terminate = true;
+        }
+    }
+}
+
 function Lead(amount, type){
 	this.amount = amount / 100;
 	this.type = type;
@@ -551,12 +578,14 @@ Team.prototype = {
 	
 	init_for_battle:function(){
 		this.members_rem = [];
+		// move this to init
 		for (var member of this.members){
 			member.team = this;
 			member.calc_stats();
 			member.hp_rem = member.max_hp;
 			member.phys_boosts = [];
 			member.ele_boosts = [];
+			member.armor_boosts = [];
 			member.poisoned = false;
 			member.regen = false;
 			member.shield = false;

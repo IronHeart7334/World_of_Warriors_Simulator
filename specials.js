@@ -13,7 +13,6 @@ And sometimes, the variation: Which is usually based on the user's Element.
 var BENCH_HIT_PEN = 0.75;
 var POISON_PEN = 0.67;
 var STEALTH_PEN = 0.8;
-var ARMOR_IGNORE_PEN = 0.88;
 var SELFHEAL_PEN = 0.8;
 var RECOIL_MOD = 1.2;
 
@@ -23,6 +22,7 @@ class Special_move {
         this.base = base_damage;
         this.multiplies_ele = mult_ele;
         this.gives_energy = true;
+        this.ignores_ele = false;
     }
     set_user(user){
         this.user = user;
@@ -33,6 +33,10 @@ class Special_move {
         var mod = 1.0;
         var dmg = this.base * Math.pow(1.2, pip - 1);
         var multiplied = user.base_phys;
+        if(this.ignores_ele){
+            this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.base_phys;
+            return;
+        }
         if(this.multiplies_ele){
             multiplied += user.base_ele;
         }
@@ -145,11 +149,7 @@ class Boost extends Special_move{
 class Poison extends Special_move{
     constructor(){
         super("Poison", 15, false);
-    }
-    set_user(user){
-        this.user = user;
-        user.calc_stats(); 
-        this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.base_phys;
+        this.ignores_ele = true;
     }
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
@@ -200,45 +200,35 @@ class Stealth_strike extends Special_move{
 		this.user.team.switchin(this.user.team.switchback);        
     }
 }
-
-
-
-
-
-// update this later once Phantom shield / armor boost out
-function Armor_break(mod, pip){
-	this.mod = mod * Math.pow(ARMOR_IGNORE_PEN, 2);
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Armor Break";
+class Armor_break extends Special_move{
+    constructor(){
+        super("Armor Break", 40, true);
+    }
+    attack(){
+        var target = this.user.enemy_team.active;
+        var save_arm = target.armor;
+        var save_boosts = target.armor_boosts.slice();
+        
+        target.armor = 0;
+        target.armor_boosts = [];
+        
+        super.attack();
+        
+        target.armor = save_arm;
+        target.armor_boosts = save_boosts;
+    }
 }
-
-Armor_break.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		var elemental_damage = user.get_ele() * this.mod;
-		
-		var target = user.enemy_team.active;
-		var save = target.armor;
-		
-		target.armor = 0;
-		
-		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-		
-		target.armor = save;
-	}
-
-function Healing(mod, pip){
-	this.mod = mod * SELFHEAL_PEN;
-	this.pip = pip;
-	this.gives_energy = false;
-	this.name = "Healing"
-}
-
-Healing.prototype.attack = function(user){
+class Healing extends Special_move{
+    constructor(){
+        super("Healing", 150, false);
+        this.gives_energy = false;
+        this.ignores_ele = true;
+    }
+    attack(){
 		var to_heal = undefined;
 		var lowest = 1;
-		for (var member of user.team.members_rem){
-			if (member == user){
+		for (var member of this.user.team.members_rem){
+			if (member == this.user){
 				continue;
 			}
 			if (member.hp_perc() < lowest){
@@ -246,25 +236,28 @@ Healing.prototype.attack = function(user){
 				lowest = member.hp_perc();
 			}
 		}
-		var total_heal = user.get_phys() * this.mod;
+		var total_heal = this.user.get_phys() * this.mod;
 		
-		user.heal(total_heal * 0.2);
+		this.user.heal(total_heal * 0.2);
 		if (to_heal !== undefined){
 			to_heal.heal(total_heal * 0.8);
-		}
+        }
+    }
+}
+class Soul_steal extends Special_move{
+    constructor(){
+        super("Soul Steal", 30, false);
+        this.ignores_ele = true;
+    }
+    attack(){
+		var physical_damage = this.user.get_phys() * this.mod;
+		this.user.heal(this.user.enemy_team.active.calc_damage_taken(this.user, [physical_damage, 0]) * 0.3);        
+    }
 }
 
-function Leech_blade(mod, pip){
-	this.mod = mod * SELFHEAL_PEN;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Leech Blade";
-}
 
-Leech_blade.prototype.attack = function(user){
-		var physical_damage = user.get_phys() * this.mod;
-		user.heal(user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), 0]) * 0.3);
-	}
+
+
 
 function Berserk(mod, pip){
 	this.mod = mod;
