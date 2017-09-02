@@ -142,11 +142,11 @@ class Warrior{
 		var physical_damage = damage[0] * this.get_armor();
 		var elemental_damage = damage[1];
 		
-		if (this.element.weakness == this.enemy_team.active.element.name){
+		if (this.element.weakness == this.team.enemy_team.active.element.name){
 			elemental_damage *= 1.7;
 		}
 		
-		else if (attacker.element.weakness == this.enemy_team.active.element.name){
+		else if (this.element.name == this.team.enemy_team.active.element.weakness){
 			elemental_damage *= 0.3;
 		}
 		
@@ -168,9 +168,9 @@ class Warrior{
 		var physical_damage = this.get_phys();
 		var elemental_damage = this.get_ele();
 		
-		this.enemy_team.gain_energy();
-		this.enemy_team.active.calc_damage_taken([Math.round(physical_damage), Math.round(elemental_damage)]);
-		this.enemy_team.turn_part1();
+		this.team.enemy_team.gain_energy();
+		this.team.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);
+		this.team.enemy_team.turn_part1();
 	}
 	take_damage(damage){
 	/*
@@ -210,8 +210,25 @@ class Warrior{
 		}
 		this.team.enemy_team.turn_part1();
 	}
+	update(){
+        this.check_durations();
+		this.calc_poison();
+		this.calc_regen();	    
+	}
 	
 	// make this stuff better
+	init(){
+		this.calc_stats();
+		this.hp_rem = this.max_hp;
+		this.phys_boosts = [];
+		this.ele_boosts = [];
+		this.armor_boosts = [];
+		this.poisoned = false;
+		this.regen = false;
+		this.shield = false;
+		this.last_dmg = 0;
+		this.last_healed = 0;
+	}
 	display_warrior_card(x, y, size){
 		/*
 		Draws a card displaying information about a warrior.
@@ -357,7 +374,6 @@ class Warrior{
 		this.boost_up = false;
 		var ele_boosts_rem = [];
 		for (var boost of this.ele_boosts){
-		    console.log(boost);
 			boost.update();
 			if(!boost.should_terminate){
 			    ele_boosts_rem.push(boost);
@@ -518,118 +534,40 @@ class Lead{
 	}
 }
 
-function Team(members, name){
-	this.members = members;
-	this.name = name;
-	all_teams.push(this);
-}
-
-Team.prototype = {
-	assign_enemy:function(enemy_team){
-		this.enemy_team = enemy_team;
-		for (var member of this.members){
-			member.enemy_team = enemy_team;
-		}
-	},
-	
-	init_for_battle:function(){
+class Team{
+    constructor(members, name){
+        this.members = members;
+	    this.name = name;
+	    all_teams.push(this);
+    }
+	init_for_battle(){
 		this.members_rem = [];
-		// move this to init
 		for (var member of this.members){
-			member.team = this;
-			member.calc_stats();
-			member.hp_rem = member.max_hp;
-			member.phys_boosts = [];
-			member.ele_boosts = [];
-			member.armor_boosts = [];
-			member.poisoned = false;
-			member.regen = false;
-			member.shield = false;
-			member.last_dmg = 0;
-			member.last_healed = 0;
-			this.members_rem.push(member);
+		    member.init();
+		    member.team = this;
+		    member.enemy_team = this.enemy_team;
+		    this.members_rem.push(member);
 		}
 		this.leader = this.members_rem[0];
 		this.active = this.members_rem[0];
 		this.energy = 2;
 		this.won = false;
-	},
-	
-	display_vs: function(){
-		canvas.fillStyle = "rgb(255, 255, 255)";
-		canvas.fillRect(300, 25, 400, 50);
-		
-		var message = this.active.name + " VS " + this.enemy_team.active.name;
-		canvas.fillStyle = "rgb(0, 0, 0)";
-		canvas.font = "30px Ariel";
-		canvas.fillText(message, 305, 50);
-	},
-	
-	display_all_hp:function(){
-		var y = 0;
-		for (var member of this.members_rem){
-			member.display_health(this.x, y);
-			var x = this.x - 100;
-			active_buttons.push(new Button("", "none", x, y, 100, 100, [member.display_stats.bind(member)]));
-			y += 100;
-		}
-	},
-	
-	
-	// shorten these buttons
-	display_nm:function(){
-		var team = this;
-		var new_button = new Button("Normal Move", team.active.element.color, 475, 325, 100, 100, [team.active.use_normal_move.bind(team.active)]);
-		active_buttons.push(new_button);
-		new_button.draw();
-	},
-	
-	display_specials:function(){
-	/*
-	List all of a team's Special Moves
-	as icons across the screen.
-	Click on them to use them.
-	*/
-		var x = this.x - 200;
-		var team = this;
-		for (var member of team.members_rem){
-			var new_button = new Button(member.special.name, member.element.color, x, 325, 100, 100, [member.use_special.bind(member)]);
-			active_buttons.push(new_button);
-			x += canvas_width * 0.1;
-			
-		}
-	},
-	
-	
-	
-	display_energy:function(){
-		canvas.fillStyle = "rgb(0, 100, 255)";
-		var x = this.x - 150;
-		for (var count = 0; count < this.energy; count ++){
-			canvas.beginPath();
-			canvas.arc(x, 450, 25, 0, 2 * Math.PI);
-			canvas.fill();
-			x += 75;
-		}
-	},
-	
-	gain_energy:function(){
+	}
+	gain_energy(){
 		if (this.energy < 0){
 			this.energy = 1;
 		}
 		if (this.energy < 4){
 			this.energy += 1;
 		}
-	},
-	
-	check_lead:function(){
+	}
+	check_lead(){
 		if (!this.leader.check_if_ko()){
 			var team = this;
 			this.leader.lead_skill.apply(team);
 		}
-	},
-	
-	prev:function() {
+	}
+	prev(){
 		/*
 		Returns the member of this' members
 		above num
@@ -640,9 +578,8 @@ Team.prototype = {
 			prev = this.members_rem.length - 1;
 		}
 		return this.members_rem[prev];
-	},
-	
-	next:function(){
+	}
+	next(){
 		/*
 		Returns the next member of this' members
 		*/
@@ -651,42 +588,26 @@ Team.prototype = {
 			nextup = 0;
 		}
 		return this.members_rem[nextup];
-	},
-	
-	switchin:function(warrior){
+	}
+	switchin(warrior){
 		for (var member of this.members_rem){
 			if (this.members_rem.length == 1){
 				this.active = this.members_rem[0];
 				return;
 			}
-			if (typeof warrior == "number"){
-				if (this.members_rem.length <= warrior){
-					warrior = 0;
-				}
-				this.active = this.members_rem[warrior];
-				return;
-			}
-			
 			if (member == warrior){
 				this.active = member;
 				return;
 			}
-			if (member.name == warrior){
-				this.active = member;
-				return;
-			}
 		}
-	},
-	
-	check_durations:function(){
+	}
+	update(){
 		for (var member of this.members_rem){
-			member.check_durations();
-			member.calc_poison();
-			member.calc_regen();
+			member.update();
 		}
-	},
-	
-	check_if_ko:function(){
+		this.check_if_ko();
+	}
+	check_if_ko(){
 		// He's ded Jim!
 		var act_koed = false;
 		if (this.active.hp_rem <= 0){
@@ -705,12 +626,18 @@ Team.prototype = {
 			this.enemy_team.win();
 		}
 		
-		if (this.active.hp_rem <= 0){
+		if (act_koed){
 			this.switchin(index);
 		}
-	},
+	}
+	win(){
+		alert(this.name + " wins!");
+		this.won = true;
+		disp_menu();
+	}
 	
-	turn_part1:function(){
+	// graphics stuff, work on
+	turn_part1(){
 		/*
 		Heart collection phase
 		*/
@@ -749,9 +676,8 @@ Team.prototype = {
 		for (var button of active_buttons){
 			button.draw();
 		}
-	},
-	
-	turn_part2:function(){
+	}
+	turn_part2(){
 		/*
 		Action phase
 		*/
@@ -762,7 +688,7 @@ Team.prototype = {
 			member.reset_dmg();
 		}
 		this.check_lead();
-		this.check_durations();
+		this.update();
 		this.check_if_ko();
 		this.display_all_hp();
 		this.display_energy();
@@ -781,12 +707,56 @@ Team.prototype = {
 		for (var button of active_buttons){
 			button.draw();
 		}
-	},
-	
-	win:function(){
-		alert(this.name + " wins!");
-		this.won = true;
-		disp_menu();
+	}
+	display_vs(){
+		canvas.fillStyle = "rgb(255, 255, 255)";
+		canvas.fillRect(300, 25, 400, 50);
+		
+		var message = this.active.name + " VS " + this.enemy_team.active.name;
+		canvas.fillStyle = "rgb(0, 0, 0)";
+		canvas.font = "30px Ariel";
+		canvas.fillText(message, 305, 50);
+	}
+	display_all_hp(){
+		var y = 0;
+		for (var member of this.members_rem){
+			member.display_health(this.x, y);
+			var x = this.x - 100;
+			active_buttons.push(new Button("", "none", x, y, 100, 100, [member.display_stats.bind(member)]));
+			y += 100;
+		}
+	}
+	// shorten these buttons
+	display_nm(){
+		var team = this;
+		var new_button = new Button("Normal Move", team.active.element.color, 475, 325, 100, 100, [team.active.use_normal_move.bind(team.active)]);
+		active_buttons.push(new_button);
+		new_button.draw();
+	}
+	display_specials(){
+	/*
+	List all of a team's Special Moves
+	as icons across the screen.
+	Click on them to use them.
+	*/
+		var x = this.x - 200;
+		var team = this;
+		for (var member of team.members_rem){
+			var new_button = new Button(member.special.name, member.element.color, x, 325, 100, 100, [member.use_special.bind(member)]);
+			active_buttons.push(new_button);
+			x += canvas_width * 0.1;
+			
+		}
+	}
+	display_energy(){
+		canvas.fillStyle = "rgb(0, 100, 255)";
+		var x = this.x - 150;
+		for (var count = 0; count < this.energy; count ++){
+			canvas.beginPath();
+			canvas.arc(x, 450, 25, 0, 2 * Math.PI);
+			canvas.fill();
+			x += 75;
+		}
 	}
 }
 
@@ -800,7 +770,7 @@ function Battle(team1, team2){
 	for (var team of this.teams){
 		var slice = this.teams.slice();
 		var enemy = slice.splice(this.teams.indexOf(team), 1);
-		team.assign_enemy(slice[0]);
+		team.enemy_team = slice[0];
 	}
 	team1.x = canvas_width * 0.2;
 	team2.x = canvas_width * 0.8;

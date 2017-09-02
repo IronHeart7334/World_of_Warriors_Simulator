@@ -291,6 +291,37 @@ class Wu extends Warrior{
 
 }
 
+class Wang extends Warrior{
+
+}
+class Ten_bears extends Warrior{
+
+}
+class Ragnar extends Warrior{
+
+}
+class Yi_ho extends Warrior{
+
+}
+class Bikili extends Warrior{
+
+}
+class Waza extends Warrior{
+
+}
+class Kashta extends Warrior{
+
+}
+class Botheric extends Warrior{
+
+}
+class Benkei extends Warrior{
+
+}
+class Kido extends Warrior{
+
+}
+
 var starter = new Team([new Abu(), new Zenghis(), new Toki()], "Starter Team");
 var abu1 = new Team([new Brutus(), new Osgood(), new Crixus()], "ABU");
 var abu2 = new Team([new Naro(), new Ram(), new Le_roc()], "NOT ABU");

@@ -11,9 +11,6 @@ And sometimes, the variation: Which is usually based on the user's Element.
 
 // get rid of these eventually
 var BENCH_HIT_PEN = 0.75;
-var POISON_PEN = 0.67;
-var STEALTH_PEN = 0.8;
-var SELFHEAL_PEN = 0.8;
 var RECOIL_MOD = 1.2;
 
 class Special_move {
@@ -112,7 +109,7 @@ class AOE extends Special_move{
 		var elemental_damage = this.user.get_ele() * this.mod;
 		
 		for (var member of this.user.enemy_team.members_rem){
-			member.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
+			member.calc_damage_taken([physical_damage, elemental_damage]);
 		}
     }
 }
@@ -186,7 +183,7 @@ class Rolling_thunder extends Special_move{
 			    gained_energy = true;
 		    }
 			
-		    target.calc_damage_taken(this.user, [physical_damage, elemental_damage]);
+		    target.calc_damage_taken([physical_damage, elemental_damage]);
 		    target_team.check_if_ko();
 	    }
     }
@@ -294,65 +291,51 @@ class Regeneration extends Special_move{
 		}
     }
 }
-
-
-
-
-
-
-function Vengeance(mod, pip){
-	this.mod = mod;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Vengeance";
-	
+class Vengeance extends Special_move{
+    constructor(){
+        super("Vengeance", 25, true);
+    }
+    attack(){
+	    var mod = this.mod * (1.5 - this.user.hp_perc());
+	    var physical_damage = this.user.get_phys() * mod;
+	    var elemental_damage = this.user.get_ele() * mod;
+	    this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);        
+    }
 }
-
-Vengeance.prototype.attack = function(user){
-	var mod = this.mod * (1.5 - user.hp_perc());
-	var physical_damage = user.get_phys() * mod;
-	var elemental_damage = user.get_ele() * mod;
-	user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-}
-
-//untested
-function Twister(mod, pip){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Twister";
-}
-
-Twister.prototype.attack = function(user){
-		var mod = this.mod * (1.5 - user.hp_perc());
+class Twister extends Special_move{
+    constructor(){
+        super("Twister", 10, true);
+    }
+    attack(){
+		var mod = this.mod * (1.5 - this.user.hp_perc());
 		console.log(mod);
-		var physical_damage = user.get_phys() * mod;
-		var elemental_damage = user.get_ele() * mod;
+		var physical_damage = this.user.get_phys() * mod;
+		var elemental_damage = this.user.get_ele() * mod;
 		
-		var target_team = user.enemy_team;
+		for (var member of this.user.enemy_team.members_rem){
+			member.calc_damage_taken([physical_damage, elemental_damage]);
+		}        
+    }
+}
+class Stealth_assault extends Special_move{
+    constructor(){
+        super("Stealth Assault", 15, true);
+    }
+    attack(){
+	    var physical_damage = this.user.get_phys() * this.mod;
+	    var elemental_damage = this.user.get_ele() * this.mod;
+	    
+	    for (var member of this.user.enemy_team.members_rem){
+		    member.calc_damage_taken([physical_damage, elemental_damage]);
+	    }
 		
-		for (var member of target_team.members_rem){
-			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-		}
-	}
-
-function Stealth_assault(mod, pip){
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3) * STEALTH_PEN;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Stealth Assault";
+	    this.user.team.switchin(this.user.team.switchback);        
+    }
 }
 
-Stealth_assault.prototype.attack = function(user){
-	var physical_damage = user.get_phys() * this.mod;
-	var elemental_damage = user.get_ele() * this.mod;
-	var target_team = user.enemy_team;
-	for (var member of target_team.members_rem){
-		member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-	}
-		
-	user.team.switchin(user.team.switchback);
-}
+
+
+
 
 function Team_strike(mod, pip){
 	this.mod = mod;
