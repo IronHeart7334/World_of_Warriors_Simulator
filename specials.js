@@ -42,7 +42,7 @@ class Special_move {
 		if(this.multiplies_ele){
 		    elemental_damage *= this.mod;
 		}
-		this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);
+		this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage);
     }
 }
 class Beat extends Special_move {
@@ -101,7 +101,7 @@ class AOE extends Special_move{
 		var elemental_damage = this.user.get_ele() * this.mod;
 		
 		for (var member of this.user.enemy_team.members_rem){
-			member.calc_damage_taken([physical_damage, elemental_damage]);
+			member.calc_damage_taken(physical_damage, elemental_damage);
 		}
     }
 }
@@ -175,7 +175,7 @@ class Rolling_thunder extends Special_move{
 			    gained_energy = true;
 		    }
 			
-		    target.calc_damage_taken([physical_damage, elemental_damage]);
+		    target.calc_damage_taken(physical_damage, elemental_damage);
 		    target_team.check_if_ko();
 	    }
     }
@@ -240,7 +240,7 @@ class Soul_steal extends Special_move{
     }
     attack(){
 		var physical_damage = this.user.get_phys() * this.mod;
-		this.user.heal(this.user.enemy_team.active.calc_damage_taken([physical_damage, 0]) * 0.3);        
+		this.user.heal(this.user.enemy_team.active.calc_damage_taken(physical_damage, 0) * 0.3);        
     }
 }
 class Berserk extends Special_move{
@@ -251,7 +251,7 @@ class Berserk extends Special_move{
 		var physical_damage = this.user.get_phys() * this.mod;
 		var elemental_damage = this.user.get_ele();
 		
-		this.user.take_damage(this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]) * 0.2);
+		this.user.take_damage(this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage) * 0.2, 0);
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
 		}        
@@ -291,7 +291,7 @@ class Vengeance extends Special_move{
 	    var mod = this.mod * (1.5 - this.user.hp_perc());
 	    var physical_damage = this.user.get_phys() * mod;
 	    var elemental_damage = this.user.get_ele() * mod;
-	    this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);        
+	    this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage);        
     }
 }
 class Twister extends Special_move{
@@ -305,7 +305,7 @@ class Twister extends Special_move{
 		var elemental_damage = this.user.get_ele() * mod;
 		
 		for (var member of this.user.enemy_team.members_rem){
-			member.calc_damage_taken([physical_damage, elemental_damage]);
+			member.calc_damage_taken(physical_damage, elemental_damage);
 		}        
     }
 }
@@ -318,7 +318,7 @@ class Stealth_assault extends Special_move{
 	    var elemental_damage = this.user.get_ele() * this.mod;
 	    
 	    for (var member of this.user.enemy_team.members_rem){
-		    member.calc_damage_taken([physical_damage, elemental_damage]);
+		    member.calc_damage_taken(physical_damage, elemental_damage);
 	    }
 		
 	    this.user.team.switchin(this.user.team.switchback);        
@@ -334,9 +334,9 @@ class Team_strike extends Special_move{
 		var physical_damage = this.user.get_phys() * mod;
 		var elemental_damage = this.user.get_ele() * mod;
 		
-		var dmg = this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]); 
+		var dmg = this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage); 
 		for (var member of this.user.team.members_rem){
-			member.hp_rem -= dmg / 6;
+			member.take_dmg(dmg / 6, 0);
 			member.hp_rem = Math.round(member.hp_rem);
 		}
 		if (this.user.hp_rem <= 1){
@@ -356,19 +356,19 @@ class Phantom_strike extends Special_move{
 		//first hit
 		var pd = physical_damage * 1.33;
 		var ed = elemental_damage * 1.33;
-		target_team.active.calc_damage_taken([pd, ed]);
+		target_team.active.calc_damage_taken(pd, ed);
 		if (target_team.members_rem.length < 2){return;}
 		
 		//second hit
 		var target = target_team.next();
-		target.calc_damage_taken([physical_damage, elemental_damage]);
+		target.calc_damage_taken(physical_damage, elemental_damage);
 		if (target_team.members_rem.length < 3){return;}
 		
 		//third hit
 		pd = physical_damage * 0.67;
 		ed = elemental_damage * 0.67;
 		target = target_team.prev();
-		target.calc_damage_taken([pd, ed]);
+		target.calc_damage_taken(pd, ed);
 	}
 }
 class Phantom_shield extends Special_move{

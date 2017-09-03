@@ -112,10 +112,15 @@ function display_health(x, y, m){
 	} else {
 		canvas.fillText(m.hp_rem + "+", x, y + 45);
 	}
-	if (m.last_dmg != 0){
-		canvas.fillStyle = "rgb(255, 0, 0)";
-		canvas.fillText("-" + String(m.last_dmg), x, y + 75);
-	} else if (m.last_healed != 0){
+	if (m.last_phys_dmg != 0){
+		canvas.fillStyle = "rgb(0, 0, 0)";
+		canvas.fillText("-" + String(Math.round(m.last_phys_dmg)), x, y + 75);
+	}
+	if (m.last_ele_dmg != 0){
+	    canvas.fillStyle = m.last_hitby.element.color;
+		canvas.fillText("-" + String(Math.round(m.last_ele_dmg)), x, y + 100);
+	}
+	if (m.last_healed != 0){
 		canvas.fillStyle = "rgb(0, 255, 0)";
 		canvas.fillText("+" + String(m.last_healed), x, y + 75);
 	}

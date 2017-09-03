@@ -2,19 +2,10 @@
 var OFFENSE = 33.73;
 var HP = 107.0149;
 
-function Element(name, color, weakness){
-	this.name = name;
-	this.color = color;
-	this.weakness = weakness;
-}
 
-var fire = new Element("Fire", "rgb(255, 0, 0)", "Water");
-var earth = new Element("Earth", "rgb(0, 255, 0)", "Fire");
-var air = new Element("Air", "rgb(255, 255, 0)", "Earth");
-var water = new Element("Water", "rgb(0, 0, 255)", "Air");
-var no_ele = new Element("Null", "rgb(100, 100, 100)", undefined);
+//change how attacking, energy works
 
-// need to sort
+
 class Warrior{
     constructor(data, level){
 	    /*
@@ -45,6 +36,8 @@ class Warrior{
 		this.phys = Math.round(this.base_phys * Math.pow(1.07, this.level));
 		this.ele = Math.round(this.base_ele * Math.pow(1.07, this.level));
 	}
+	
+	// one method? one boost array?
 	get_phys(){
 		var mult = 1;
 		for (var boost of this.phys_boosts){
@@ -67,6 +60,7 @@ class Warrior{
 	    }
 		return 1 - reduction;
 	}
+	
 	hp_perc(){
 	    /*
 	    Returns the percentage of your HP remaining
@@ -83,9 +77,10 @@ class Warrior{
 	    */
 		return this.max_hp * (perc);
 	}
-	calc_damage_taken(damage){
-		var physical_damage = damage[0] * this.get_armor();
-		var elemental_damage = damage[1];
+	
+	calc_damage_taken(phys, ele){
+		var physical_damage = phys * this.get_armor();
+		var elemental_damage = ele;
 		
 		if (this.element.weakness == this.team.enemy_team.active.element.name){
 			elemental_damage *= 1.7;
@@ -95,11 +90,23 @@ class Warrior{
 			elemental_damage *= 0.3;
 		}
 		
-		var dmg = Math.round(physical_damage + elemental_damage);
-		this.take_damage(dmg);
-		
-		return dmg;
+		this.take_damage(physical_damage, elemental_damage);
+		this.last_hitby = this.team.enemy_team.active;
+		return physical_damage + elemental_damage;
 	}
+	take_damage(phys, ele){
+	/*
+	Lose HP equal to the damage you took
+	If you survive, you can heal some of it off
+	*/
+		var dmg = phys + ele;
+		this.hp_rem -= dmg;
+		this.last_phys_dmg += phys;
+		this.last_ele_dmg += ele;
+		
+		this.hp_rem = Math.round(this.hp_rem);
+	}
+	
 	check_if_ko(){
 	/*
 	An I dead yet?
@@ -110,23 +117,9 @@ class Warrior{
 	/*
 	Strike at your enemy team's active warrior with your sword!
 	*/
-		var physical_damage = this.get_phys();
-		var elemental_damage = this.get_ele();
-		
 		this.team.enemy_team.gain_energy();
-		this.team.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]);
+		this.team.enemy_team.active.calc_damage_taken(this.get_phys(), this.get_ele());
 		this.team.enemy_team.turn_part1();
-	}
-	take_damage(damage){
-	/*
-	Lose HP equal to the damage you took
-	If you survive, you can heal some of it off
-	*/
-		var dmg = damage;
-		this.hp_rem -= dmg;
-		this.last_dmg += dmg;
-		
-		this.hp_rem = Math.round(this.hp_rem);
 	}
 	heal(hp){
 	/*
@@ -171,7 +164,9 @@ class Warrior{
 		this.poisoned = false;
 		this.regen = false;
 		this.shield = false;
-		this.last_dmg = 0;
+		this.last_phys_dmg = 0;
+		this.last_ele_dmg = 0;
+		this.last_hitby = undefined;
 		this.last_healed = 0;
 	}
 	heart_collection(){
@@ -210,15 +205,16 @@ class Warrior{
 	/*
 	*/
 		var x = this;
-		this.heal(x.last_dmg * 0.4);
+		this.heal((x.last_phys_dmg + x.last_ele_dmg) * 0.4);
 	}
 	reset_dmg(){
-	/*
-	Reset your most recent damage to 0
-	DOES NOT HEAL YOU
-	Used for heart collection
-	*/
-		this.last_dmg = 0;
+	    /*
+	    Reset your most recent damage to 0
+	    DOES NOT HEAL YOU
+	    Used for heart collection
+	    */
+		this.last_phys_dmg = 0;
+		this.last_ele_dmg = 0;
 	}
 	reset_heal(){
 	    this.last_healed = 0;
@@ -275,9 +271,7 @@ class Warrior{
 			this.poisoned = false;
 			return;
 		}
-		console.log("Poison damage: " + this.poisoned[0]);
-		this.hp_rem -= this.poisoned[0];
-		this.hp_rem = Math.round(this.hp_rem);
+		this.take_dmg(this.poisoned[0], 0);
 		this.poisoned[1] -= 1;
 	}
 	calc_regen(){
@@ -310,6 +304,20 @@ class Stat_boost{
         }
     }
 }
+
+class Element{
+    constructor(name, color, weakness){
+	    this.name = name;
+	    this.color = color;
+	    this.weakness = weakness;
+	}
+}
+
+var fire = new Element("Fire", "rgb(255, 0, 0)", "Water");
+var earth = new Element("Earth", "rgb(0, 255, 0)", "Fire");
+var air = new Element("Air", "rgb(255, 255, 0)", "Earth");
+var water = new Element("Water", "rgb(0, 0, 255)", "Air");
+var no_ele = new Element("Null", "rgb(100, 100, 100)", undefined);
 
 class Lead{
     constructor(amount, type){
@@ -481,12 +489,12 @@ class Team{
 		this.enemy_team.display_all_hp();
 		this.enemy_team.display_energy();
 		
-		if (this.active.last_dmg > 0){
+		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) > 0){
 			this.active.heart_collection();
 			this.active.bomb();
 		}
 		
-		if (this.active.last_dmg <= 0){
+		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) <= 0){
 			this.turn_part2();
 			return;
 		}
@@ -565,7 +573,12 @@ class Team{
 		for (var member of this.members_rem){
 			display_health(this.x, y, member);
 			var x = this.x - 100;
-			active_buttons.push(new Button("", "none", x, y, 100, 100, [function(){display_stats(member);}]));
+			function f(m){
+			    return function(){
+			        display_stats(m);
+			    }
+			}
+			active_buttons.push(new Button("", "none", x, y, 100, 100, [f(member)]));
 			y += 100;
 		}
 	}
