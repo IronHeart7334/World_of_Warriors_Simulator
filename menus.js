@@ -104,15 +104,15 @@ function update_teambuilder(){
     // Draw warrior cards
     if (tbx !== 0){
         var left_warrior = new Warrior(options[tbx - 1], 0);
-        left_warrior.display_warrior_card(0, base_canvas.height * 0.25, base_canvas.height / 2);    
+        display_warrior_card(0, base_canvas.height * 0.25, base_canvas.height / 2, left_warrior);    
     }
     
     if (tbx !== options.length - 1){
         var right_warrior = new Warrior(options[tbx + 1], 0);
-        right_warrior.display_warrior_card(base_canvas.width * 0.75, base_canvas.height * 0.25, base_canvas.height / 2); 
+        display_warrior_card(base_canvas.width * 0.75, base_canvas.height * 0.25, base_canvas.height / 2, right_warrior); 
     }
     var middle_warrior = new Warrior(options[tbx], 0);
-    middle_warrior.display_warrior_card(base_canvas.width * 0.25, base_canvas.height * 0.25, base_canvas.height);
+    display_warrior_card(base_canvas.width * 0.25, base_canvas.height * 0.25, base_canvas.height, middle_warrior);
     
     // Draw team in development
     var y = base_canvas.height * 0.05;

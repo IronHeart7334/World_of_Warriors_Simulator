@@ -1,21 +1,5 @@
 var warriors = [];
-/*
-var zazan = ["Zazan", [0.9, 0.25, 0.96, 1], fire, new Phantom_shield(), new Lead(15, "f")];
-var sakuma = ["Sakuma", [1.1665, 0.15, 0.75, 2], air, new Phantom_strike(1.4, 2), new Lead(5, "p")];
-
-var breth = ["Breth", [1.1834, 0.25, 0.85, 1], water, new Phantom_shield(), new Lead(-30, "a")];
-
-var sama = ["Sama", [1.0834, 0.3, 1.03, 1], air, new Phantom_shield(), new Lead(10, "p")];
-var agoolik = ["agoolik", [0.9334, 0.30, 1.1, 1], water, new Phantom_shield(), new Lead(-30, "a")];
-
-warriors = warriors.concat([abu, brutus, zazan, gunnar, osgood, blaine, toki, kendrix, le_roc, sakuma, zenghis, clovis, yada, ram]);
-warriors = warriors.concat([naro, aka, crixus, alkan]);
-warriors = warriors.concat([breth]);
-warriors = warriors.concat([agoolik, sama]);
-
-var arena = new Team([new Warrior(abu, 5), new Warrior(gunnar, 5), new Warrior(sakuma, 5)], "Arena Favorites");
-var real_teams = [starter, arena];
-*/
+var all_teams = [];
 
 // eventually autoconcat warriors to array
 class Naro extends Warrior{
@@ -322,7 +306,55 @@ class Kido extends Warrior{
 
 }
 
+class Ardo extends Warrior{
+
+}
+class Dao extends Warrior{
+
+}
+class Furio extends Warrior{
+
+}
+class Helios extends Warrior{
+
+}
+class Jin extends Warrior{
+
+}
+class Sakuma extends Warrior{
+	constructor(){
+		super(["Sakuma", [1.1665, 0.15, 0.75, 2, 2], air, new Phantom_strike(), new Lead(5, "p")]);
+	}
+}
+class Ivan extends Warrior{
+
+}
+class Amanar extends Warrior{
+
+}
+class Zazan extends Warrior{
+	constructor(){
+		super(["Zazan", [0.9, 0.25, 0.96, 1, 2], fire, new Phantom_shield(), new Lead(15, "f")]);
+	}
+}
+class Sama extends Warrior{
+	constructor(){
+		super(["Sama", [1.0834, 0.3, 1.03, 1, 2], air, new Phantom_shield(), new Lead(10, "p")]);
+	}
+}
+class Breth extends Warrior{
+	constructor(){
+		super(["Breth", [1.1834, 0.25, 0.85, 1, 2], water, new Phantom_shield(), new Lead(-30, "a")]);
+	}
+}
+class Agoolik extends Warrior{
+	constructor(){
+		super(["agoolik", [0.9334, 0.30, 1.1, 1, 2], water, new Phantom_shield(), new Lead(-30, "a")]);
+	}
+}
+
 var starter = new Team([new Abu(), new Zenghis(), new Toki()], "Starter Team");
 var abu1 = new Team([new Brutus(), new Osgood(), new Crixus()], "ABU");
-var abu2 = new Team([new Naro(), new Ram(), new Le_roc()], "NOT ABU");
-var real_teams = [starter, abu1, abu2];
+var abu2 = new Team([new Naro(), new Ram(), new Breth()], "NOT ABU");
+var arena = new Team([new Abu(), new Gunnar(), new Sakuma()], "Arena Favorites");
+var real_teams = [starter, abu1, abu2, arena];

@@ -1,17 +1,9 @@
 /*
 These are Special Moves, powerful attacks that warriors can use.
 Each warrior comes with a preselected Special Move, which is determined in their data.
-Each Special Move has 2-3 arguments:
-The mod, which determines how powerful the Special Move is compared to the user's Normal Move.
-The pip, which shows how strong the user's Special Move is compared to warriors with the same Special Move.
-And sometimes, the variation: Which is usually based on the user's Element.
 */
 
 // currently in the process of redoing, balancing
-
-// get rid of these eventually
-var BENCH_HIT_PEN = 0.75;
-var RECOIL_MOD = 1.2;
 
 class Special_move {
     constructor(name, base_damage, mult_ele){
@@ -131,14 +123,14 @@ class Boost extends Special_move{
 			member.boost_up = true;
 			var add_boost = true;
 			for (var boost of member.ele_boosts){
-				if (boost[0] == 1.35){
-					boost[1] = 3;
+				if (boost.id == this.name){
+					boost.dur_rem = 3;
 					add_boost = false;
 				}
 			}
 			
 			if (add_boost){
-				member.ele_boosts.push([1.35, 3]);
+				member.ele_boosts.push(new Stat_boost(this.name, 1.35, 3));
 			}
 		}    
     }
@@ -332,74 +324,75 @@ class Stealth_assault extends Special_move{
 	    this.user.team.switchin(this.user.team.switchback);        
     }
 }
-
-
-
-
-
-function Team_strike(mod, pip){
-	this.mod = mod;
-	this.pip = pip;
-	this.gives_energy = true;
-	this.name = "Team Strike";
-}
-
-Team_strike.prototype.attack = function(user){
-	var pow = user.team.members_rem.length - 1;
-	var mod = this.mod * Math.pow(RECOIL_MOD, pow);
-	var physical_damage = user.get_phys() * mod;
-	var elemental_damage = user.get_ele() * mod;
-	
-	var dmg = user.enemy_team.active.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]); 
-	for (var member of user.team.members_rem){
-		member.hp_rem -= dmg / 6;
-		member.hp_rem = Math.round(member.hp_rem);
+class Team_strike extends Special_move{
+	constructor(){
+		super("Team Strike", 60, true);
 	}
-	if (user.hp_rem <= 1){
-		user.hp_rem = 1;
+	attack(){
+		var pow = this.user.team.members_rem.length - 1;
+		var mod = this.mod * Math.pow(RECOIL_MOD, pow);
+		var physical_damage = this.user.get_phys() * mod;
+		var elemental_damage = this.user.get_ele() * mod;
+		
+		var dmg = this.user.enemy_team.active.calc_damage_taken([physical_damage, elemental_damage]); 
+		for (var member of this.user.team.members_rem){
+			member.hp_rem -= dmg / 6;
+			member.hp_rem = Math.round(member.hp_rem);
+		}
+		if (this.user.hp_rem <= 1){
+			this.user.hp_rem = 1;
+		}	
 	}
 }
-
-function Phantom_strike(mod, pip){
-	this.pip = pip;
-	this.mod = mod * Math.pow(BENCH_HIT_PEN, 3);
-	this.gives_energy = true;
-	this.name = "Phantom Strike"; 
+class Phantom_strike extends Special_move{
+	constructor(){
+		super("Phantom Strike", 10, true);
+	}
+	attack(){
+		var physical_damage = this.user.get_phys() * this.mod;
+		var elemental_damage = this.user.get_ele() * this.mod;
+		var target_team = this.user.enemy_team;
+		
+		//first hit
+		var pd = physical_damage * 1.33;
+		var ed = elemental_damage * 1.33;
+		target_team.active.calc_damage_taken([pd, ed]);
+		if (target_team.members_rem.length < 2){return;}
+		
+		//second hit
+		var target = target_team.next();
+		target.calc_damage_taken([physical_damage, elemental_damage]);
+		if (target_team.members_rem.length < 3){return;}
+		
+		//third hit
+		pd = physical_damage * 0.67;
+		ed = elemental_damage * 0.67;
+		target = target_team.prev();
+		target.calc_damage_taken([pd, ed]);
+	}
 }
-
-Phantom_strike.prototype.attack = function(user){
-	var physical_damage = user.get_phys() * this.mod;
-	var elemental_damage = user.get_ele() * this.mod;
-	var target_team = user.enemy_team;
-	
-	//first hit
-	var pd = physical_damage * 1.33;
-	var ed = elemental_damage * 1.33;
-	target_team.active.calc_damage_taken(user, [Math.round(pd), Math.round(ed)]);
-	if (target_team.members_rem.length < 2){return;}
-	
-	//second hit
-	var target = target_team.next();
-	console.log(target);
-	target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)]);
-	if (target_team.members_rem.length < 3){return;}
-	
-	//third hit
-	pd = physical_damage * 0.67;
-	ed = elemental_damage * 0.67;
-	target = target_team.prev();
-	console.log(target);
-	target.calc_damage_taken(user, [Math.round(pd), Math.round(ed)]);
-}
-
-function Phantom_shield(){
-    this.pip = 2;
-    this.mod = 1;
-    this.gives_energy = false;
-    this.name = "Phantom Shield";
-}
-Phantom_shield.prototype.attack = function(user){
-    for (var member of user.team.members_rem){
-        member.shield = 3;
-    }
+class Phantom_shield extends Special_move{
+	constructor(){
+		super("Phantom Shield", 0, false);
+		this.ignores_ele = true;
+		this.gives_energy = false;
+	}
+	set_user(user){
+		this.user = user;
+		this.mod = 1;
+	}
+	attack(){
+		for (var member of this.user.team.members_rem){
+			var apply = true;
+			for(var boost of member.armor_boosts){
+				if(boost.id == this.name){
+					boost.dur_rem = 3;
+					apply = false
+				}
+			}
+			if(apply){
+    	    	member.armor_boosts.push(new Stat_boost("Phantom Shield", 0.55, 3));
+    	    }
+    	}
+	}
 }
