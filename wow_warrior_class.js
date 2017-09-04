@@ -77,7 +77,6 @@ class Warrior{
 	    */
 		return this.max_hp * (perc);
 	}
-	
 	calc_damage_taken(phys, ele){
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
@@ -106,7 +105,6 @@ class Warrior{
 		
 		this.hp_rem = Math.round(this.hp_rem);
 	}
-	
 	check_if_ko(){
 	/*
 	An I dead yet?

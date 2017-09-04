@@ -1,3 +1,53 @@
+function rect(color, x, y, w, h){
+    /*
+    Draws a rectangle.
+    x, y, w, and h are all based on
+    the size of the canvas
+    
+    EX:
+        rect(~~~, 50, 0, 50, 0);
+        
+        will draw a ~~~ rectangle
+        that covers the whole right
+        side of the canvas
+    */
+    var c = document.getElementById("canvas");
+    var ctx = c.getContext("2d")
+    
+    ctx.fillStyle = color;
+    ctx.fillRect(x / 100 * c.width, y / 100 * c.height, w / 100 * c.width, h / 100 * c.height);
+}
+
+// scale text?
+class Text{
+    constructor(font_size, color, x, y){
+        /*
+        x and y are percentages of the
+        canvas.
+        EX:
+            new Text(~~~, ~~~, 50, 50);
+            
+            will start in the middle of
+            the canvas.
+        */
+        this.font = font_size.toString() + "px Ariel";
+        this.spacing = Math.round(font_size * 1.1);
+        this.color = color;
+        
+        var c = document.getElementById("canvas");
+        this.x = x / 100 * c.width;
+        this.y = y / 100 * c.height + font_size;
+    }
+    add(string){
+        var c = document.getElementById("canvas").getContext("2d");
+        
+        c.fillStyle = this.color;
+        c.font = this.font;
+        c.fillText(string, this.x, this.y);
+        this.y += this.spacing;
+    }
+}
+
 // warrior
 function display_warrior_card(x, y, size, m){
 	/*
@@ -64,18 +114,19 @@ function display_warrior_card(x, y, size, m){
 	var spec_shift = m.special.name.length * font_size + fg_shift;
 	canvas.fillText(m.special.name, x + w - spec_shift, y + h * 0.15);
 }
+
+// done for now
 function display_stats(m){
-	canvas.fillStyle = "rgb(255, 255, 255)";
-	canvas.fillRect(300, 100, 400, 200);
-	
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.font = "40px Ariel";
-	canvas.fillText(m.name, 300, 130);
-	canvas.fillText("Physical: " + m.get_phys().toString(), 300, 170);
-	canvas.fillText("Elemental: " + m.get_ele().toString(), 300, 210);
-	canvas.fillText("Max HP: " + m.max_hp.toString(), 300, 250);
-	canvas.fillText("Armor: " + m.armor.toString(), 300, 290);
+	rect("rgb(255, 255, 255)", 25, 12, 33, 40);
+	t = new Text(40, "rgb(0, 0, 0)", 26, 13);
+	t.add(m.name);
+	t.add("Physical: " + m.get_phys().toString());
+	t.add("Elemental: " + m.get_ele().toString());
+	t.add("Max HP: " + m.max_hp.toString());
+	t.add("Armor: " + m.armor.toString());
 }
+
+
 function display_health(x, y, m){
 	/*
 	Display a Warrior's icon, showing:
