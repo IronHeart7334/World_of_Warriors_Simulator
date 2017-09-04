@@ -4,8 +4,7 @@ function load_canvas(){
 }
 
 function clear_canvas(){
-	canvas.fillStyle = "rgb(0, 155, 155)";
-	canvas.fillRect(0, 0, base_canvas.width, base_canvas.height);
+    rect("rgb(0, 155, 155)", 0, 0, 100, 100);
 }
 
 function disp_menu(){
@@ -41,9 +40,9 @@ function disp_menu(){
     
 	for (var c = 0; c < 4; c++){
 		canvas.fillStyle = colors[c];
-		var x = base_canvas.width / 4 * c;
+		var x = 25 * c;
 			        
-		active_buttons.push(new Button(mes[c], colors[c], x, 0, base_canvas.width / 4, base_canvas.height, [set_page(pages[c])]));
+		active_buttons.push(new Button(mes[c], colors[c], x, 0, 25, 100, [set_page(pages[c])]));
 	}
 	help_button(ex_menu);
 	for (var button of active_buttons){
@@ -51,6 +50,8 @@ function disp_menu(){
 	}
 }
 
+
+// work here
 function load_teambuilder(){
     tbx = Math.round(warriors.length / 2);
     team_in_dev = [];
@@ -134,6 +135,9 @@ function update_teambuilder(){
     }
 }
 
+
+
+
 function load_team_select(){
     if (real_teams.length >= 2){
         pass_teams = [real_teams[0], real_teams[1]];
@@ -147,8 +151,7 @@ function load_team_select(){
 
 function update_team_select(){
 	active_buttons = [];
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.fillRect(0, 0, base_canvas.width, base_canvas.height);
+	rect("rgb(0, 0, 0)", 0, 0, 100, 100);
 	
 	function set_team(team_num, team){
 	    return function(){
@@ -159,29 +162,26 @@ function update_team_select(){
     function draw_teams(team_num, x){
 	    var y = 0;
 	    for (var team of real_teams){
-		    var new_button = new Button(team.name, "rgb(255, 255, 255)", x, y, 100, 40, [set_team(team_num, team), update_team_select]);
+		    var new_button = new Button(team.name, "rgb(255, 255, 255)", x, y, 25, 10, [set_team(team_num, team), update_team_select]);
 		    active_buttons.push(new_button);
-		    y += 50;
+		    y += 10;
 		
-		    if (y >= 410){
-			    x += 110;
+		    if (y >= 80){
+			    x += 25;
 			    y = 0;
 		    }
 	    }
     }
 	
-	draw_teams(0, 50);
-	draw_teams(1, 550);
+	draw_teams(0, 0);
+	draw_teams(1, 50);
 	
-	canvas.fillStyle = "rgb(255, 255, 255)";
-	canvas.fillRect(50, 450, 900, 45);
+	rect("rgb(255, 255, 255)", 0, 80, 80, 20);
 	
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.font = "40px Ariel";
-	var msg = pass_teams[0].name + " VS " + pass_teams[1].name + ": Fight!";
-	canvas.fillText(msg, 70, 470);
+	var t = new Text(40, "rgb(0, 0, 0)", 0, 80);
+	t.add(pass_teams[0].name + " VS " + pass_teams[1].name + ": Fight!");
 	
-	active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 950, 450, 50, 50, [begin_fight]));
+	active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 80, 80, 20, 20, [begin_fight]));
 	help_button(ex_team_sel);
 	
 	for (var button of active_buttons){

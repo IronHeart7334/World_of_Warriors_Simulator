@@ -17,6 +17,23 @@ function rect(color, x, y, w, h){
     ctx.fillStyle = color;
     ctx.fillRect(x / 100 * c.width, y / 100 * c.height, w / 100 * c.width, h / 100 * c.height);
 }
+function circle(color, x, y, radius){
+    /*
+    x, y are coords of UPPER LEFT CORNER,
+    not center.
+    */
+    var c = document.getElementById("canvas");
+    var ctx = c.getContext("2d")
+    
+    var tx = x / 100 * c.width;
+    var ty = y / 100 * c.height;
+    var tr = radius / 100 * c.width;
+    
+    ctx.fillStyle = color;
+    ctx.beginPath();
+	ctx.arc(tx + tr, ty + tr, tr, 0, 2 * Math.PI);
+	ctx.fill();
+}
 
 // scale text?
 class Text{
@@ -136,48 +153,46 @@ function display_health(x, y, m){
 		Their name
 		Their actual HP remaining
 	*/
+	if (m.check_if_ko()){
+	    return;
+	}
+	
 	if (m.team.active == m){
-		canvas.fillStyle = "rgb(125, 125, 125)";
-		canvas.fillRect(x - 50, y, 150, 100);
+	    rect("rgb(125, 125, 125)", x, y, 25, 20);
 	}
 	
-	canvas.fillStyle = m.element.color;
 	if (m.boost_up){
-		canvas.fillRect(x, y, 100, 50);
+	    rect(m.element.color, x, y, 10, 5);
 	}
-	canvas.beginPath();
-	canvas.arc(x - 50, y + 50, 50, 0, 2 * Math.PI);
-	canvas.fill();
 	
-	var bar_width = m.hp_perc() * 100;
-	canvas.fillStyle = "rgb(255, 0, 0)";
-	if (m.check_if_ko()){return;}
-	if (m.poisoned !== false){canvas.fillStyle = "rgb(0, 255, 0)";}
-	canvas.fillRect(x, y + 25, bar_width, 25);
+	circle(m.element.color, x, y, 5);
 	
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.font = "30px Ariel";
-	canvas.fillText(m.name, x, y + 20);
-	if (!m.regen){
-		canvas.fillText(m.hp_rem, x, y + 45);
+	var color;
+	if (m.poisoned !== false){
+	    color = "rgb(0, 255, 0)";
 	} else {
-		canvas.fillText(m.hp_rem + "+", x, y + 45);
+	    color = "rgb(255, 0, 0)";
+	}
+	rect(color, x, y + 5, 25 * m.hp_perc(), 5);
+	
+	var t = new Text(30, "rgb(0, 0, 0)", x + 5, y + 5);
+	t.add(m.name);
+	if (!m.regen){
+		t.add(m.hp_rem);
+	} else {
+		t.add(m.hp_rem + "+");
 	}
 	if (m.last_phys_dmg != 0){
-		canvas.fillStyle = "rgb(0, 0, 0)";
-		canvas.fillText("-" + String(Math.round(m.last_phys_dmg)), x, y + 75);
+		t.add("-" + String(Math.round(m.last_phys_dmg)));
 	}
 	if (m.last_ele_dmg != 0){
-	    canvas.fillStyle = m.last_hitby.element.color;
-		canvas.fillText("-" + String(Math.round(m.last_ele_dmg)), x, y + 100);
+		t.add("-" + String(Math.round(m.last_ele_dmg)));
 	}
 	if (m.last_healed != 0){
-		canvas.fillStyle = "rgb(0, 255, 0)";
-		canvas.fillText("+" + String(m.last_healed), x, y + 75);
+		t.add("+" + String(m.last_healed));
 	}
 	if (m.shield != false){
-		canvas.fillStyle = "rgba(0, 0, 155, 0.5)";
-		canvas.fillRect(x, y, 100, 50);
+	    rect("rgba(0, 0, 155, 0.5)", x, y, 25, 20);
 	}
 }
 

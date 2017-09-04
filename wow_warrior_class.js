@@ -176,7 +176,7 @@ class Warrior{
 		var button_size = canvas_width * 0.1
 		var x = canvas_width * 0.5 - button_size;
 		var y = canvas_width * 0.1;
-		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", x, y, button_size, button_size, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
+		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", 40, 10, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
 	}
 	bomb(){
 	/*
@@ -185,9 +185,6 @@ class Warrior{
 	*/
 		var w = this;
 		var t = this.team;
-		var button_size = canvas_width * 0.1;
-		var x = canvas_width * 0.5;
-		var y = canvas_width * 0.1;
 		var f = function(){
 			var d = w.perc_hp(0.15);
 			w.hp_rem -= d;
@@ -196,7 +193,7 @@ class Warrior{
 			}
 			w.hp_rem = Math.round(w.hp_rem);
 		}
-		active_buttons.push(new Button("", "rgb(0, 0, 0)", x, y, button_size, button_size, [f, t.turn_part2.bind(t)]));
+		active_buttons.push(new Button("", "rgb(0, 0, 0)", 50, 10, 10, 10, [f, t.turn_part2.bind(t)]));
 	}
 	// update this once Resilience out
 	nat_regen(){
@@ -537,7 +534,7 @@ class Team{
 	// shorten these buttons
 	display_nm(){
 		var team = this;
-		var new_button = new Button("Normal Move", team.active.element.color, 475, 325, 100, 100, [team.active.use_normal_move.bind(team.active)]);
+		var new_button = new Button("Normal Move", team.active.element.color, 50, 60, 10, 10, [team.active.use_normal_move.bind(team.active)]);
 		active_buttons.push(new_button);
 		new_button.draw();
 	}
@@ -547,37 +544,32 @@ class Team{
 	as icons across the screen.
 	Click on them to use them.
 	*/
-		var x = this.x - 200;
+		var x = this.x;
 		var team = this;
 		for (var member of team.members_rem){
-			var new_button = new Button(member.special.name, member.element.color, x, 325, 100, 100, [member.use_special.bind(member)]);
+			var new_button = new Button(member.special.name, member.element.color, x, 60, 10, 10, [member.use_special.bind(member)]);
 			active_buttons.push(new_button);
-			x += canvas_width * 0.1;
-			
+			x += 10;	
 		}
 	}
 	display_energy(){
-		canvas.fillStyle = "rgb(0, 100, 255)";
-		var x = this.x - 150;
+		var x = this.x;
 		for (var count = 0; count < this.energy; count ++){
-			canvas.beginPath();
-			canvas.arc(x, 450, 25, 0, 2 * Math.PI);
-			canvas.fill();
-			x += 75;
+			circle("rgb(0, 100, 255)", x, 80, 5);
+			x += 5;	
 		}
 	}
 	display_all_hp(){
 		var y = 0;
 		for (var member of this.members_rem){
 			display_health(this.x, y, member);
-			var x = this.x - 100;
 			function f(m){
 			    return function(){
 			        display_stats(m);
 			    }
 			}
-			active_buttons.push(new Button("", "none", x, y, 100, 100, [f(member)]));
-			y += 100;
+			active_buttons.push(new Button("", "none", this.x, y, 10, 10, [f(member)]));
+			y += 16.67;
 		}
 	}
 }
@@ -594,8 +586,8 @@ function Battle(team1, team2){
 		var enemy = slice.splice(this.teams.indexOf(team), 1);
 		team.enemy_team = slice[0];
 	}
-	team1.x = canvas_width * 0.2;
-	team2.x = canvas_width * 0.8;
+	team1.x = 0;
+	team2.x = 75;
 }
 
 Battle.prototype = {
