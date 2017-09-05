@@ -173,10 +173,7 @@ class Warrior{
 	*/
 		var w = this;
 		var t = this.team;
-		var button_size = canvas_width * 0.1
-		var x = canvas_width * 0.5 - button_size;
-		var y = canvas_width * 0.1;
-		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", 40, 10, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
+		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
 	}
 	bomb(){
 	/*
@@ -193,7 +190,7 @@ class Warrior{
 			}
 			w.hp_rem = Math.round(w.hp_rem);
 		}
-		active_buttons.push(new Button("", "rgb(0, 0, 0)", 50, 10, 10, 10, [f, t.turn_part2.bind(t)]));
+		active_buttons.push(new Button("", "rgb(0, 0, 0)", 50, 90, 10, 10, [f, t.turn_part2.bind(t)]));
 	}
 	// update this once Resilience out
 	nat_regen(){
@@ -423,6 +420,7 @@ class Team{
 				return;
 			}
 		}
+		console.log("Error: The warrior " + warrior + " does not exist!");
 	}
 	update(){
 		for (var member of this.members_rem){
@@ -450,7 +448,7 @@ class Team{
 		}
 		
 		if (act_koed){
-			this.switchin(index);
+			this.switchin(this.members_rem[index]);
 		}
 	}
 	win(){
@@ -534,7 +532,7 @@ class Team{
 	// shorten these buttons
 	display_nm(){
 		var team = this;
-		var new_button = new Button("Normal Move", team.active.element.color, 50, 60, 10, 10, [team.active.use_normal_move.bind(team.active)]);
+		var new_button = new Button("Normal Move", team.active.element.color, 45, 70, 10, 10, [team.active.use_normal_move.bind(team.active)]);
 		active_buttons.push(new_button);
 		new_button.draw();
 	}
@@ -544,18 +542,18 @@ class Team{
 	as icons across the screen.
 	Click on them to use them.
 	*/
-		var x = this.x;
+		var x = this.x - 15;
 		var team = this;
 		for (var member of team.members_rem){
-			var new_button = new Button(member.special.name, member.element.color, x, 60, 10, 10, [member.use_special.bind(member)]);
+			var new_button = new Button(member.special.name, member.element.color, x, 70, 10, 10, [member.use_special.bind(member)]);
 			active_buttons.push(new_button);
-			x += 10;	
+			x += 15;	
 		}
 	}
 	display_energy(){
 		var x = this.x;
 		for (var count = 0; count < this.energy; count ++){
-			circle("rgb(0, 100, 255)", x, 80, 5);
+			circle("rgb(0, 100, 255)", x, 90, 5);
 			x += 5;	
 		}
 	}
@@ -568,8 +566,8 @@ class Team{
 			        display_stats(m);
 			    }
 			}
-			active_buttons.push(new Button("", "none", this.x, y, 10, 10, [f(member)]));
-			y += 16.67;
+			active_buttons.push(new Button("", "none", this.x, y, 20, 10, [f(member)]));
+			y += 20;
 		}
 	}
 }
@@ -586,7 +584,7 @@ function Battle(team1, team2){
 		var enemy = slice.splice(this.teams.indexOf(team), 1);
 		team.enemy_team = slice[0];
 	}
-	team1.x = 0;
+	team1.x = 15;
 	team2.x = 75;
 }
 

@@ -17,17 +17,18 @@ function rect(color, x, y, w, h){
     ctx.fillStyle = color;
     ctx.fillRect(x / 100 * c.width, y / 100 * c.height, w / 100 * c.width, h / 100 * c.height);
 }
-function circle(color, x, y, radius){
+function circle(color, x, y, diameter){
     /*
     x, y are coords of UPPER LEFT CORNER,
     not center.
     */
+    var radius = diameter / 2;
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d")
     
     var tx = x / 100 * c.width;
     var ty = y / 100 * c.height;
-    var tr = radius / 100 * c.width;
+    var tr = radius / 100 * ((c.width + c.height) / 2);
     
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -65,7 +66,7 @@ class Text{
     }
 }
 
-// warrior
+// not started
 function display_warrior_card(x, y, size, m){
 	/*
 	Draws a card displaying information about a warrior.
@@ -134,8 +135,8 @@ function display_warrior_card(x, y, size, m){
 
 // done for now
 function display_stats(m){
-	rect("rgb(255, 255, 255)", 25, 12, 33, 40);
-	t = new Text(40, "rgb(0, 0, 0)", 26, 13);
+	rect("rgb(255, 255, 255)", 40, 10, 20, 50);
+	t = new Text(40, "rgb(0, 0, 0)", 40, 10);
 	t.add(m.name);
 	t.add("Physical: " + m.get_phys().toString());
 	t.add("Elemental: " + m.get_ele().toString());
@@ -157,31 +158,33 @@ function display_health(x, y, m){
 	    return;
 	}
 	
+	// 'active' border
 	if (m.team.active == m){
-	    rect("rgb(125, 125, 125)", x, y, 25, 20);
+	    rect("rgb(125, 125, 125)", x, y, 20, 10);
 	}
-	
+	// boost strip
 	if (m.boost_up){
-	    rect(m.element.color, x, y, 10, 5);
+	    rect(m.element.color, x, y, 20, 5);
 	}
 	
-	circle(m.element.color, x, y, 5);
-	
+	// health bar
 	var color;
 	if (m.poisoned !== false){
 	    color = "rgb(0, 255, 0)";
 	} else {
 	    color = "rgb(255, 0, 0)";
 	}
-	rect(color, x, y + 5, 25 * m.hp_perc(), 5);
+	rect(color, x + 5, y + 5, 15 * m.hp_perc(), 5);
 	
-	var t = new Text(30, "rgb(0, 0, 0)", x + 5, y + 5);
+	// health value
+	var t = new Text(20, "rgb(0, 0, 0)", x + 10, y);
 	t.add(m.name);
 	if (!m.regen){
 		t.add(m.hp_rem);
 	} else {
 		t.add(m.hp_rem + "+");
 	}
+	// how to squeeze these in?
 	if (m.last_phys_dmg != 0){
 		t.add("-" + String(Math.round(m.last_phys_dmg)));
 	}
@@ -191,18 +194,19 @@ function display_health(x, y, m){
 	if (m.last_healed != 0){
 		t.add("+" + String(m.last_healed));
 	}
-	if (m.shield != false){
-	    rect("rgba(0, 0, 155, 0.5)", x, y, 25, 20);
+	
+	// Phantom Shield overlay
+	if (m.shield){
+	    rect("rgba(0, 0, 155, 0.5)", x, y, 20, 10);
 	}
+	
+	// icon
+	circle(m.element.color, x, y, 5);
 }
 
 // team
 function display_vs(t){
-	canvas.fillStyle = "rgb(255, 255, 255)";
-	canvas.fillRect(300, 25, 400, 50);
-	
-	var message = t.active.name + " VS " + t.enemy_team.active.name;
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.font = "30px Ariel";
-	canvas.fillText(message, 305, 50);
+    rect("rgb(255, 255, 255)", 40, 0, 20, 10);
+	x = new Text(10, "rgb(0, 0, 0)", 40, 0);
+	x.add(t.active.name + " VS " + t.enemy_team.active.name);
 }
