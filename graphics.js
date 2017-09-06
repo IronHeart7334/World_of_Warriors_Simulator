@@ -66,10 +66,10 @@ class Text{
     }
 }
 
-// not started
+// untested
 function display_warrior_card(x, y, size, m){
 	/*
-	Draws a card displaying information about a warrior.
+	Draws a card displaying information about a warrior (m).
 	*/
 	
 	var w = size;
@@ -80,15 +80,14 @@ function display_warrior_card(x, y, size, m){
 	canvas.font = font;
 	
 	//Background
-	canvas.fillStyle = "rgb(255, 215, 0)";
-	canvas.fillRect(x, y, w, h);
+	rect("rgb(255, 215, 0)", x, y, w, h);
 	
 	//Foreground
 	var fg_shift = w * 0.05
-	canvas.fillStyle = m.element.color;
-	canvas.fillRect(x + fg_shift, y + fg_shift, w - fg_shift * 2, h - fg_shift * 2);
+	rect(m.element.color, x + fg_shift, y + fg_shift, w - fg_shift * 2, h - fg_shift * 2);
 	
-	// The level shield thing
+	// The level shield thing REDO
+	/*
 	canvas.fillStyle = "rgb(255, 200, 125)";
 	canvas.beginPath();
 	canvas.moveTo(x + 25, y + 25);
@@ -97,40 +96,40 @@ function display_warrior_card(x, y, size, m){
 	canvas.lineTo(x + 25 + w / 20, y + 25 + h / 4);
 	canvas.lineTo(x + 25, y + 25 + h / 7);
 	canvas.fill();
+	*/
 	
 	// Level numerator
-	canvas.fillStyle = "rgb(0, 0, 0)";
-	canvas.fillText(m.level, x + 25, y + 60);
+	var t = new Text(5, "rgb(0, 0, 0)", x + 5, y + 10);
+	t.add(m.level);
 	
 	// Level denominator
 	// add this later
 	
 	//Stats
-	canvas.fillStyle = "rgb(255, 255, 255)";
-	canvas.fillRect(x + 75, y + h * 0.375, w * 0.2, h * 0.1);
-	canvas.fillRect(x + 75, y + h * 0.5, w * 0.2, h * 0.1);
-	canvas.fillRect(x + 75, y + h * 0.625, w * 0.2, h * 0.1);
+	for(var i = 1; i <= 3; i++){
+	    rect("rgb(255, 255, 255)", x + 75, y + h * (0.25 + 0.125 * i), w * 0.2, h * 0.1);
+	}
 	
 	canvas.fillStyle = "rgb(0, 0, 0)";
 		
 	m.calc_stats();
-		
-	canvas.fillText(m.phys, x + 75, y + h * 0.375 + 35);
-	canvas.fillText(m.ele, x + 75, y + h * 0.5 + 35);
-	canvas.fillText(m.max_hp, x + 75, y + h * 0.625 + 35);
+	t = new Text(h * 0.125, "rgb(0, 0, 0)", x + 7, y + 5);
+	t.add(m.phys);
+	t.add(m.ele);
+	t.add(m.max_hp);
 	
 	//Armor: replace with shield sprite later
-	canvas.fillStyle = "rgb(100, 100, 100)";
 	for(var i = 0; i <= m.armor; i++){
-		canvas.fillRect(x + 75 + (w * 0.1 * i), y + h * 0.75, w * 0.05, h * 0.05);
+		rect("rgb(100, 100, 100)", x + 75 + (w * 0.1 * i), y + h * 0.75, w * 0.05, h * 0.05);
 	}
 
 	// Name
-	canvas.fillText(m.name, x + 110, y + 50);
+	t = new Text(10, "rgb(0, 0, 0)", x + 10, y + 10);
+	t.add(m.name);
 	
 	// Special
-	var spec_shift = m.special.name.length * font_size + fg_shift;
-	canvas.fillText(m.special.name, x + w - spec_shift, y + h * 0.15);
+	t = new Text(10, "rgb(0, 0, 0)", x + 50 * size, y);
+	t.add(m.special.name);
 }
 
 // done for now

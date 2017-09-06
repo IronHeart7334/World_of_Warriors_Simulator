@@ -86,7 +86,7 @@ function update_teambuilder(){
             team_in_dev.push(options[warrior_num]);
             if (team_in_dev.length == 3){
                 var team_name = prompt("What do you want to call this team?");
-                var team_level = 5;
+                var team_level = 34;
                 real_teams.push(new Team([new Warrior(team_in_dev[0], team_level), new Warrior(team_in_dev[1], team_level), new Warrior(team_in_dev[2], team_level)], team_name));
                 disp_menu();
                 return;
@@ -105,15 +105,15 @@ function update_teambuilder(){
     // Draw warrior cards
     if (tbx !== 0){
         var left_warrior = new Warrior(options[tbx - 1], 0);
-        display_warrior_card(0, base_canvas.height * 0.25, base_canvas.height / 2, left_warrior);    
+        display_warrior_card(0, 25, 25, left_warrior);    
     }
     
     if (tbx !== options.length - 1){
         var right_warrior = new Warrior(options[tbx + 1], 0);
-        display_warrior_card(base_canvas.width * 0.75, base_canvas.height * 0.25, base_canvas.height / 2, right_warrior); 
+        display_warrior_card(75, 25, 25, right_warrior); 
     }
     var middle_warrior = new Warrior(options[tbx], 0);
-    display_warrior_card(base_canvas.width * 0.25, base_canvas.height * 0.25, base_canvas.height, middle_warrior);
+    display_warrior_card(25, 25, 50, middle_warrior);
     
     // Draw team in development
     var y = base_canvas.height * 0.05;
