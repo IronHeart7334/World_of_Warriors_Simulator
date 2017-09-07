@@ -7,11 +7,12 @@ var HP = 107.0149;
 
 
 class Warrior{
-    constructor(data, level){
+    constructor(name){
 	    /*
 	    The warrior Class takes data from an array:
 	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
 	    */
+	    var data = this.find_warrior(name);
 	    this.name = data[0]
 	    this.base_off = OFFENSE * data[1][0];
 		this.base_ele = this.base_off * data[1][1];
@@ -20,12 +21,64 @@ class Warrior{
 	    this.armor = data[1][3];
 	    this.pip = data[1][4];
 	    this.element = data[2];
-	    this.special = data[3];
-	    this.lead_skill = data[4];
+	    this.special = this.find_special(data[3]);
+	    this.lead_skill = new Lead(data[4][0], data[4][1]);
 	    this.level = 34;
 	    
 	    this.special.set_user(this);
     }
+    find_warrior(name){
+    	for(var warrior of warriors){
+    		if(warrior[0] == name){
+    			return warrior;
+    		}
+    	}
+    	return ["ERROR", [1, 0.5, 1, 1, 2], no_ele, "ERROR", [5, "p"]];
+    }
+    // better way?
+	find_special(name){
+		switch(name){
+		case "beat":
+			return new Beat(true);
+		case "aoe":
+			return new AOE();
+		case "boost":
+			return new Boost();
+		case "poison":
+			return new Poison();
+		case "rolling thunder":
+			return new Rolling_thunder();
+		case "stealth strike":
+			return new Stealth_strike();
+		case "armor break":
+			return new Armor_break();
+		case "healing":
+			return new Healing();
+		case "soul steal":
+			return new Soul_steal();
+		case "berserk":
+			return new Berserk();
+		case "poison hive":
+			return new Poison_hive();
+		case "regeneration":
+			return new Regeneration();
+		case "vengeance":
+			return new Vengeance();
+		case "twister":
+			return new Twister();
+		case "stealth assault":
+			return new Stealth_assault();
+		case "team strike":
+			return new Team_strike();
+		case "phantom strike":
+			return new Phantom_strike();
+		case "phantom shield":
+			return new Phantom_shield();
+		default:
+			console.log("The Special move by the name of " + name + " does not exist. Defaulting to Thunder Strike");
+			return new Beat(false);
+		}
+	}
 	calc_stats(){
 		/*
 		Calculate a warrior's stats
@@ -356,7 +409,10 @@ class Lead{
 
 class Team{
     constructor(members, name){
-        this.members = members;
+        this.members = [];
+        for(var member of members){
+        	this.members.push(new Warrior(member));
+        }
 	    this.name = name;
 	    all_teams.push(this);
     }
@@ -410,11 +466,11 @@ class Team{
 		return this.members_rem[nextup];
 	}
 	switchin(warrior){
+		if (this.members_rem.length == 1){
+			this.active = this.members_rem[0];
+			return;
+		}
 		for (var member of this.members_rem){
-			if (this.members_rem.length == 1){
-				this.active = this.members_rem[0];
-				return;
-			}
 			if (member == warrior){
 				this.active = member;
 				return;
@@ -448,7 +504,10 @@ class Team{
 		}
 		
 		if (act_koed){
-			this.switchin(this.members_rem[index]);
+			if(index >= this.members_rem.length){
+				index = 0;
+			}
+			this.switchin(index);
 		}
 	}
 	win(){

@@ -35,7 +35,6 @@ function circle(color, x, y, diameter){
 	ctx.arc(tx + tr, ty + tr, tr, 0, 2 * Math.PI);
 	ctx.fill();
 }
-
 // scale text?
 class Text{
     constructor(font_size, color, x, y){
@@ -65,7 +64,6 @@ class Text{
         this.y += this.spacing;
     }
 }
-
 // untested
 function display_warrior_card(x, y, size, m){
 	/*
@@ -131,8 +129,6 @@ function display_warrior_card(x, y, size, m){
 	t = new Text(10, "rgb(0, 0, 0)", x + 50 * size, y);
 	t.add(m.special.name);
 }
-
-// done for now
 function display_stats(m){
 	rect("rgb(255, 255, 255)", 40, 10, 20, 50);
 	t = new Text(40, "rgb(0, 0, 0)", 40, 10);
@@ -142,8 +138,6 @@ function display_stats(m){
 	t.add("Max HP: " + m.max_hp.toString());
 	t.add("Armor: " + m.armor.toString());
 }
-
-
 function display_health(x, y, m){
 	/*
 	Display a Warrior's icon, showing:
@@ -202,8 +196,6 @@ function display_health(x, y, m){
 	// icon
 	circle(m.element.color, x, y, 5);
 }
-
-// team
 function display_vs(t){
     rect("rgb(255, 255, 255)", 40, 0, 20, 10);
 	x = new Text(10, "rgb(0, 0, 0)", 40, 0);
