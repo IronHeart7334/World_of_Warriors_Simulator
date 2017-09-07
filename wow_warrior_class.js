@@ -507,7 +507,7 @@ class Team{
 			if(index >= this.members_rem.length){
 				index = 0;
 			}
-			this.switchin(index);
+			this.switchin(this.members_rem[index]);
 		}
 	}
 	win(){
@@ -596,11 +596,11 @@ class Team{
 		new_button.draw();
 	}
 	display_specials(){
-	/*
-	List all of a team's Special Moves
-	as icons across the screen.
-	Click on them to use them.
-	*/
+	    /*
+	    List all of a team's Special Moves
+	    as icons across the screen.
+	    Click on them to use them.
+	    */
 		var x = this.x - 15;
 		var team = this;
 		for (var member of team.members_rem){

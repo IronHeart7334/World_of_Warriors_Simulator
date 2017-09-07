@@ -9,6 +9,7 @@ function clear_canvas(){
 
 function disp_menu(){
 	active_buttons = [];
+	
 	var colors = [
 		"rgb(0, 255, 0)",
 		"rgb(255, 0, 0)",
@@ -24,7 +25,9 @@ function disp_menu(){
 	var pages = [
 	    undefined,
 	    load_team_select,
-	    load_teambuilder,
+	    function(){
+	        tb.load();
+	    },
 	    undefined
 	];
 	function set_page(page){
@@ -52,90 +55,87 @@ function disp_menu(){
 
 
 // work here
-function load_teambuilder(){
-    tbx = Math.round(warriors.length / 2);
-    team_in_dev = [];
-    update_teambuilder();
-}
 
-function update_teambuilder(){
-    active_buttons = [];
-    
-    //Find out which warriors should be in the selector
-    var options = [];
-    for (var w of warriors){
-        if (team_in_dev.indexOf(w) == -1){
-            options.push(w);
+// make static? improve a bit
+class Teambuilder{
+    load(){
+        //tbx: TeamBuilderX
+        this.tbx = Math.round(warriors.length / 2);
+        this.team_workshop = [];
+        this.options = [];
+        this.update();
+    }
+    leftTBX(){
+        this.tbx -= 1;
+        if (this.tbx < 0){
+            this.tbx = 0;
         }
     }
-    
-    function leftTBX(){
-        tbx -= 1;
-        if (tbx < 0){
-            tbx = 0;
+    rightTBX(){
+        this.tbx ++;
+        if (this.tbx > options.length - 1){
+            this.tbx = options.length - 1;
         }
     }
-    function rightTBX(){
-        tbx ++;
-        if (tbx > options.length - 1){
-            tbx = options.length - 1;
-        }
-    }
-    function add_warrior(warrior_num){
+    add_warrior(warrior_num){
         return function(){
-            team_in_dev.push(options[warrior_num]);
+            this.team_workshop.push(options[warrior_num]);
             if (team_in_dev.length == 3){
                 var team_name = prompt("What do you want to call this team?");
-                var team_level = 34;
-                real_teams.push(new Team([new Warrior(team_in_dev[0], team_level), new Warrior(team_in_dev[1], team_level), new Warrior(team_in_dev[2], team_level)], team_name));
+                real_teams.push(new Team([team_workshop[0], team_workshop[1], team_workshop[2]], team_name));
                 disp_menu();
                 return;
             }
-            tbx = 0;
-            update_teambuilder();
+            this.tbx = Math.round(warriors.length / 2) - this.team_workshop.length;
+            this.update();
         }
     }
-    //Draw the background
-    canvas.fillStyle = "rgb(200, 200, 0)";
-    canvas.fillRect(0, 0, base_canvas.width, base_canvas.height / 4);
-    canvas.fillRect(0, base_canvas.height / 4 * 3, base_canvas.width, base_canvas.height / 4);
-    canvas.fillStyle = "rgb(0, 0, 0)";
-    canvas.fillRect(0, base_canvas.height / 4, base_canvas.width, base_canvas.height / 2);
+    update(){
+        active_buttons = [];
+        
+        //Find out which warriors should be in the selector
+        for (var w of warriors){
+            if (this.team_workshop.indexOf(w) == -1){
+                this.options.push(w);
+            }
+        }
+        
+        //Draw the background
+        rect("rgb(200, 200, 0)", 0, 0, 100, 25);
+        rect("rgb(200, 200, 0)", 0, 75, 100, 25);
+        rect("rgb(0, 0, 0)", 0, 25, 100, 50);
     
-    // Draw warrior cards
-    if (tbx !== 0){
-        var left_warrior = new Warrior(options[tbx - 1], 0);
-        display_warrior_card(0, 25, 25, left_warrior);    
-    }
+        // Draw warrior cards
+        if (this.tbx !== 0){
+            var left_warrior = new Warrior(this.options[this.tbx - 1]);
+            display_warrior_card(0, 25, 25, left_warrior);    
+        }
+        if (this.tbx !== this.options.length - 1){
+            var right_warrior = new Warrior(this.options[this.tbx + 1]);
+            display_warrior_card(75, 25, 25, right_warrior); 
+        }
+        var middle_warrior = new Warrior(this.options[this.tbx]);
+        display_warrior_card(25, 25, 50, middle_warrior);
     
-    if (tbx !== options.length - 1){
-        var right_warrior = new Warrior(options[tbx + 1], 0);
-        display_warrior_card(75, 25, 25, right_warrior); 
-    }
-    var middle_warrior = new Warrior(options[tbx], 0);
-    display_warrior_card(25, 25, 50, middle_warrior);
+        // Draw team in development
+        var t = new Text(10, "rgb(0, 0, 0)", 50, 5);
+        
+        for (var member of this.team_workshop){
+            t.add(member);
+        }
     
-    // Draw team in development
-    var y = base_canvas.height * 0.05;
-    canvas.fillStyle = "rgb(0, 0, 0)";
-    for (var member of team_in_dev){
-        canvas.fillText(member[0], base_canvas.width / 2, y);
-        y += base_canvas.height * 0.05;
-    }
+        // Buttons
+        active_buttons.push(new Button("Back", "rgb(255, 0, 0)", 0, 0, 25, 25, [disp_menu]));
     
-    // Buttons
-    active_buttons.push(new Button("Back", "rgb(255, 0, 0)", 0, 0, base_canvas.width / 4, base_canvas.height / 4, [disp_menu]));
+        active_buttons.push(new Button("Scroll Left", "rgb(0, 255, 0)", 0, 75, 25, 25, [this.leftTBX, this.update]));
+        active_buttons.push(new Button("Scroll Right", "rgb(0, 0, 255)", 75, 75, 25, 25, [this.rightTBX, this.update]));
     
-    active_buttons.push(new Button("Scroll Left", "rgb(0, 255, 0)", 0, base_canvas.height * 0.75, base_canvas.width / 4, base_canvas.height / 4, [leftTBX, update_teambuilder]));
-    active_buttons.push(new Button("Scroll Right", "rgb(0, 0, 255)", base_canvas.width * 0.75, base_canvas.height * 0.75, base_canvas.width / 4, base_canvas.height / 4, [rightTBX, update_teambuilder]));
-    
-    active_buttons.push(new Button("Add warrior", "rgb(255, 255, 0)", base_canvas.width / 3, base_canvas.height * 0.75, base_canvas.width / 3, base_canvas.height / 4, [add_warrior(tbx)]));
-    for (var button of active_buttons){
-        button.draw();
+        active_buttons.push(new Button("Add warrior", "rgb(255, 255, 0)", 33, 75, 33, 25, [this.add_warrior(this.tbx)]));
+        for (var button of active_buttons){
+            button.draw();
+        }
     }
 }
-
-
 
 
 function load_team_select(){
@@ -194,3 +194,6 @@ function begin_fight(){
 	b.init();
 	b.start();
 }
+
+
+var tb = new Teambuilder();
