@@ -1,8 +1,3 @@
-function load_canvas(){
-	base_canvas = document.getElementById("canvas");
-	canvas = base_canvas.getContext("2d");		
-}
-
 function clear_canvas(){
     rect("rgb(0, 155, 155)", 0, 0, 100, 100);
 }
@@ -24,7 +19,9 @@ function disp_menu(){
 	];
 	var pages = [
 	    undefined,
-	    load_team_select,
+	    function(){
+	    	ts.load();
+	    },
 	    function(){
 	        tb.load();
 	    },
@@ -53,10 +50,58 @@ function disp_menu(){
 	}
 }
 
-
-// work here
-
 // make static? improve a bit
+class Team_select{
+	load(){
+		if(all_teams.length < 2){	
+        	alert("You must have at least 2 teams constructed to do this!");
+        	disp_menu();
+        	return;
+    	}
+    	this.pass_teams = [all_teams[0], all_teams[1]];
+    	this.update();
+	}
+	set_team(team_num, team){
+		return function(){
+			this.pass_teams[team_num] = team;
+		}
+	}
+	draw_teams(team_num, x){
+		var y = 0;
+		for (var team of all_teams){
+			active_buttons.push(new Button(team.name, "rgb(255, 255, 255)", x + 2.5, y + 2.5, 20, 5, [this.set_team(team_num, team).bind(this), this.update.bind(this)]));
+			y += 10;
+			
+			if(y >= 80){
+				x += 25;
+				y = 0;
+			} 
+		}
+	}
+	begin_fight(){
+		var b = new Battle(this.pass_teams[0], this.pass_teams[1]);
+		b.init();
+		b.start();
+	}
+	update(){
+		active_buttons = [];
+		rect("rgb(0, 0, 0)", 0, 0, 100, 100);
+		this.draw_teams(0, 0);
+		this.draw_teams(1, 50);
+		
+		rect("rgb(255, 255, 255)", 0, 80, 80, 20);
+	
+		var t = new Text(40, "rgb(0, 0, 0)", 0, 80);
+		t.add(this.pass_teams[0].name + " VS " + this.pass_teams[1].name + ": Fight!");
+		
+		active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 80, 80, 20, 20, [this.begin_fight.bind(this)]));
+		help_button(ex_team_sel);
+		
+		for (var button of active_buttons){
+			button.draw();
+		}
+	}
+}
 class Teambuilder{
     load(){
         //tbx: TeamBuilderX
@@ -73,16 +118,16 @@ class Teambuilder{
     }
     rightTBX(){
         this.tbx ++;
-        if (this.tbx > options.length - 1){
-            this.tbx = options.length - 1;
+        if (this.tbx > this.options.length - 1){
+            this.tbx = this.options.length - 1;
         }
     }
     add_warrior(warrior_num){
         return function(){
-            this.team_workshop.push(options[warrior_num]);
-            if (team_in_dev.length == 3){
+            this.team_workshop.push(this.options[warrior_num]);
+            if (this.team_workshop.length == 3){
                 var team_name = prompt("What do you want to call this team?");
-                real_teams.push(new Team([team_workshop[0], team_workshop[1], team_workshop[2]], team_name));
+                real_teams.push(new Team([this.team_workshop[0], this.team_workshop[1], this.team_workshop[2]], team_name));
                 disp_menu();
                 return;
             }
@@ -96,7 +141,7 @@ class Teambuilder{
         //Find out which warriors should be in the selector
         for (var w of warriors){
             if (this.team_workshop.indexOf(w) == -1){
-                this.options.push(w);
+                this.options.push(w[0]);
             }
         }
         
@@ -127,73 +172,15 @@ class Teambuilder{
         // Buttons
         active_buttons.push(new Button("Back", "rgb(255, 0, 0)", 0, 0, 25, 25, [disp_menu]));
     
-        active_buttons.push(new Button("Scroll Left", "rgb(0, 255, 0)", 0, 75, 25, 25, [this.leftTBX, this.update]));
-        active_buttons.push(new Button("Scroll Right", "rgb(0, 0, 255)", 75, 75, 25, 25, [this.rightTBX, this.update]));
+        active_buttons.push(new Button("Scroll Left", "rgb(0, 255, 0)", 0, 75, 25, 25, [this.leftTBX.bind(this), this.update.bind(this)]));
+        active_buttons.push(new Button("Scroll Right", "rgb(0, 0, 255)", 75, 75, 25, 25, [this.rightTBX.bind(this), this.update.bind(this)]));
     
-        active_buttons.push(new Button("Add warrior", "rgb(255, 255, 0)", 33, 75, 33, 25, [this.add_warrior(this.tbx)]));
+        active_buttons.push(new Button("Add warrior", "rgb(255, 255, 0)", 33, 75, 33, 25, [this.add_warrior(this.tbx).bind(this)]));
         for (var button of active_buttons){
             button.draw();
         }
     }
 }
 
-
-function load_team_select(){
-    if (real_teams.length >= 2){
-        pass_teams = [real_teams[0], real_teams[1]];
-    } else {
-        alert("You must have at least 2 teams constructed to do this!");
-        disp_menu();
-        return;
-    }
-    update_team_select();
-}
-
-function update_team_select(){
-	active_buttons = [];
-	rect("rgb(0, 0, 0)", 0, 0, 100, 100);
-	
-	function set_team(team_num, team){
-	    return function(){
-		    pass_teams[team_num] = team;
-	    }
-    }
-
-    function draw_teams(team_num, x){
-	    var y = 0;
-	    for (var team of real_teams){
-		    var new_button = new Button(team.name, "rgb(255, 255, 255)", x, y, 25, 10, [set_team(team_num, team), update_team_select]);
-		    active_buttons.push(new_button);
-		    y += 10;
-		
-		    if (y >= 80){
-			    x += 25;
-			    y = 0;
-		    }
-	    }
-    }
-	
-	draw_teams(0, 0);
-	draw_teams(1, 50);
-	
-	rect("rgb(255, 255, 255)", 0, 80, 80, 20);
-	
-	var t = new Text(40, "rgb(0, 0, 0)", 0, 80);
-	t.add(pass_teams[0].name + " VS " + pass_teams[1].name + ": Fight!");
-	
-	active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 80, 80, 20, 20, [begin_fight]));
-	help_button(ex_team_sel);
-	
-	for (var button of active_buttons){
-		button.draw();
-	}
-}
-
-function begin_fight(){
-	b = new Battle(pass_teams[0], pass_teams[1]);
-	b.init();
-	b.start();
-}
-
-
+var ts = new Team_select();
 var tb = new Teambuilder();
