@@ -1,5 +1,5 @@
 function help_button(help_with){
-    active_buttons.push(new Button("?", "rgb(100, 100, 100)", 95, 95, 5, 5, [help_with]));
+    new Button("?", "rgb(100, 100, 100)", 95, 95, 5, 5, [help_with]);
 }
 
 function ex_menu() {

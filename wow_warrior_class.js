@@ -226,7 +226,7 @@ class Warrior{
 	*/
 		var w = this;
 		var t = this.team;
-		active_buttons.push(new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]));
+		new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]);
 	}
 	bomb(){
 	/*
@@ -243,7 +243,7 @@ class Warrior{
 			}
 			w.hp_rem = Math.round(w.hp_rem);
 		}
-		active_buttons.push(new Button("", "rgb(0, 0, 0)", 50, 90, 10, 10, [f, t.turn_part2.bind(t)]));
+	    new Button("", "rgb(0, 0, 0)", 50, 90, 10, 10, [f, t.turn_part2.bind(t)]);
 	}
 	// update this once Resilience out
 	nat_regen(){
@@ -523,7 +523,7 @@ class Team{
 		*/
 		
 		clear_canvas();
-		active_buttons = [];
+		MASTER.clear_all_buttons();
 		for (var member of this.members_rem){
 			member.reset_heal();
 		}
@@ -552,10 +552,6 @@ class Team{
 		}
 		
 		help_button(ex_gui);
-		
-		for (var button of active_buttons){
-			button.draw();
-		}
 	}
 	turn_part2(){
 		/*
@@ -563,7 +559,7 @@ class Team{
 		*/
 		
 		clear_canvas();
-		active_buttons = [];
+		MASTER.clear_all_buttons();
 		for (var member of this.members_rem){
 			member.reset_dmg();
 		}
@@ -583,17 +579,11 @@ class Team{
 		}
 		
 		help_button(ex_gui);
-		
-		for (var button of active_buttons){
-			button.draw();
-		}
 	}
 	// shorten these buttons
 	display_nm(){
 		var team = this;
-		var new_button = new Button("Normal Move", team.active.element.color, 45, 70, 10, 10, [team.active.use_normal_move.bind(team.active)]);
-		active_buttons.push(new_button);
-		new_button.draw();
+		new Button("Normal Move", team.active.element.color, 45, 70, 10, 10, [team.active.use_normal_move.bind(team.active)]);
 	}
 	display_specials(){
 	    /*
@@ -604,8 +594,7 @@ class Team{
 		var x = this.x - 15;
 		var team = this;
 		for (var member of team.members_rem){
-			var new_button = new Button(member.special.name, member.element.color, x, 70, 10, 10, [member.use_special.bind(member)]);
-			active_buttons.push(new_button);
+			new Button(member.special.name, member.element.color, x, 70, 10, 10, [member.use_special.bind(member)]);
 			x += 15;	
 		}
 	}
@@ -625,7 +614,7 @@ class Team{
 			        display_stats(m);
 			    }
 			}
-			active_buttons.push(new Button("", "none", this.x, y, 20, 10, [f(member)]));
+	        new Button("", "none", this.x, y, 20, 10, [f(member)]);
 			y += 20;
 		}
 	}

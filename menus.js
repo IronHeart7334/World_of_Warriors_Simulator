@@ -3,7 +3,7 @@ function clear_canvas(){
 }
 
 function disp_menu(){
-	active_buttons = [];
+	MASTER.clear_all_buttons();
 	
 	var colors = [
 		"rgb(0, 255, 0)",
@@ -42,12 +42,9 @@ function disp_menu(){
 		canvas.fillStyle = colors[c];
 		var x = 25 * c;
 			        
-		active_buttons.push(new Button(mes[c], colors[c], x, 0, 25, 100, [set_page(pages[c])]));
+		new Button(mes[c], colors[c], x, 0, 25, 100, [set_page(pages[c])]);
 	}
 	help_button(ex_menu);
-	for (var button of active_buttons){
-		button.draw();
-	}
 }
 
 // make static? improve a bit
@@ -69,7 +66,7 @@ class Team_select{
 	draw_teams(team_num, x){
 		var y = 0;
 		for (var team of all_teams){
-			active_buttons.push(new Button(team.name, "rgb(255, 255, 255)", x + 2.5, y + 2.5, 20, 5, [this.set_team(team_num, team).bind(this), this.update.bind(this)]));
+			new Button(team.name, "rgb(255, 255, 255)", x + 2.5, y + 2.5, 20, 5, [this.set_team(team_num, team).bind(this), this.update.bind(this)]);
 			y += 10;
 			
 			if(y >= 80){
@@ -84,7 +81,7 @@ class Team_select{
 		b.start();
 	}
 	update(){
-		active_buttons = [];
+		MASTER.clear_all_buttons();
 		rect("rgb(0, 0, 0)", 0, 0, 100, 100);
 		this.draw_teams(0, 0);
 		this.draw_teams(1, 50);
@@ -94,12 +91,8 @@ class Team_select{
 		var t = new Text(40, "rgb(0, 0, 0)", 0, 80);
 		t.add(this.pass_teams[0].name + " VS " + this.pass_teams[1].name + ": Fight!");
 		
-		active_buttons.push(new Button("Fight!", "rgb(255, 0, 0)", 80, 80, 20, 20, [this.begin_fight.bind(this)]));
+		new Button("Fight!", "rgb(255, 0, 0)", 80, 80, 20, 20, [this.begin_fight.bind(this)]);
 		help_button(ex_team_sel);
-		
-		for (var button of active_buttons){
-			button.draw();
-		}
 	}
 }
 class Teambuilder{
@@ -136,7 +129,7 @@ class Teambuilder{
         }
     }
     update(){
-        active_buttons = [];
+        MASTER.clear_all_buttons();
         
         //Find out which warriors should be in the selector
         for (var w of warriors){
@@ -169,16 +162,13 @@ class Teambuilder{
             t.add(member);
         }
     
-        // Buttons
-        active_buttons.push(new Button("Back", "rgb(255, 0, 0)", 0, 0, 25, 25, [disp_menu]));
+        // s
+        new Button("Back", "rgb(255, 0, 0)", 0, 0, 25, 25, [disp_menu]);
     
-        active_buttons.push(new Button("Scroll Left", "rgb(0, 255, 0)", 0, 75, 25, 25, [this.leftTBX.bind(this), this.update.bind(this)]));
-        active_buttons.push(new Button("Scroll Right", "rgb(0, 0, 255)", 75, 75, 25, 25, [this.rightTBX.bind(this), this.update.bind(this)]));
+        new Button("Scroll Left", "rgb(0, 255, 0)", 0, 75, 25, 25, [this.leftTBX.bind(this), this.update.bind(this)]);
+        new Button("Scroll Right", "rgb(0, 0, 255)", 75, 75, 25, 25, [this.rightTBX.bind(this), this.update.bind(this)]);
     
-        active_buttons.push(new Button("Add warrior", "rgb(255, 255, 0)", 33, 75, 33, 25, [this.add_warrior(this.tbx).bind(this)]));
-        for (var button of active_buttons){
-            button.draw();
-        }
+        new Button("Add warrior", "rgb(255, 255, 0)", 33, 75, 33, 25, [this.add_warrior(this.tbx).bind(this)]);
     }
 }
 
