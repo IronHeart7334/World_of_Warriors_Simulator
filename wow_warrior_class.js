@@ -655,3 +655,12 @@ Battle.prototype = {
 		this.teams[Math.round(Math.random())].turn_part1();
 	}
 }
+
+class On_update_action {
+    constructor(f){
+        this.f = f;
+    }
+    trip(){
+        this.f();
+    }
+}
