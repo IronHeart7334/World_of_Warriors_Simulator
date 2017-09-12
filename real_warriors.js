@@ -24,6 +24,7 @@ var warriors = [
  	["agoolik", [0.9334, 0.30, 1.1, 1, 2], water, "phantom shield", [-30, "a"]]
 ];
 
-var starter = new Team(["Abu", "Toki", "Zenghis"], "Starter Team");
-var arena = new Team(["Abu", "Gunnar", "Sakuma"], "Arena Favorites");
-var real_teams = [starter, arena];
+var starter = new Team([["Abu", ["critical hit"]], ["Toki", ["critical hit"]], ["Zenghis", ["critical hit"]]], "Starter Team");
+var arena = new Team([["Abu", ["critical hit"]], ["Gunnar", ["critical hit"]], ["Sakuma", ["critical hit"]]], "Arena Favorites");
+var skills_test = new Team([["Osgood", ["shell"]], ["Breth", ["guard"]], ["Ram", ["shell"]]], "Test");
+var real_teams = [starter, arena, skills_test];

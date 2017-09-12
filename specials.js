@@ -209,7 +209,7 @@ class Armor_break extends Special_move{
 }
 class Healing extends Special_move{
     constructor(){
-        super("Healing", 150, false);
+        super("Healing", 17, false);
         this.gives_energy = false;
         this.ignores_ele = true;
     }

@@ -7,7 +7,7 @@ var HP = 107.0149;
 
 
 class Warrior{
-    constructor(name){
+    constructor(name, skills){
 	    /*
 	    The warrior Class takes data from an array:
 	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
@@ -23,6 +23,7 @@ class Warrior{
 	    this.element = data[2];
 	    this.special = this.find_special(data[3]);
 	    this.lead_skill = new Lead(data[4][0], data[4][1]);
+	    this.skills = skills;
 	    this.level = 34;
 	    
 	    this.special.set_user(this);
@@ -157,6 +158,12 @@ class Warrior{
 		this.last_ele_dmg += ele;
 		
 		this.hp_rem = Math.round(this.hp_rem);
+		
+		if(this.skills[0] == "shell"){
+		    if(this.hp_perc() <= 0.5){
+		        this.in_shell = true;
+		    }
+		}
 	}
 	check_if_ko(){
 	/*
@@ -168,8 +175,21 @@ class Warrior{
 	/*
 	Strike at your enemy team's active warrior with your sword!
 	*/
+	    var mod = 1.0;
+	    if(this.skills[0] == "critical hit"){
+	        if(Math.random() <= 0.24){
+	            console.log("Critical hit!");
+	            mod += 0.24;
+	        }
+	    }
+	    if(this.team.enemy_team.active.skills[0] == "guard"){
+	        if(true || Math.random() <= 0.24){
+	            console.log("Guard!");
+	            mod -= 0.24;
+	        }
+	    }
 		this.team.enemy_team.gain_energy();
-		this.team.enemy_team.active.calc_damage_taken(this.get_phys(), this.get_ele());
+		this.team.enemy_team.active.calc_damage_taken(this.get_phys() * mod, this.get_ele() * mod);
 		this.team.enemy_team.turn_part1();
 	}
 	heal(hp){
@@ -184,6 +204,11 @@ class Warrior{
 			this.hp_rem = this.max_hp;
 		}
 		this.hp_rem = Math.round(this.hp_rem);
+		if(this.skills[0] == "shell"){
+		    if(this.hp_perc() > 0.5){
+		        this.in_shell = false;
+		    }
+		}
 	}
 	use_special(){
 		/*
@@ -202,7 +227,10 @@ class Warrior{
 	update(){
         this.check_durations();
 		this.calc_poison();
-		this.calc_regen();	    
+		this.calc_regen();
+		if(this.in_shell){
+		    this.armor_boosts.push(new Stat_boost("shell", 0.36, 1));
+		}   
 	}
 	
 	// make this stuff better
@@ -219,6 +247,8 @@ class Warrior{
 		this.last_ele_dmg = 0;
 		this.last_hitby = undefined;
 		this.last_healed = 0;
+		
+		this.in_shell = false;
 	}
 	heart_collection(){
 	/*
@@ -316,7 +346,7 @@ class Warrior{
 			this.poisoned = false;
 			return;
 		}
-		this.take_dmg(this.poisoned[0], 0);
+		this.take_damage(this.poisoned[0], 0);
 		this.poisoned[1] -= 1;
 	}
 	calc_regen(){
@@ -411,7 +441,7 @@ class Team{
     constructor(members, name){
         this.members = [];
         for(var member of members){
-        	this.members.push(new Warrior(member));
+        	this.members.push(new Warrior(member[0], member[1]));
         }
 	    this.name = name;
 	    all_teams.push(this);
@@ -654,13 +684,4 @@ Battle.prototype = {
 		*/
 		this.teams[Math.round(Math.random())].turn_part1();
 	}
-}
-
-class On_update_action {
-    constructor(f){
-        this.f = f;
-    }
-    trip(){
-        this.f();
-    }
 }

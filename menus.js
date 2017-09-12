@@ -117,7 +117,16 @@ class Teambuilder{
     }
     add_warrior(warrior_num){
         return function(){
-            this.team_workshop.push(this.options[warrior_num]);
+        	var ask = function(){
+        		var first_skills = ["critical hit", "guard", "shell"];
+        		var skill = prompt("What do you want this warrior's first skill to be? (critical hit, guard, or shell)");
+        		if(first_skills.includes(skill)){
+        			return skill;
+        		} else {
+        			ask();
+        		}
+        	}
+            this.team_workshop.push([this.options[warrior_num], [ask()]]);
             if (this.team_workshop.length == 3){
                 var team_name = prompt("What do you want to call this team?");
                 real_teams.push(new Team([this.team_workshop[0], this.team_workshop[1], this.team_workshop[2]], team_name));
