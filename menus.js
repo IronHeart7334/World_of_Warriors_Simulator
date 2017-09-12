@@ -155,14 +155,14 @@ class Teambuilder{
         // Draw warrior cards
         if (this.tbx !== 0){
             var left_warrior = new Warrior(this.options[this.tbx - 1]);
-            display_warrior_card(0, 25, 25, left_warrior);    
+            display_data(0, 25, left_warrior);    
         }
         if (this.tbx !== this.options.length - 1){
             var right_warrior = new Warrior(this.options[this.tbx + 1]);
-            display_warrior_card(75, 25, 25, right_warrior); 
+            display_data(75, 25, right_warrior); 
         }
         var middle_warrior = new Warrior(this.options[this.tbx]);
-        display_warrior_card(25, 25, 50, middle_warrior);
+        display_data(37.5, 25, middle_warrior);
     
         // Draw team in development
         var t = new Text(10, "rgb(0, 0, 0)", 50, 5);

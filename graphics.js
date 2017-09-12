@@ -64,7 +64,11 @@ class Text{
         this.y += this.spacing;
     }
 }
-// untested
+
+
+
+
+// broken
 function display_warrior_card(x, y, size, m){
 	/*
 	Draws a card displaying information about a warrior (m).
@@ -129,14 +133,27 @@ function display_warrior_card(x, y, size, m){
 	t = new Text(10, "rgb(0, 0, 0)", x + 50 * size, y);
 	t.add(m.special.name);
 }
+
 function display_stats(m){
 	rect("rgb(255, 255, 255)", 40, 10, 20, 50);
-	t = new Text(40, "rgb(0, 0, 0)", 40, 10);
+	var t = new Text(40, "rgb(0, 0, 0)", 40, 10);
 	t.add(m.name);
 	t.add("Physical: " + m.get_phys().toString());
 	t.add("Elemental: " + m.get_ele().toString());
 	t.add("Max HP: " + m.max_hp.toString());
 	t.add("Armor: " + m.armor.toString());
+}
+function display_data(x, y, m){
+    rect("rgb(255, 255, 255)", x, y, 25, 50);
+    var armor_strs = ["Light", "Medium", "Heavy"];
+    var t = new Text(25, "rgb(0, 0, 0)", x, y);
+    t.add(m.name);
+    t.add("Special Move: " + m.special.name + " " + m.pip.toString());
+    t.add("Element: " + m.element.name);
+    t.add("Base Physical Attack: " + Math.round(m.base_phys).toString());
+    t.add("Base Elemental Attack: " + Math.round(m.base_ele).toString());
+    t.add("Armor: " + armor_strs[m.armor]);
+    t.add("Max HP: " + Math.round(m.base_hp).toString());
 }
 function display_health(x, y, m){
 	/*

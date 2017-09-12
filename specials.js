@@ -142,7 +142,7 @@ class Poison extends Special_move{
     }
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
-		this.user.enemy_team.active.poisoned = [dmg, 3];
+		this.user.enemy_team.active.poison(dmg);
 		this.user.enemy_team.gain_energy();        
     }
 }
@@ -265,7 +265,7 @@ class Poison_hive extends Special_move{
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
 		for (var member of this.user.enemy_team.members_rem){
-			member.poisoned = [dmg, 3];		
+			member.poison(dmg);		
 		}
 		this.user.enemy_team.gain_energy();    
     }

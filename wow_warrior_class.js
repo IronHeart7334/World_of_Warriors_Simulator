@@ -183,7 +183,7 @@ class Warrior{
 	        }
 	    }
 	    if(this.team.enemy_team.active.skills[0] == "guard"){
-	        if(true || Math.random() <= 0.24){
+	        if(Math.random() <= 0.24){
 	            console.log("Guard!");
 	            mod -= 0.24;
 	        }
@@ -226,11 +226,20 @@ class Warrior{
 	}
 	update(){
         this.check_durations();
-		this.calc_poison();
+		this.poisoned = false;
 		this.calc_regen();
 		if(this.in_shell){
 		    this.armor_boosts.push(new Stat_boost("shell", 0.36, 1));
-		}   
+		}
+		
+		var new_update = [];
+		for(var a of this.on_update_actions){
+		    a.trip();
+		    if(!a.should_terminate){
+		        new_update.push(a);
+		    }
+		}
+		this.on_update_actions = new_update;
 	}
 	
 	// make this stuff better
@@ -249,6 +258,8 @@ class Warrior{
 		this.last_healed = 0;
 		
 		this.in_shell = false;
+		
+		this.on_update_actions = [];
 	}
 	heart_collection(){
 	/*
@@ -336,19 +347,6 @@ class Warrior{
 		}
 		this.armor_boosts = armor_boosts_rem;
 	}
-	calc_poison(){
-	/*
-	Check to see if you are poisoned
-	Then take damage
-	*/
-		if (!this.poisoned){return;}
-		if (this.poisoned[1] == 0){
-			this.poisoned = false;
-			return;
-		}
-		this.take_damage(this.poisoned[0], 0);
-		this.poisoned[1] -= 1;
-	}
 	calc_regen(){
 		/*
 		Check if the Regeneration Special Move has been used on your team
@@ -362,6 +360,29 @@ class Warrior{
 		this.heal(this.regen[0]);
 		this.regen[1] -= 1;
 	}
+
+    poison(amount){
+        var remove = -1;
+        if(this.poisoned){
+            for(var a of this.on_update_actions){
+                if(a.id = "poison"){
+                    remove = this.on_update_actions.indexOf(a);
+                }
+            }
+            if(remove >= 0){
+                this.on_update_actions.splice(remove, 1);
+            }
+        }
+        var warrior = this;
+        var a = new On_update_action(
+            "poison",
+            function(){
+                warrior.poisoned = true;
+                warrior.take_damage(amount, 0);
+            }, 3
+        );
+        warrior.on_update_actions.push(a);
+    }
 }
 
 class Stat_boost{
@@ -684,4 +705,20 @@ Battle.prototype = {
 		*/
 		this.teams[Math.round(Math.random())].turn_part1();
 	}
+}
+
+class On_update_action{
+    constructor(id, f, uses){
+        this.id = id;
+        this.f = f;
+        this.dur = uses;
+        this.should_terminate = false;
+    }
+    trip(){
+        this.f();
+        this.dur -= 1;
+        if(this.dur <= 0){
+            this.should_terminate = true;
+        }
+    }
 }
