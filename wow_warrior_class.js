@@ -131,6 +131,7 @@ class Warrior{
 	    */
 		return this.max_hp * (perc);
 	}
+	
 	calc_damage_taken(phys, ele){
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
@@ -165,33 +166,6 @@ class Warrior{
 		    }
 		}
 	}
-	check_if_ko(){
-	/*
-	An I dead yet?
-	*/
-		return this.hp_rem <= 0;
-	}
-	use_normal_move(){
-	/*
-	Strike at your enemy team's active warrior with your sword!
-	*/
-	    var mod = 1.0;
-	    if(this.skills[0] == "critical hit"){
-	        if(Math.random() <= 0.24){
-	            console.log("Critical hit!");
-	            mod += 0.24;
-	        }
-	    }
-	    if(this.team.enemy_team.active.skills[0] == "guard"){
-	        if(Math.random() <= 0.24){
-	            console.log("Guard!");
-	            mod -= 0.24;
-	        }
-	    }
-		this.team.enemy_team.gain_energy();
-		this.team.enemy_team.active.calc_damage_taken(this.get_phys() * mod, this.get_ele() * mod);
-		this.team.enemy_team.turn_part1();
-	}
 	heal(hp){
 	/*
 	Restore HP
@@ -210,24 +184,60 @@ class Warrior{
 		    }
 		}
 	}
+	check_if_ko(){
+	/*
+	An I dead yet?
+	*/
+		return this.hp_rem <= 0;
+	}
+	
+	strike(pd, ed){
+	    var t = this.team.enemy_team;
+	    t.gain_energy();
+	    var dmg = t.active.calc_damage_taken(pd, ed);
+	    t.turn_part1();
+	    return dmg;
+	}
+	pass(){
+	    var t = this.team.enemy_team;
+	    t.gain_energy();
+	    t.turn_part1();
+	}
+	
+	use_normal_move(){
+	/*
+	Strike at your enemy team's active warrior with your sword!
+	*/
+	    var mod = 1.0;
+	    if(this.skills[0] == "critical hit"){
+	        if(Math.random() <= 0.24){
+	            console.log("Critical hit!");
+	            mod += 0.24;
+	        }
+	    }
+	    if(this.team.enemy_team.active.skills[0] == "guard"){
+	        if(Math.random() <= 0.24){
+	            console.log("Guard!");
+	            mod -= 0.24;
+	        }
+	    }
+		this.strike(this.get_phys() * mod, this.get_ele() * mod);
+	}
 	use_special(){
 		/*
 		Use your powerful Special Move!
 		*/
 		this.team.switchback = this.team.active;
 		this.team.switchin(this);
-		this.special.attack(this);
+		this.special.attack();
 		this.team.energy -= 2;
-		
-		if (this.special.gives_energy){
-			this.team.enemy_team.gain_energy();
-		}
-		this.team.enemy_team.turn_part1();
 	}
+	
 	update(){
         this.check_durations();
 		this.poisoned = false;
-		this.calc_regen();
+		this.regen = false;
+		
 		if(this.in_shell){
 		    this.armor_boosts.push(new Stat_boost("shell", 0.36, 1));
 		}
@@ -246,12 +256,15 @@ class Warrior{
 	init(){
 		this.calc_stats();
 		this.hp_rem = this.max_hp;
+		
 		this.phys_boosts = [];
 		this.ele_boosts = [];
 		this.armor_boosts = [];
+		
 		this.poisoned = false;
 		this.regen = false;
 		this.shield = false;
+		
 		this.last_phys_dmg = 0;
 		this.last_ele_dmg = 0;
 		this.last_hitby = undefined;
@@ -347,25 +360,12 @@ class Warrior{
 		}
 		this.armor_boosts = armor_boosts_rem;
 	}
-	calc_regen(){
-		/*
-		Check if the Regeneration Special Move has been used on your team
-		Then heal accordingly
-		*/
-		if (!this.regen){return;}
-		if (this.regen[1] == 0){
-			this.regen = false;
-			return;
-		}
-		this.heal(this.regen[0]);
-		this.regen[1] -= 1;
-	}
 
     poison(amount){
         var remove = -1;
         if(this.poisoned){
             for(var a of this.on_update_actions){
-                if(a.id = "poison"){
+                if(a.id == "poison"){
                     remove = this.on_update_actions.indexOf(a);
                 }
             }

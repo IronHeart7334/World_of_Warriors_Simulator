@@ -42,7 +42,7 @@ class Special_move {
 		if(this.multiplies_ele){
 		    elemental_damage *= this.mod;
 		}
-		this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage);
+		this.user.strike(physical_damage, elemental_damage);
     }
 }
 class Beat extends Special_move {
@@ -103,6 +103,7 @@ class AOE extends Special_move{
 		for (var member of this.user.enemy_team.members_rem){
 			member.calc_damage_taken(physical_damage, elemental_damage);
 		}
+		this.user.pass();
     }
 }
 class Boost extends Special_move{
@@ -132,7 +133,8 @@ class Boost extends Special_move{
 			if (add_boost){
 				member.ele_boosts.push(new Stat_boost(this.name, 1.35, 3));
 			}
-		}    
+		}
+		this.user.pass();    
     }
 }
 class Poison extends Special_move{
@@ -143,7 +145,7 @@ class Poison extends Special_move{
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
 		this.user.enemy_team.active.poison(dmg);
-		this.user.enemy_team.gain_energy();        
+		this.user.pass();        
     }
 }
 // will need to be changed once I update energy
@@ -178,6 +180,7 @@ class Rolling_thunder extends Special_move{
 		    target.calc_damage_taken(physical_damage, elemental_damage);
 		    target_team.check_if_ko();
 	    }
+	    this.user.pass();
     }
 }
 class Stealth_strike extends Special_move{
@@ -231,6 +234,7 @@ class Healing extends Special_move{
 		if (to_heal !== undefined){
 			to_heal.heal(total_heal * 0.8);
         }
+        this.user.pass();
     }
 }
 class Soul_steal extends Special_move{
@@ -240,7 +244,7 @@ class Soul_steal extends Special_move{
     }
     attack(){
 		var physical_damage = this.user.get_phys() * this.mod;
-		this.user.heal(this.user.enemy_team.active.calc_damage_taken(physical_damage, 0) * 0.3);        
+		this.user.heal(this.user.strike(physical_damage, 0) * 0.3);        
     }
 }
 class Berserk extends Special_move{
@@ -251,7 +255,7 @@ class Berserk extends Special_move{
 		var physical_damage = this.user.get_phys() * this.mod;
 		var elemental_damage = this.user.get_ele();
 		
-		this.user.take_damage(this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage) * 0.2, 0);
+		this.user.take_damage(this.user.strike(physical_damage, elemental_damage) * 0.2, 0);
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
 		}        
@@ -267,7 +271,7 @@ class Poison_hive extends Special_move{
 		for (var member of this.user.enemy_team.members_rem){
 			member.poison(dmg);		
 		}
-		this.user.enemy_team.gain_energy();    
+		this.user.pass();
     }
 }
 class Regeneration extends Special_move{
@@ -277,10 +281,33 @@ class Regeneration extends Special_move{
     }
     attack(){
 		var healing = this.user.get_phys() * this.mod;
-		for (var member of this.user.team.members_rem){
-			member.regen = [healing, 3];
-			member.calc_regen(); 
+		
+		function regenerate(warrior){
+		    return function(){
+		        warrior.regen = true;
+		        warrior.heal(healing);
+		    }
 		}
+		
+		for (var member of this.user.team.members_rem){
+		    var remove = -1;
+		    for(var a of member.on_update_actions){
+		        if(a.id == "regeneration"){
+		            remove = member.on_update_actions.indexOf(a);
+		        }
+		    }
+		    if(remove >= 0){
+		        member.on_update_actions.splice(remove, 1);
+		    }
+		    
+			member.on_update_actions.push(new On_update_action(
+			    "regeneration",
+			    regenerate(member), 
+			    3
+			)
+			);
+		}
+		this.user.pass();
     }
 }
 class Vengeance extends Special_move{
@@ -291,7 +318,7 @@ class Vengeance extends Special_move{
 	    var mod = this.mod * (1.5 - this.user.hp_perc());
 	    var physical_damage = this.user.get_phys() * mod;
 	    var elemental_damage = this.user.get_ele() * mod;
-	    this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage);        
+	    this.user.strike(physical_damage, elemental_damage);        
     }
 }
 class Twister extends Special_move{
@@ -306,7 +333,8 @@ class Twister extends Special_move{
 		
 		for (var member of this.user.enemy_team.members_rem){
 			member.calc_damage_taken(physical_damage, elemental_damage);
-		}        
+		} 
+		this.user.pass();       
     }
 }
 class Stealth_assault extends Special_move{
@@ -334,7 +362,7 @@ class Team_strike extends Special_move{
 		var physical_damage = this.user.get_phys() * mod;
 		var elemental_damage = this.user.get_ele() * mod;
 		
-		var dmg = this.user.enemy_team.active.calc_damage_taken(physical_damage, elemental_damage); 
+		var dmg = this.user.strike(physical_damage, elemental_damage); 
 		for (var member of this.user.team.members_rem){
 			member.take_dmg(dmg / 6, 0);
 			member.hp_rem = Math.round(member.hp_rem);
@@ -369,6 +397,8 @@ class Phantom_strike extends Special_move{
 		ed = elemental_damage * 0.67;
 		target = target_team.prev();
 		target.calc_damage_taken(pd, ed);
+		
+		this.user.pass();
 	}
 }
 class Phantom_shield extends Special_move{
@@ -394,5 +424,6 @@ class Phantom_shield extends Special_move{
     	    	member.armor_boosts.push(new Stat_boost("Phantom Shield", 0.55, 3));
     	    }
     	}
+    	this.user.pass();
 	}
 }
