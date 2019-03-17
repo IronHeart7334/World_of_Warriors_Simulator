@@ -1,40 +1,56 @@
-function rect(color, x, y, w, h){
-    /*
-    Draws a rectangle.
-    x, y, w, and h are all based on
-    the size of the canvas
+//replace this stuff with react later
+export class Canvas{
+    constructor(elementId){
+        this.htmlElement = document.getElementById(elementId);
+        if(this.htmlElement === null || this.htmlElement.tagName !== "CANVAS"){
+            this.htmlElement = document.createElement("canvas");
+            document.appendChild(this.htmlElement);
+        }
+        this.draw = this.htmlElement.getContext("2d");
+    }
     
-    EX:
-        rect(~~~, 50, 0, 50, 0);
-        
-        will draw a ~~~ rectangle
-        that covers the whole right
-        side of the canvas
-    */
-    var c = document.getElementById("canvas");
-    var ctx = c.getContext("2d")
+    setColor(color){
+        this.draw.fillStyle = color;
+    }
     
-    ctx.fillStyle = color;
-    ctx.fillRect(x / 100 * c.width, y / 100 * c.height, w / 100 * c.width, h / 100 * c.height);
+    rect(x, y, w, h){
+        /*
+        Draws a rectangle.
+        x, y, w, and h are all based on
+        the size of the canvas
+
+        EX:
+            rect(50, 0, 50, 0);
+
+            will draw a rectangle
+            that covers the whole right
+            side of the canvas
+        */
+        this.draw.fillRect(
+            x / 100 * this.htmlElement.width, 
+            y / 100 * this.htmlElement.height, 
+            w / 100 * this.htmlElement.width, 
+            h / 100 * this.htmlElement.height
+        );
+    }
+    
+    circle(x, y, diameter){
+        /*
+        x, y are coords of UPPER LEFT CORNER,
+        not center.
+        */
+        let radius = diameter / 2;
+
+        let tx = x / 100 * this.htmlElement.width;
+        let ty = y / 100 * this.htmlElement.height;
+        let tr = radius / 100 * ((this.htmlElement.width + this.htmlElement.height) / 2);
+
+        this.draw.beginPath();
+        this.draw.arc(tx + tr, ty + tr, tr, 0, 2 * Math.PI);
+        this.draw.fill();
+    }
 }
-function circle(color, x, y, diameter){
-    /*
-    x, y are coords of UPPER LEFT CORNER,
-    not center.
-    */
-    var radius = diameter / 2;
-    var c = document.getElementById("canvas");
-    var ctx = c.getContext("2d")
-    
-    var tx = x / 100 * c.width;
-    var ty = y / 100 * c.height;
-    var tr = radius / 100 * ((c.width + c.height) / 2);
-    
-    ctx.fillStyle = color;
-    ctx.beginPath();
-	ctx.arc(tx + tr, ty + tr, tr, 0, 2 * Math.PI);
-	ctx.fill();
-}
+
 // scale text?
 class Text{
     constructor(font_size, color, x, y){

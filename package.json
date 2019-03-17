@@ -1,0 +1,43 @@
+{
+  
+  "name": "world_of_warriors_simulator",
+
+  "version": "1.0.0",
+
+  "description": "My own simulator of the now deceased mobile game \"World of Warriors\"",
+
+  "main": "app.js",
+  
+  "scripts": {
+
+    "test": "test",
+    "run": "http-server"
+  },
+
+  "repository": {
+
+    "type": "git",
+
+    "url": "git+https://github.com/IronHeart7334/World_of_Warriors_Simulator.git"
+
+  },
+
+  "author": "Matt Crow",
+
+  "license": "ISC",
+
+  "bugs": {
+
+    "url": "https://github.com/IronHeart7334/World_of_Warriors_Simulator/issues"
+
+  },
+
+  "homepage": "https://github.com/IronHeart7334/World_of_Warriors_Simulator#readme",
+
+  "dependencies": {
+
+    "http-server": "^0.11.1"
+
+  }
+
+}
