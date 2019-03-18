@@ -1,0 +1,19 @@
+import {GuiElement} from "guiElement.js";
+/*
+ * The gamePane class is used to store components, 
+ * making it easier to manage many at the same time
+ */
+
+export class gamePane extends GuiElement{
+    constructor(){
+        super();
+        this.children = [];
+    }
+    
+    checkClick(x, y){
+        let trueX = x - this.x;
+        let trueY = y - this.y;
+        
+        this.children.forEach((element)=>element.checkClick(trueX, trueY));
+    }
+}

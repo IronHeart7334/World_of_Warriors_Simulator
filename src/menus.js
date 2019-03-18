@@ -2,7 +2,7 @@ function clear_canvas(){
     rect("rgb(0, 155, 155)", 0, 0, 100, 100);
 }
 
-function disp_menu(){
+export function dispMenu(){
 	MASTER.clear_all_buttons();
 	
 	var colors = [

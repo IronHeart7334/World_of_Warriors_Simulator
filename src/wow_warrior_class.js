@@ -1,18 +1,20 @@
+import {warriors} from "real_warriors.js";
+
 // The base values for both stats, might change them later
-var OFFENSE = 33.73;
-var HP = 107.0149;
+export const OFFENSE = 33.73;
+export const HP = 107.0149;
 
 
 //change how attacking, energy works
 
 
-class Warrior{
+export class Warrior{
     constructor(name, skills){
 	    /*
 	    The warrior Class takes data from an array:
 	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
 	    */
-	    var data = this.find_warrior(name);
+	    let data = this.find_warrior(name);
 	    this.name = data[0]
 	    this.base_off = OFFENSE * data[1][0];
 		this.base_ele = this.base_off * data[1][1];
@@ -29,8 +31,8 @@ class Warrior{
 	    this.special.set_user(this);
     }
     find_warrior(name){
-    	for(var warrior of warriors){
-    		if(warrior[0] == name){
+    	for(let warrior of warriors){
+    		if(warrior[0] === name){
     			return warrior;
     		}
     	}
@@ -136,11 +138,11 @@ class Warrior{
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
 		
-		if (this.element.weakness == this.team.enemy_team.active.element.name){
+		if (this.element.weakness === this.team.enemy_team.active.element.name){
 			elemental_damage *= 1.7;
 		}
 		
-		else if (this.element.name == this.team.enemy_team.active.element.weakness){
+		else if (this.element.name === this.team.enemy_team.active.element.weakness){
 			elemental_damage *= 0.3;
 		}
 		
@@ -160,7 +162,7 @@ class Warrior{
 		
 		this.hp_rem = Math.round(this.hp_rem);
 		
-		if(this.skills[0] == "shell"){
+		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() <= 0.5){
 		        this.in_shell = true;
 		    }
@@ -178,7 +180,7 @@ class Warrior{
 			this.hp_rem = this.max_hp;
 		}
 		this.hp_rem = Math.round(this.hp_rem);
-		if(this.skills[0] == "shell"){
+		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() > 0.5){
 		        this.in_shell = false;
 		    }
@@ -209,13 +211,13 @@ class Warrior{
 	Strike at your enemy team's active warrior with your sword!
 	*/
 	    var mod = 1.0;
-	    if(this.skills[0] == "critical hit"){
+	    if(this.skills[0] === "critical hit"){
 	        if(Math.random() <= 0.24){
 	            console.log("Critical hit!");
 	            mod += 0.24;
 	        }
 	    }
-	    if(this.team.enemy_team.active.skills[0] == "guard"){
+	    if(this.team.enemy_team.active.skills[0] === "guard"){
 	        if(Math.random() <= 0.24){
 	            console.log("Guard!");
 	            mod -= 0.24;
@@ -278,8 +280,8 @@ class Warrior{
 	/*
 	Adds a button that, when clicked, heals you based on how much damage you took
 	*/
-		var w = this;
-		var t = this.team;
+		let w = this;
+		let t = this.team;
 		new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]);
 	}
 	bomb(){
@@ -287,9 +289,9 @@ class Warrior{
 	Or maybe you'd like to take damage instead?
 	Useful for vengeance/Twister warriors
 	*/
-		var w = this;
-		var t = this.team;
-		var f = function(){
+		let w = this;
+		let t = this.team;
+		let f = function(){
 			var d = w.perc_hp(0.15);
 			w.hp_rem -= d;
 			if (w.hp_rem <= 1){
@@ -303,7 +305,7 @@ class Warrior{
 	nat_regen(){
 	/*
 	*/
-		var x = this;
+		let x = this;
 		this.heal((x.last_phys_dmg + x.last_ele_dmg) * 0.4);
 	}
 	reset_dmg(){
@@ -325,7 +327,7 @@ class Warrior{
 	    Then push whatever ones are left to a new array
 	    Your boosts become the new array
 	    */
-		var phys_boosts_rem = [];
+		let phys_boosts_rem = [];
 		for (var boost of this.phys_boosts){
 			boost.update();
 			if(!boost.should_terminate){
@@ -335,12 +337,12 @@ class Warrior{
 		this.phys_boosts = phys_boosts_rem;
 		
 		this.boost_up = false;
-		var ele_boosts_rem = [];
+		let ele_boosts_rem = [];
 		for (var boost of this.ele_boosts){
 			boost.update();
 			if(!boost.should_terminate){
 			    ele_boosts_rem.push(boost);
-			    if(boost.id == this.element.name + " Boost"){
+			    if(boost.id === this.element.name + " Boost"){
 			        this.boost_up = true;
 			    }
 			}
@@ -348,12 +350,12 @@ class Warrior{
 		this.ele_boosts = ele_boosts_rem;
 		
 		this.shield = false;
-		var armor_boosts_rem = [];
+		let armor_boosts_rem = [];
 		for(var boost of this.armor_boosts){
 		    boost.update();
 		    if(!boost.should_terminate){
 		        armor_boosts_rem.push(boost);
-		        if(boost.id == "Phantom Shield"){
+		        if(boost.id === "Phantom Shield"){
 		            this.shield = true;
 		        }
 		    }
@@ -362,10 +364,10 @@ class Warrior{
 	}
 
     poison(amount){
-        var remove = -1;
+        let remove = -1;
         if(this.poisoned){
             for(var a of this.on_update_actions){
-                if(a.id == "poison"){
+                if(a.id === "poison"){
                     remove = this.on_update_actions.indexOf(a);
                 }
             }
@@ -373,8 +375,8 @@ class Warrior{
                 this.on_update_actions.splice(remove, 1);
             }
         }
-        var warrior = this;
-        var a = new On_update_action(
+        let warrior = this;
+        let a = new On_update_action(
             "poison",
             function(){
                 warrior.poisoned = true;

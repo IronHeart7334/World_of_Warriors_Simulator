@@ -1,9 +1,9 @@
 // buggy, scrolling messes it up
-function check_click(event){
-	var x = event.clientX;
-    var y = event.clientY;
+export function check_click(event){
+	let x = event.clientX;
+    let y = event.clientY;
     
-    for (var button of MASTER.active_buttons){
+    for (let button of MASTER.active_buttons){
     	button.check_if_click(x, y);
     }
 }
