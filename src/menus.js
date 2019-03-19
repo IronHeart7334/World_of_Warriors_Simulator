@@ -2,51 +2,6 @@ function clear_canvas(){
     rect("rgb(0, 155, 155)", 0, 0, 100, 100);
 }
 
-export function dispMenu(){
-	MASTER.clear_all_buttons();
-	
-	var colors = [
-		"rgb(0, 255, 0)",
-		"rgb(255, 0, 0)",
-		"rgb(0, 0, 255)",
-		"rgb(255, 255, 0)"
-	];
-	var mes = [
-		"How to play",
-		"Fight!",
-		"Teambuilder",
-		"Info"
-	];
-	var pages = [
-	    undefined,
-	    function(){
-	    	ts.load();
-	    },
-	    function(){
-	        tb.load();
-	    },
-	    undefined
-	];
-	function set_page(page){
-	    if (page == undefined){
-			return function(){
-				alert("This page does not exist!");
-			}
-		}
-		return function(){
-		    page();
-	    }
-    }
-    
-	for (var c = 0; c < 4; c++){
-		canvas.fillStyle = colors[c];
-		var x = 25 * c;
-			        
-		new Button(mes[c], colors[c], x, 0, 25, 100, [set_page(pages[c])]);
-	}
-	help_button(ex_menu);
-}
-
 // make static? improve a bit
 class Team_select{
 	load(){

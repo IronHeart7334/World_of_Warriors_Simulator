@@ -49,6 +49,10 @@ export class Canvas{
         this.draw.arc(tx + tr, ty + tr, tr, 0, 2 * Math.PI);
         this.draw.fill();
     }
+    
+    text(x, y, string){
+        this.draw.fillText(string, x, y);
+    }
 }
 
 // scale text?

@@ -19,6 +19,10 @@ export class GuiElement{
         this.h = h;
     }
     
+    addOnClick(func){
+        this.onClick.push(func);
+    }
+    
     checkClick(x, y){
         if (
             x > this.x &&
