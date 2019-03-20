@@ -5,4 +5,5 @@ import {MainMenu} from "./gui/mainMenu.js";
 //document.getElementById("canvas").onclick = checkClick(event);
 let canvas = new Canvas("canvas");
 let menu = new MainMenu();
+menu.setClickListener("canvas");
 menu.draw(canvas);

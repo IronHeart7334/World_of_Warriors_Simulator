@@ -15,8 +15,15 @@ export class GamePane extends GuiElement{
     }
     
     setClickListener(elementId){
-        document.getElementById(elementId).onclick = (event)=>{
-            //more here
+        let element = document.getElementById(elementId);
+        let minX = element.offsetLeft;
+        let minY = element.offsetTop;
+        let w = element.width;
+        let h = element.height;
+        
+        element.onclick = (event)=>{
+            this.checkClick((event.clientX - document.scrollingElement.scrollLeft - minX) / w * 100, (event.clientY - document.scrollingElement.scrollTop - minY) / h * 100);
+            //not perfect. Scrolling may mess it up
         };
     }
     

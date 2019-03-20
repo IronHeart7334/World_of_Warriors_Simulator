@@ -19,6 +19,6 @@ export class Button extends GuiElement{
         canvas.setColor(this.color);
         canvas.rect(this.x, this.y, this.w, this.h);
         canvas.setColor("black");
-        canvas.text(this.x, this.y, this.text);
+        canvas.text(this.x + this.w / 2, this.y + this.h / 2, this.text);
     }
 }

@@ -1,8 +1,3 @@
-function clear_canvas(){
-    rect("rgb(0, 155, 155)", 0, 0, 100, 100);
-}
-
-// make static? improve a bit
 class Team_select{
 	load(){
 		if(all_teams.length < 2){	

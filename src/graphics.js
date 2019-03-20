@@ -54,40 +54,6 @@ export class Canvas{
         this.draw.fillText(string, x, y);
     }
 }
-
-// scale text?
-class Text{
-    constructor(font_size, color, x, y){
-        /*
-        x and y are percentages of the
-        canvas.
-        EX:
-            new Text(~~~, ~~~, 50, 50);
-            
-            will start in the middle of
-            the canvas.
-        */
-        this.font = font_size.toString() + "px Ariel";
-        this.spacing = Math.round(font_size * 1.1);
-        this.color = color;
-        
-        var c = document.getElementById("canvas");
-        this.x = x / 100 * c.width;
-        this.y = y / 100 * c.height + font_size;
-    }
-    add(string){
-        var c = document.getElementById("canvas").getContext("2d");
-        
-        c.fillStyle = this.color;
-        c.font = this.font;
-        c.fillText(string, this.x, this.y);
-        this.y += this.spacing;
-    }
-}
-
-
-
-
 // broken
 function display_warrior_card(x, y, size, m){
 	/*
