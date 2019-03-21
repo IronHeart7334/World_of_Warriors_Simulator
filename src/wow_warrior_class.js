@@ -1,4 +1,5 @@
-import {warriors} from "real_warriors.js";
+import {warriors} from "./realWarriors.js";
+import * as specials from "./specials.js";
 
 // The base values for both stats, might change them later
 export const OFFENSE = 33.73;
@@ -402,20 +403,6 @@ class Stat_boost{
         }
     }
 }
-
-class Element{
-    constructor(name, color, weakness){
-	    this.name = name;
-	    this.color = color;
-	    this.weakness = weakness;
-	}
-}
-
-var fire = new Element("Fire", "rgb(255, 0, 0)", "Water");
-var earth = new Element("Earth", "rgb(0, 255, 0)", "Fire");
-var air = new Element("Air", "rgb(255, 255, 0)", "Earth");
-var water = new Element("Water", "rgb(0, 0, 255)", "Air");
-var no_ele = new Element("Null", "rgb(100, 100, 100)", undefined);
 
 class Lead{
     constructor(amount, type){

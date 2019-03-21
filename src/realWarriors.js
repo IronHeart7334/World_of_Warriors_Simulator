@@ -1,7 +1,9 @@
+import {fire, air, water, earth} from "./elements.js";
 var all_teams = [];
 
+
 // need: Lance, Kadam, Pacorus, Gaja Mada, Gwen, zuu, balash, alboin
-var warriors = [
+export let warriors = [
     ["Naro", [0.766, 0.25, 0.6, 1, 3], fire, "thunder strike", [25, "p"]],
 	["Le Roc", [1.05, 0.25, 0.7, 2, 3], air, "thunder strike", [15, "a"]],
  	["Yada", [0.7, 0.25, 1.1, 2, 1], water, "thunder strike", [10, "h"]],
@@ -66,7 +68,8 @@ var warriors = [
  	["Kazumi", [0.95, 0.15, 0.92, 1, 2], water, "stealth strike", [30, "w"]],
  	["Kanar", [1, 0.20, 0.92, 2, 2], air, "armor break", [10, "p"]]
 ];
-
+/*
 var starter = new Team([["Abu", ["critical hit"]], ["Toki", ["critical hit"]], ["Zenghis", ["critical hit"]]], "Starter Team");
 var arena = new Team([["Ironhart", ["shell"]], ["Erika", ["critical hit"]], ["Boris", ["critical hit"]]], "Arena Favorites");
 var real_teams = [starter, arena];
+*/
