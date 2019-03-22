@@ -15,7 +15,7 @@ class Special_move {
     }
     set_user(user){
         this.user = user;
-        user.calc_stats();
+        user.calcStats();
         this.calc_mod(user, user.pip);
     }
     calc_mod(user, pip){
@@ -425,5 +425,49 @@ class Phantom_shield extends Special_move{
     	    }
     	}
     	this.user.pass();
+	}
+}
+
+export function findSpecial(name){
+    switch(name){
+		case "beat":
+			return new Beat(true);
+		case "aoe":
+			return new AOE();
+		case "boost":
+			return new Boost();
+		case "poison":
+			return new Poison();
+		case "rolling thunder":
+			return new Rolling_thunder();
+		case "stealth strike":
+			return new Stealth_strike();
+		case "armor break":
+			return new Armor_break();
+		case "healing":
+			return new Healing();
+		case "soul steal":
+			return new Soul_steal();
+		case "berserk":
+			return new Berserk();
+		case "poison hive":
+			return new Poison_hive();
+		case "regeneration":
+			return new Regeneration();
+		case "vengeance":
+			return new Vengeance();
+		case "twister":
+			return new Twister();
+		case "stealth assault":
+			return new Stealth_assault();
+		case "team strike":
+			return new Team_strike();
+		case "phantom strike":
+			return new Phantom_strike();
+		case "phantom shield":
+			return new Phantom_shield();
+		default:
+			console.log("The Special move by the name of " + name + " does not exist. Defaulting to Thunder Strike");
+			return new Beat(false);
 	}
 }

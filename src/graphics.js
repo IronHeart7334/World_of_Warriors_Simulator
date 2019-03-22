@@ -51,7 +51,10 @@ export class Canvas{
     }
     
     text(x, y, string){
-        this.draw.fillText(string, x, y);
+        let oldColor = this.draw.fillStyle;
+        this.setColor("black");
+        this.draw.fillText(string, x / 100 * this.htmlElement.width, y / 100 * this.htmlElement.height);
+        this.setColor(oldColor);
     }
 }
 // broken
@@ -100,7 +103,7 @@ function display_warrior_card(x, y, size, m){
 	
 	canvas.fillStyle = "rgb(0, 0, 0)";
 		
-	m.calc_stats();
+	m.calcStats();
 	t = new Text(h * 0.125, "rgb(0, 0, 0)", x + 7, y + 5);
 	t.add(m.phys);
 	t.add(m.ele);

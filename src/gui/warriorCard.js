@@ -41,7 +41,7 @@ export class WarriorCard extends GuiElement{
         canvas.rect(this.x, this.y, 10, 10);
         
         // Level numerator
-        canvas.text(this.x + 1, this.y + 5, (this.warrior) ? this.warrior.level : 0);
+        canvas.text(this.x + 5, this.y + 5, (this.warrior) ? this.warrior.level : 0);
         
         // Denominator later
         
