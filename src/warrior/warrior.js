@@ -1,6 +1,6 @@
 import {warriors} from "./realWarriors.js";
 import {findSpecial} from "./specials.js";
-import {getElement} from "./elements.js";
+import {getElement, NO_ELE} from "./elements.js";
 
 // The base values for both stats, might change them later
 export const OFFENSE = 33.73;
@@ -17,7 +17,7 @@ export class Warrior{
 	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
 	    */
 	    let data = this.find_warrior(name);
-	    this.name = data[0]
+	    this.name = data[0];
 	    this.base_off = OFFENSE * data[1][0];
 		this.base_ele = this.base_off * data[1][1];
 		this.base_phys = this.base_off - this.base_ele;
@@ -38,7 +38,7 @@ export class Warrior{
     			return warrior;
     		}
     	}
-    	return ["ERROR", [1, 0.5, 1, 1, 2], no_ele, "ERROR", [5, "p"]];
+    	return ["ERROR", [1, 0.5, 1, 1, 2], "none", "ERROR", [5, "p"]];
     }
     
 	calcStats(){

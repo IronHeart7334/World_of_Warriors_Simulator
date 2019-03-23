@@ -1,5 +1,10 @@
 import {GuiElement} from "./guiElement.js";
 
+/*
+ * Todo: make this divide into rows / cols so that it's easier to edit.
+ * call a getCardDisplay method on each stat, item, leader skill, etc, and draw them on the card
+ * 
+ */
 export class WarriorCard extends GuiElement{
     constructor(x=0, y=0, w=0, warrior=null){
         super(x, y);

@@ -13,6 +13,12 @@ export class Canvas{
         this.draw.fillStyle = color;
     }
     
+    clear(){
+        let oldColor = this.draw.fillStyle;
+        this.setColor("white");
+        this.rect(0, 0, 100, 100);
+    }
+    
     rect(x, y, w, h){
         /*
         Draws a rectangle.
@@ -53,74 +59,9 @@ export class Canvas{
     text(x, y, string){
         let oldColor = this.draw.fillStyle;
         this.setColor("black");
-        this.draw.fillText(string, x / 100 * this.htmlElement.width, y / 100 * this.htmlElement.height);
+        this.draw.fillText(string, x / 100 * this.htmlElement.width, y / 100 * this.htmlElement.height + 30);
         this.setColor(oldColor);
     }
-}
-// broken
-function display_warrior_card(x, y, size, m){
-	/*
-	Draws a card displaying information about a warrior (m).
-	*/
-	
-	var w = size;
-	var h = w / 2;
-	
-	var font_size = w * 0.05;
-	var font = font_size.toString() + "px Monospace";
-	canvas.font = font;
-	
-	//Background
-	rect("rgb(255, 215, 0)", x, y, w, h);
-	
-	//Foreground
-	var fg_shift = w * 0.05
-	rect(m.element.color, x + fg_shift, y + fg_shift, w - fg_shift * 2, h - fg_shift * 2);
-	
-	// The level shield thing REDO
-	/*
-	canvas.fillStyle = "rgb(255, 200, 125)";
-	canvas.beginPath();
-	canvas.moveTo(x + 25, y + 25);
-	canvas.lineTo(x + 25 + w / 10, y + 25);
-	canvas.lineTo(x + 25 + w / 10, y + 25 + h / 7);
-	canvas.lineTo(x + 25 + w / 20, y + 25 + h / 4);
-	canvas.lineTo(x + 25, y + 25 + h / 7);
-	canvas.fill();
-	*/
-	
-	// Level numerator
-	var t = new Text(5, "rgb(0, 0, 0)", x + 5, y + 10);
-	t.add(m.level);
-	
-	// Level denominator
-	// add this later
-	
-	//Stats
-	for(var i = 1; i <= 3; i++){
-	    rect("rgb(255, 255, 255)", x + 75, y + h * (0.25 + 0.125 * i), w * 0.2, h * 0.1);
-	}
-	
-	canvas.fillStyle = "rgb(0, 0, 0)";
-		
-	m.calcStats();
-	t = new Text(h * 0.125, "rgb(0, 0, 0)", x + 7, y + 5);
-	t.add(m.phys);
-	t.add(m.ele);
-	t.add(m.max_hp);
-	
-	//Armor: replace with shield sprite later
-	for(var i = 0; i <= m.armor; i++){
-		rect("rgb(100, 100, 100)", x + 75 + (w * 0.1 * i), y + h * 0.75, w * 0.05, h * 0.05);
-	}
-
-	// Name
-	t = new Text(10, "rgb(0, 0, 0)", x + 10, y + 10);
-	t.add(m.name);
-	
-	// Special
-	t = new Text(10, "rgb(0, 0, 0)", x + 50 * size, y);
-	t.add(m.special.name);
 }
 
 function display_stats(m){
