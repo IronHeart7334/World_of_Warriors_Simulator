@@ -365,7 +365,17 @@ class Stat_boost{
 class Lead{
     constructor(amount, type){
 	    this.amount = amount / 100;
-	    this.type = getElement(type);
+        switch(type){
+            case "p":
+                this.type = "p";
+                break;
+            case "h":
+                this.type = "h";
+                break;
+            default:
+                this.type = getElement(type);
+                break;
+        }
     }
     
     // need healing effects
