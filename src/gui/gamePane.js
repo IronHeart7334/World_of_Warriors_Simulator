@@ -10,6 +10,11 @@ export class GamePane extends GuiElement{
         super();
         this.children = [];
         this.canvas = undefined;
+        this.controller = undefined;
+    }
+    
+    setController(controller){
+        this.controller = controller;
     }
     
     setCanvas(elementId){

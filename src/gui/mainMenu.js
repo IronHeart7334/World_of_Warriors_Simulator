@@ -1,5 +1,6 @@
 import {GamePane} from "./gamePane.js";
 import {Button} from   "./button.js";
+import {Controller} from "../controller.js";
 
 export class MainMenu extends GamePane{
     constructor(){
@@ -40,8 +41,7 @@ export class MainMenu extends GamePane{
         ret.setSize(25, 100);
         ret.setColor("blue");
         ret.addOnClick(()=>{
-            console.log("Team builder not created yet");
-            //new Team_builder().load();
+            this.controller.setView(Controller.TEAM_BUILDER);
         });
         return ret;
     }

@@ -1,19 +1,27 @@
 import {GamePane} from "./gamePane.js";
 import {Button} from   "./button.js";
-import {warriors} from "../warrior/realWarriors.js";
 import {WarriorCard} from "./warriorCard.js";
-import {Warrior} from "../warrior/warrior.js";
+import {Warrior, Team} from "../warrior/warrior.js";
+import {Controller} from "../controller.js";
 
 export class TeamBuilder extends GamePane{
     constructor(){
         super();
-        this.currIdx = Math.round(warriors.length / 2);
-        this.options = warriors.map((data)=>data[0]);
+        this.user = null;
+        //cannot add warriors initially; need to wait until user is set
         this.teamWorkshop = [];
+        this.currIdx = 0;
+        this.options = ["Toki"];
         this.addChild(this.leftButton());
         this.addChild(this.rightButton());
         this.addChild(this.selectButton());
-        
+    }
+    
+    setController(controller){
+        super.setController(controller);
+        this.user = controller.user;
+        this.currIdx = Math.round(this.user.warriors.length / 2);
+        this.options = this.user.warriors.map((data)=>data[0]);
         this.update();
     }
     
@@ -65,9 +73,14 @@ export class TeamBuilder extends GamePane{
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
             //save the team
+            //                                                 V-- skills would go here 
+            let members = this.teamWorkshop.map((name)=>[name, []]);
+            this.user.teams.push(new Team(teamName, members));
+            console.log(this.user.teams);
+            this.controller.setView(Controller.MAIN_MENU);
+        } else {
+            this.update();
         }
-        
-        this.update();
     }
     
     update(){

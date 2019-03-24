@@ -73,7 +73,7 @@ class Teambuilder{
         		if(first_skills.includes(skill)){
         			return skill;
         		} else {
-        			ask();
+        			return ask();
         		}
         	}
             this.team_workshop.push([this.options[warrior_num], [ask()]]);

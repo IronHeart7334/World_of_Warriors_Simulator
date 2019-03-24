@@ -391,14 +391,13 @@ class Lead{
 	}
 }
 
-class Team{
-    constructor(members, name){
+export class Team{
+    constructor(name, members){
         this.members = [];
         for(var member of members){
         	this.members.push(new Warrior(member[0], member[1]));
         }
 	    this.name = name;
-	    all_teams.push(this);
     }
 	init_for_battle(){
 		this.members_rem = [];
