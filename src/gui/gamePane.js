@@ -9,7 +9,6 @@ export class GamePane extends GuiElement{
     constructor(){
         super();
         this.children = [];
-        this.canvas = undefined;
         this.controller = undefined;
     }
     
@@ -17,8 +16,8 @@ export class GamePane extends GuiElement{
         this.controller = controller;
     }
     
-    setCanvas(elementId){
-        let element = document.getElementById(elementId);
+    setCanvas(canvas){
+        let element = canvas.htmlElement;
         let minX = element.offsetLeft;
         let minY = element.offsetTop;
         let w = element.width;
@@ -28,8 +27,6 @@ export class GamePane extends GuiElement{
             this.checkClick((event.clientX - document.scrollingElement.scrollLeft - minX) / w * 100, (event.clientY - document.scrollingElement.scrollTop - minY) / h * 100);
             //not perfect. Scrolling may mess it up
         };
-        
-        this.canvas = new Canvas(elementId);
     }
     
     addChild(guiElement){
@@ -44,7 +41,11 @@ export class GamePane extends GuiElement{
     }
     
     draw(){
-        this.canvas.clear();
-        this.children.forEach((child)=>child.draw(this.canvas));
+        try{
+            this.controller.canvas.clear();
+            this.children.forEach((child)=>child.draw(this.controller.canvas));
+        } catch (error){
+            console.log("Controller not set yet: " + error.stack);
+        }
     }
 }

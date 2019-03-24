@@ -104,8 +104,6 @@ export class TeamBuilder extends GamePane{
             this.addChild(rightCard);
         }
         
-        if(this.canvas){
-            this.draw();
-        }
+        this.draw();
     }
 }

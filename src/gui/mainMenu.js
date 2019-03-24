@@ -29,8 +29,7 @@ export class MainMenu extends GamePane{
         ret.setSize(25, 100);
         ret.setColor("red");
         ret.addOnClick(()=>{
-            console.log("Fight not created yet");
-            //new Team_select().load();
+            this.controller.setView(Controller.TEAM_SELECT);
         });
         return ret;
     }
