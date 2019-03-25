@@ -146,5 +146,5 @@ function display_health(x, y, m){
 function display_vs(t){
     rect("rgb(255, 255, 255)", 40, 0, 20, 10);
 	x = new Text(10, "rgb(0, 0, 0)", 40, 0);
-	x.add(t.active.name + " VS " + t.enemy_team.active.name);
+	x.add(t.active.name + " VS " + t.enemyTeam.active.name);
 }

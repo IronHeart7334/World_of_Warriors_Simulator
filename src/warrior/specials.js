@@ -100,7 +100,7 @@ class AOE extends Special_move{
         var physical_damage = this.user.get_phys() * this.mod;
 		var elemental_damage = this.user.get_ele() * this.mod;
 		
-		for (var member of this.user.enemy_team.members_rem){
+		for (var member of this.user.enemyTeam.members_rem){
 			member.calc_damage_taken(physical_damage, elemental_damage);
 		}
 		this.user.pass();
@@ -144,7 +144,7 @@ class Poison extends Special_move{
     }
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
-		this.user.enemy_team.active.poison(dmg);
+		this.user.enemyTeam.active.poison(dmg);
 		this.user.pass();        
     }
 }
@@ -160,7 +160,7 @@ class Rolling_thunder extends Special_move{
 	    var gained_energy = false;
 		
 	    for(var i = 0; i < 3; i++){
-		    var target_team = this.user.enemy_team;
+		    var target_team = this.user.enemyTeam;
 		    var num_targ = target_team.members_rem.length;
 		    
 		    if(num_targ == 0){
@@ -197,7 +197,7 @@ class Armor_break extends Special_move{
         super("Armor Break", 40, true);
     }
     attack(){
-        var target = this.user.enemy_team.active;
+        var target = this.user.enemyTeam.active;
         var save_arm = target.armor;
         var save_boosts = target.armor_boosts.slice();
         
@@ -268,7 +268,7 @@ class Poison_hive extends Special_move{
     }
     attack(){
 		var dmg = this.user.get_phys() * this.mod;
-		for (var member of this.user.enemy_team.members_rem){
+		for (var member of this.user.enemyTeam.members_rem){
 			member.poison(dmg);		
 		}
 		this.user.pass();
@@ -331,7 +331,7 @@ class Twister extends Special_move{
 		var physical_damage = this.user.get_phys() * mod;
 		var elemental_damage = this.user.get_ele() * mod;
 		
-		for (var member of this.user.enemy_team.members_rem){
+		for (var member of this.user.enemyTeam.members_rem){
 			member.calc_damage_taken(physical_damage, elemental_damage);
 		} 
 		this.user.pass();       
@@ -345,7 +345,7 @@ class Stealth_assault extends Special_move{
 	    var physical_damage = this.user.get_phys() * this.mod;
 	    var elemental_damage = this.user.get_ele() * this.mod;
 	    
-	    for (var member of this.user.enemy_team.members_rem){
+	    for (var member of this.user.enemyTeam.members_rem){
 		    member.calc_damage_taken(physical_damage, elemental_damage);
 	    }
 		
@@ -379,7 +379,7 @@ class Phantom_strike extends Special_move{
 	attack(){
 		var physical_damage = this.user.get_phys() * this.mod;
 		var elemental_damage = this.user.get_ele() * this.mod;
-		var target_team = this.user.enemy_team;
+		var target_team = this.user.enemyTeam;
 		
 		//first hit
 		var pd = physical_damage * 1.33;

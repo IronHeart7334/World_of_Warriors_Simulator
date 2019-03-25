@@ -4,7 +4,7 @@ export class GuiElement{
         this.y = y;
         this.w = w;
         this.h = h;
-        
+        this.children = [];
         this.onClick = [];
     }
     
@@ -16,6 +16,16 @@ export class GuiElement{
     setSize(w, h){
         this.w = w;
         this.h = h;
+    }
+    
+    addChild(guiElement){
+        this.children.push(guiElement);
+    }
+    
+    removeChild(guiElement){
+        if(guiElement in this.children){
+            this.children.splice(this.children.indexOf(guiElement));
+        }
     }
     
     addOnClick(func){

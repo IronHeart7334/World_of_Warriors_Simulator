@@ -8,7 +8,7 @@ export class Controller{
     constructor(){
         this.user = null;
         this.view = null;
-        this.canvas = null;
+        this.canvas = null; 
     }
     
     setUser(globalObject){

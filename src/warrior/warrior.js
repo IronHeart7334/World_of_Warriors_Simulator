@@ -97,16 +97,16 @@ export class Warrior{
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
 		
-		if (this.element.weakness === this.team.enemy_team.active.element.name){
+		if (this.element.weakness === this.team.enemyTeam.active.element.name){
 			elemental_damage *= 1.7;
 		}
 		
-		else if (this.element.name === this.team.enemy_team.active.element.weakness){
+		else if (this.element.name === this.team.enemyTeam.active.element.weakness){
 			elemental_damage *= 0.3;
 		}
 		
 		this.take_damage(physical_damage, elemental_damage);
-		this.last_hitby = this.team.enemy_team.active;
+		this.last_hitby = this.team.enemyTeam.active;
 		return physical_damage + elemental_damage;
 	}
 	take_damage(phys, ele){
@@ -153,14 +153,14 @@ export class Warrior{
 	}
 	
 	strike(pd, ed){
-	    var t = this.team.enemy_team;
+	    var t = this.team.enemyTeam;
 	    t.gain_energy();
 	    var dmg = t.active.calc_damage_taken(pd, ed);
 	    t.turn_part1();
 	    return dmg;
 	}
 	pass(){
-	    var t = this.team.enemy_team;
+	    var t = this.team.enemyTeam;
 	    t.gain_energy();
 	    t.turn_part1();
 	}
@@ -176,7 +176,7 @@ export class Warrior{
 	            mod += 0.24;
 	        }
 	    }
-	    if(this.team.enemy_team.active.skills[0] === "guard"){
+	    if(this.team.enemyTeam.active.skills[0] === "guard"){
 	        if(Math.random() <= 0.24){
 	            console.log("Guard!");
 	            mod -= 0.24;
@@ -385,7 +385,7 @@ class Lead{
 			var target = team;
 		}
 		if (this.amount < 0){
-			var target = team.enemy_team;
+			var target = team.enemyTeam;
 		}
 		if (this.type == "p"){
 			for (var member of target.members_rem){
@@ -414,7 +414,7 @@ export class Team{
 		for (var member of this.members){
 		    member.init();
 		    member.team = this;
-		    member.enemy_team = this.enemy_team;
+		    member.enemyTeam = this.enemyTeam;
 		    this.members_rem.push(member);
 		}
 		this.leader = this.members_rem[0];
@@ -493,7 +493,7 @@ export class Team{
 		this.members_rem = new_members_rem;
 		
 		if (this.members_rem.length == 0){
-			this.enemy_team.win();
+			this.enemyTeam.win();
 		}
 		
 		if (act_koed){
@@ -523,7 +523,7 @@ export class Team{
 		
 		this.check_if_ko();
 		
-		if (this.won || this.enemy_team.won){
+		if (this.won || this.enemyTeam.won){
 			return;
 		}
 		
@@ -531,8 +531,8 @@ export class Team{
 		this.display_energy();
 		
 		display_vs(this);
-		this.enemy_team.display_all_hp();
-		this.enemy_team.display_energy();
+		this.enemyTeam.display_all_hp();
+		this.enemyTeam.display_energy();
 		
 		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) > 0){
 			this.active.heart_collection();
@@ -564,8 +564,8 @@ export class Team{
 		this.display_nm();
 		display_vs(this);
 		
-		this.enemy_team.display_all_hp();
-		this.enemy_team.display_energy();
+		this.enemyTeam.display_all_hp();
+		this.enemyTeam.display_energy();
 		
 		if (this.energy >= 2){
 			this.display_specials();
@@ -610,42 +610,6 @@ export class Team{
 	        new Button("", "none", this.x, y, 20, 10, [f(member)]);
 			y += 20;
 		}
-	}
-}
-
-/*
-The Battle class is used to pit teams against each other
-then start the match by letting a random team do the first part of their turn
-*/
-
-function Battle(team1, team2){
-	this.teams = [team1, team2];
-	for (var team of this.teams){
-		var slice = this.teams.slice();
-		var enemy = slice.splice(this.teams.indexOf(team), 1);
-		team.enemy_team = slice[0];
-	}
-	team1.x = 15;
-	team2.x = 75;
-}
-
-Battle.prototype = {
-	init:function(){
-		/*
-		Prepare the teams for battle
-		*/
-		for (var team of this.teams){
-			team.init_for_battle();
-		}
-	},
-	
-	start:function(){
-		/*
-		initiate the first turn
-		for a random team
-		Warrior and Team do the rest
-		*/
-		this.teams[Math.round(Math.random())].turn_part1();
 	}
 }
 
