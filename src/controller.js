@@ -1,6 +1,7 @@
 import {MainMenu} from "./gui/mainMenu.js";
 import {TeamBuilder} from "./gui/teamBuilder.js";
 import {TeamSelect} from "./gui/teamSelect.js";
+import {BattlePage} from "./gui/battlePage.js";
 import {Canvas} from "./graphics.js";
 
 //todo check if user is logged in
@@ -35,6 +36,9 @@ export class Controller{
             case Controller.TEAM_BUILDER:
                 this.view = new TeamBuilder();
                 break;
+            case Controller.BATTLE:
+                this.view = new BattlePage();
+                break;
             default:
                 console.log("View not valid: " + view);
                 break;
@@ -49,3 +53,4 @@ export class Controller{
 Controller.MAIN_MENU = 0;
 Controller.TEAM_SELECT = 1;
 Controller.TEAM_BUILDER = 2;
+Controller.BATTLE = 3;

@@ -85,64 +85,7 @@ function display_data(x, y, m){
     t.add("Armor: " + armor_strs[m.armor]);
     t.add("Max HP: " + Math.round(m.base_hp).toString());
 }
-function display_health(x, y, m){
-	/*
-	Display a Warrior's icon, showing:
-		If their boost is up
-		Their element
-		Their % of HP remaining (as a horizontal bar)
-		Their name
-		Their actual HP remaining
-	*/
-	if (m.check_if_ko()){
-	    return;
-	}
-	
-	// 'active' border
-	if (m.team.active == m){
-	    rect("rgb(125, 125, 125)", x, y, 20, 10);
-	}
-	// boost strip
-	if (m.boost_up){
-	    rect(m.element.color, x, y, 20, 5);
-	}
-	
-	// health bar
-	var color;
-	if (m.poisoned !== false){
-	    color = "rgb(0, 255, 0)";
-	} else {
-	    color = "rgb(255, 0, 0)";
-	}
-	rect(color, x + 5, y + 5, 15 * m.hp_perc(), 5);
-	
-	// health value
-	var t = new Text(20, "rgb(0, 0, 0)", x + 10, y);
-	t.add(m.name);
-	if (!m.regen){
-		t.add(m.hp_rem);
-	} else {
-		t.add(m.hp_rem + "+");
-	}
-	// how to squeeze these in?
-	if (m.last_phys_dmg != 0){
-		t.add("-" + String(Math.round(m.last_phys_dmg)));
-	}
-	if (m.last_ele_dmg != 0){
-		t.add("-" + String(Math.round(m.last_ele_dmg)));
-	}
-	if (m.last_healed != 0){
-		t.add("+" + String(m.last_healed));
-	}
-	
-	// Phantom Shield overlay
-	if (m.shield){
-	    rect("rgba(0, 0, 155, 0.5)", x, y, 20, 10);
-	}
-	
-	// icon
-	circle(m.element.color, x, y, 5);
-}
+
 function display_vs(t){
     rect("rgb(255, 255, 255)", 40, 0, 20, 10);
 	x = new Text(10, "rgb(0, 0, 0)", 40, 0);

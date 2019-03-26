@@ -1,4 +1,5 @@
 import {GamePane} from "./gamePane.js";
+import {WarriorHud} from "./warriorHud.js";
 import {Button} from "./button.js";
 
 export class BattlePage extends GamePane{
@@ -16,47 +17,41 @@ export class BattlePage extends GamePane{
         team2.enemyTeam = team1;
         team1.init_for_battle();
         team2.init_for_battle();
+        
+        let y = 0;
+        let hud;
+        team1.members_rem.forEach((member)=>{
+            hud = this.hpButtonFor(member);
+            hud.setPos(0, y);
+            this.addChild(hud);
+            y += 20;
+        });
+        
+        y = 0;
+        team2.members_rem.forEach((member)=>{
+            hud = this.hpButtonFor(member);
+            hud.setPos(80, y);
+            this.addChild(hud);
+            y += 20;
+        });
+        
         this.team1Turn = Math.random() >= 0.5;
         this.update();
-        // [team whose turn it is].turn_part1(); 
+        // [team whose turn it is].turn_part1();
+        //make sure this does turns in a loop, else I'll be using recursion
     }
     
     hpButtonFor(warrior){
-        let ret = new Button(""); //blank, as this is going to be invisible
-        ret.setColor("rgb(0, 0, 0, 0)");
-        ret.setSize(20, 20);
-        ret.addOnclick(()=>{
+        //make class for this
+        let ret = new WarriorHud(warrior);
+        ret.addOnClick(()=>{
             //display_stats(warrior);
         });
         return ret;
     }
     
     update(){
-        let y = 0;
-        let button;
-        let c = this.controller.canvas;
-        
-        //oh wait, this all gets erased by draw()
-        this.team1.members_rem.forEach((member)=>{
-            button = this.hpButtonFor(member);
-            button.setPos(0, y);
-            
-            //move this to Warrior later
-            //'active' border
-            if(team1.active === member){
-                c.setColor("grey");
-                c.rect(0, y, 20, 20);
-            }
-            //boost
-            if(member.boost_up){
-                c.setColor(member.element.color);
-                c.rect(0, y, 20, 10);
-            }
-            
-            //display_health(member);
-            
-            y += 20;
-        });
+        //more stuffs here
         this.draw();
     }
 }

@@ -21,7 +21,7 @@ export class WarriorCard extends GuiElement{
     }
     
     draw(canvas){
-        
+        super.draw(canvas);
         //background
         canvas.setColor("yellow");
         canvas.rect(this.x, this.y, this.w, this.h);

@@ -41,6 +41,9 @@ export class GuiElement{
         ){
             this.click();
         }
+        this.children.forEach((child)=>{
+            child.checkClick(x, y);
+        });
     }
     
     click(){
@@ -48,6 +51,8 @@ export class GuiElement{
     }
     
     draw(canvas){
-        throw new Error("Method draw is not defined for " + this);
+        this.children.forEach((child)=>{
+            child.draw(canvas);
+        });
     }
 }
