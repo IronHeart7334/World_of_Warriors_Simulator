@@ -1,5 +1,5 @@
 import {GuiElement} from "./guiElement.js";
-import {Canvas} from     "../graphics.js";
+import {Canvas} from     "./canvas.js";
 /*
  * The gamePane class is used to store components, 
  * making it easier to manage many at the same time

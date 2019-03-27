@@ -2,7 +2,7 @@ import {MainMenu} from "./gui/mainMenu.js";
 import {TeamBuilder} from "./gui/teamBuilder.js";
 import {TeamSelect} from "./gui/teamSelect.js";
 import {BattlePage} from "./gui/battlePage.js";
-import {Canvas} from "./graphics.js";
+import {Canvas} from "./gui/canvas.js";
 
 //todo check if user is logged in
 export class Controller{

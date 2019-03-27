@@ -236,18 +236,18 @@ export class Warrior{
 		this.on_update_actions = [];
 	}
 	heart_collection(){
-	/*
-	Adds a button that, when clicked, heals you based on how much damage you took
-	*/
+        /*
+        Adds a button that, when clicked, heals you based on how much damage you took
+        */
 		let w = this;
 		let t = this.team;
 		new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]);
 	}
 	bomb(){
-	/*
-	Or maybe you'd like to take damage instead?
-	Useful for vengeance/Twister warriors
-	*/
+        /*
+        Or maybe you'd like to take damage instead?
+        Useful for vengeance/Twister warriors
+        */
 		let w = this;
 		let t = this.team;
 		let f = function(){
@@ -262,8 +262,6 @@ export class Warrior{
 	}
 	// update this once Resilience out
 	nat_regen(){
-	/*
-	*/
 		let x = this;
 		this.heal((x.last_phys_dmg + x.last_ele_dmg) * 0.4);
 	}
@@ -325,7 +323,7 @@ export class Warrior{
     poison(amount){
         let remove = -1;
         if(this.poisoned){
-            for(var a of this.on_update_actions){
+            for(let a of this.on_update_actions){
                 if(a.id === "poison"){
                     remove = this.on_update_actions.indexOf(a);
                 }
@@ -515,24 +513,6 @@ export class Team{
 		Heart collection phase
 		*/
 		
-		clear_canvas();
-		MASTER.clear_all_buttons();
-		for (var member of this.members_rem){
-			member.reset_heal();
-		}
-		
-		this.check_if_ko();
-		
-		if (this.won || this.enemyTeam.won){
-			return;
-		}
-		
-		this.display_all_hp();
-		this.display_energy();
-		
-		display_vs(this);
-		this.enemyTeam.display_all_hp();
-		this.enemyTeam.display_energy();
 		
 		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) > 0){
 			this.active.heart_collection();
@@ -589,26 +569,6 @@ export class Team{
 		for (var member of team.members_rem){
 			new Button(member.special.name, member.element.color, x, 70, 10, 10, [member.use_special.bind(member)]);
 			x += 15;	
-		}
-	}
-	display_energy(){
-		var x = this.x;
-		for (var count = 0; count < this.energy; count ++){
-			circle("rgb(0, 100, 255)", x, 90, 5);
-			x += 5;	
-		}
-	}
-	display_all_hp(){
-		var y = 0;
-		for (var member of this.members_rem){
-			display_health(this.x, y, member);
-			function f(m){
-			    return function(){
-			        display_stats(m);
-			    }
-			}
-	        new Button("", "none", this.x, y, 20, 10, [f(member)]);
-			y += 20;
 		}
 	}
 }
