@@ -10,6 +10,7 @@ export class BattlePage extends GamePane{
         this.team1Turn = true;
         this.vsText = ""; //display actives
         this.dataText = ""; //displays warrior data
+        this.turnPart = 0;
     }
     
     setTeams(team1, team2){
@@ -39,9 +40,8 @@ export class BattlePage extends GamePane{
         
         
         this.team1Turn = Math.random() >= 0.5;
+        this.turnPart = 1;
         this.update();
-        // [team whose turn it is].turn_part1();
-        //make sure this does turns in a loop, else I'll be using recursion
     }
     
     hpButtonFor(warrior){
@@ -59,8 +59,62 @@ export class BattlePage extends GamePane{
         return ret;
     }
     
+    heartCollectionFor(team){
+        let ret = new Button("Heart Collection");
+        ret.setColor("red");
+        ret.setPos(40, 90);
+        ret.setSize(10, 10);
+        ret.addOnClick(()=>{
+            team.active.nat_regen();
+            this.turnPart2For(team);
+        });
+        return ret;
+    }
+    
+    bombFor(team){
+        let ret = new Button("Bomb");
+        ret.setColor("black");
+        ret.setPos(50, 90);
+        ret.setSize(10, 10);
+        ret.addOnClick(()=>{
+            let d = team.active.perc_hp(0.15);
+            team.active.hp_rem -= d;
+            if(team.active.hp_rem <= 1){
+                team.active.hp_rem = 1;
+            }
+            team.active.hp_rem = Math.round(team.active.hp_rem);
+            
+            this.turnPart2For(team);
+        });
+        return ret;
+    }
+    
+    nmButtonFor(team){
+        let ret = new Button("Normal Move");
+        ret.setPos(45, 70);
+        ret.setSize(10, 10);
+        ret.setColor(team.active.element.color);
+        ret.addOnClick(()=>{
+            //team.active.use_normal_move();
+        });
+        return ret;
+    }
+    
+    purgeTempButtons(){
+        if(this.heartCol){
+            this.removeChild(this.heartCol);
+        }
+        if(this.bomb){
+            this.removeChild(this.bomb);
+        }
+        
+        if(this.nm){
+            this.removeChild(this.nm);
+        }
+    }
+    
     //might want to move some of this back to team later
-    turnFor(team){
+    turnPart1For(team){
         let c = this.controller.canvas;
         
         team.check_if_ko();
@@ -69,7 +123,9 @@ export class BattlePage extends GamePane{
         } //#################################STOPS HERE IF A TEAM WON
         team.members_rem.forEach((member)=>member.reset_heal());
         
+        this.purgeTempButtons();
         
+        //this will get erased by draw()
         c.setColor("blue");
         for(let i = 0; i < team.energy; i++){
             c.circle(i * 10, 90, 5);
@@ -82,16 +138,48 @@ export class BattlePage extends GamePane{
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
-        //team.turn_part1()
+        if ((team.active.last_phys_dmg + team.active.last_ele_dmg) > 0){
+			this.heartCol = this.heartCollectionFor(team);
+            this.bomb = this.bombFor(team);
+            this.addChild(this.heartCol);
+            this.addChild(this.bomb);
+		} else {
+            this.turnPart2For(team); //recursive. Might not be good
+        }
+    }
+    
+    teamPart2For(team){
+        let c = this.controller.canvas;
+        this.turnPart = 2;
+        
+        this.purgeTempButtons();
+        
+        team.turn_part2(); //lots of non-GUI stuff done here
+        
+        //this will get erased by draw()
+        c.setColor("blue");
+        for(let i = 0; i < team.energy; i++){
+            c.circle(i * 10, 90, 5);
+        }
+        
+        c.setColor("red");
+        for(let i = 0; i < team.enemyTeam.energy; i++){
+            c.circle(100 - i * 10, 90, 5);
+        }
+        
+        this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
+        
+        this.nm = this.nmButtonFor(team);
+        //if(team.energy >= 2){team.display_specials();}
     }
     
     update(){
         //more stuffs here
-        if(this.team1Turn !== null){
+        if(this.team1Turn !== null && this.turnPart === 1){
             if(this.team1Turn){
-                this.turnFor(this.team1);
+                this.turnPart1For(this.team1);
             } else {
-                this.turnFor(this.team2);
+                this.turnPart1For(this.team2);
             }
         }
         this.draw();

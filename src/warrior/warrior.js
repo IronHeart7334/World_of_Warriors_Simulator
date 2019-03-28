@@ -235,31 +235,7 @@ export class Warrior{
 		
 		this.on_update_actions = [];
 	}
-	heart_collection(){
-        /*
-        Adds a button that, when clicked, heals you based on how much damage you took
-        */
-		let w = this;
-		let t = this.team;
-		new Button("Heart Collection", "rgb(255, 0, 0)", 40, 90, 10, 10, [w.nat_regen.bind(w), t.turn_part2.bind(t)]);
-	}
-	bomb(){
-        /*
-        Or maybe you'd like to take damage instead?
-        Useful for vengeance/Twister warriors
-        */
-		let w = this;
-		let t = this.team;
-		let f = function(){
-			var d = w.perc_hp(0.15);
-			w.hp_rem -= d;
-			if (w.hp_rem <= 1){
-				w.hp_rem = 1;
-			}
-			w.hp_rem = Math.round(w.hp_rem);
-		}
-	    new Button("", "rgb(0, 0, 0)", 50, 90, 10, 10, [f, t.turn_part2.bind(t)]);
-	}
+    
 	// update this once Resilience out
 	nat_regen(){
 		let x = this;
@@ -507,57 +483,20 @@ export class Team{
 		disp_menu();
 	}
 	
-	// graphics stuff, work on
-	turn_part1(){
-		/*
-		Heart collection phase
-		*/
-		
-		
-		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) > 0){
-			this.active.heart_collection();
-			this.active.bomb();
-		}
-		
-		if ((this.active.last_phys_dmg + this.active.last_ele_dmg) <= 0){
-			this.turn_part2();
-			return;
-		}
-		
-		help_button(ex_gui);
-	}
+    //Don't delete me yet!
 	turn_part2(){
 		/*
 		Action phase
 		*/
 		
-		clear_canvas();
-		MASTER.clear_all_buttons();
 		for (var member of this.members_rem){
 			member.reset_dmg();
 		}
 		this.check_lead();
 		this.update();
 		this.check_if_ko();
-		this.display_all_hp();
-		this.display_energy();
-		this.display_nm();
-		display_vs(this);
-		
-		this.enemyTeam.display_all_hp();
-		this.enemyTeam.display_energy();
-		
-		if (this.energy >= 2){
-			this.display_specials();
-		}
-		
-		help_button(ex_gui);
 	}
-	// shorten these buttons
-	display_nm(){
-		var team = this;
-		new Button("Normal Move", team.active.element.color, 45, 70, 10, 10, [team.active.use_normal_move.bind(team.active)]);
-	}
+	
 	display_specials(){
 	    /*
 	    List all of a team's Special Moves
