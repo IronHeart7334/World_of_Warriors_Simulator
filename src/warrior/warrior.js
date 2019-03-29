@@ -156,13 +156,12 @@ export class Warrior{
 	    var t = this.team.enemyTeam;
 	    t.gain_energy();
 	    var dmg = t.active.calc_damage_taken(pd, ed);
-	    t.turn_part1();
 	    return dmg;
 	}
 	pass(){
-	    var t = this.team.enemyTeam;
-	    t.gain_energy();
-	    t.turn_part1();
+	    //var t = this.team.enemyTeam;
+	    //t.gain_energy();
+	    //t.turn_part1();
 	}
 	
 	use_normal_move(){
@@ -495,20 +494,6 @@ export class Team{
 		this.check_lead();
 		this.update();
 		this.check_if_ko();
-	}
-	
-	display_specials(){
-	    /*
-	    List all of a team's Special Moves
-	    as icons across the screen.
-	    Click on them to use them.
-	    */
-		var x = this.x - 15;
-		var team = this;
-		for (var member of team.members_rem){
-			new Button(member.special.name, member.element.color, x, 70, 10, 10, [member.use_special.bind(member)]);
-			x += 15;	
-		}
 	}
 }
 

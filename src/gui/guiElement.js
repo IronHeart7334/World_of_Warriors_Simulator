@@ -1,3 +1,4 @@
+let NEXT_ID = 0;
 export class GuiElement{
     constructor(x=0, y=0, w=0, h=0){
         this.x = x;
@@ -6,6 +7,8 @@ export class GuiElement{
         this.h = h;
         this.children = [];
         this.onClick = [];
+        this.id = NEXT_ID;
+        NEXT_ID++;
     }
     
     setPos(x, y){
@@ -23,8 +26,12 @@ export class GuiElement{
     }
     
     removeChild(guiElement){
-        if(guiElement in this.children){
-            this.children.splice(this.children.indexOf(guiElement));
+        let found = false;
+        for(let i = 0; i < this.children.length && !found; i++){
+            if(guiElement.id === this.children[i].id){
+                this.children.splice(i);
+                found = true;
+            }
         }
     }
     

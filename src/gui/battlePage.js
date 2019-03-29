@@ -95,7 +95,30 @@ export class BattlePage extends GamePane{
         ret.setSize(10, 10);
         ret.setColor(team.active.element.color);
         ret.addOnClick(()=>{
-            //team.active.use_normal_move();
+            team.active.use_normal_move();
+            this.team1Turn = !this.team1Turn;
+            this.turnPart = 1;
+            this.update();
+        });
+        return ret;
+    }
+    displaySpecialsFor(team){
+        let ret = [];
+        let offset = 0;
+        let b;
+        team.members_rem.forEach((member)=>{
+            b = new Button(member.special.name);
+            b.setPos((team === this.team1) ? offset : 90 - offset, 70);
+            b.setSize(10, 10);
+            b.setColor(member.element.color);
+            b.addOnClick(()=>{
+                member.use_special();
+                this.team1Turn = !this.team1Turn;
+                this.turnPart = 1;
+                this.update();
+            });
+            offset += 10;
+            ret.push(b);
         });
         return ret;
     }
@@ -103,13 +126,24 @@ export class BattlePage extends GamePane{
     purgeTempButtons(){
         if(this.heartCol){
             this.removeChild(this.heartCol);
+            this.heartCol = null;
         }
+        
         if(this.bomb){
             this.removeChild(this.bomb);
+            this.bomb = null;
         }
         
         if(this.nm){
             this.removeChild(this.nm);
+            this.nm = null;
+        }
+        
+        if(this.specials){
+            this.specials.forEach((button)=>{
+                this.removeChild(button);
+            });
+            this.specials = null;
         }
     }
     
@@ -146,9 +180,10 @@ export class BattlePage extends GamePane{
 		} else {
             this.turnPart2For(team); //recursive. Might not be good
         }
+        this.draw();
     }
     
-    teamPart2For(team){
+    turnPart2For(team){
         let c = this.controller.canvas;
         this.turnPart = 2;
         
@@ -170,7 +205,12 @@ export class BattlePage extends GamePane{
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
         this.nm = this.nmButtonFor(team);
-        //if(team.energy >= 2){team.display_specials();}
+        this.addChild(this.nm);
+        if(team.energy >= 2){
+            this.specials = this.displaySpecialsFor(team);
+            this.specials.forEach((button)=>this.addChild(button));
+        }
+        this.draw();
     }
     
     update(){

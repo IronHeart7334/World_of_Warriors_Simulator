@@ -65,8 +65,6 @@ export class TeamSelect extends GamePane{
         ret.setSize(100, 10);
         ret.setColor("green");
         ret.addOnClick(()=>{
-            console.log(this.team1);
-            console.log(this.team2);
             this.controller.setView(Controller.BATTLE);
             //probably a better way to do this
             this.controller.view.setTeams(this.team1, this.team2);
