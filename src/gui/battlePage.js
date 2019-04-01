@@ -1,6 +1,7 @@
 import {GamePane} from "./gamePane.js";
 import {WarriorHud} from "./warriorHud.js";
 import {Button} from "./button.js";
+import {EnergyIcon} from "./energyIcon.js";
 
 export class BattlePage extends GamePane{
     constructor(){
@@ -11,6 +12,11 @@ export class BattlePage extends GamePane{
         this.vsText = ""; //display actives
         this.dataText = ""; //displays warrior data
         this.turnPart = 0;
+        this.energyIcons = [
+            this.energyIconForTeamNum(1),
+            this.energyIconForTeamNum(2)
+        ];
+        this.energyIcons.forEach((icon)=>this.addChild(icon));
     }
     
     setTeams(team1, team2){
@@ -42,6 +48,14 @@ export class BattlePage extends GamePane{
         this.team1Turn = Math.random() >= 0.5;
         this.turnPart = 1;
         this.update();
+    }
+    
+    energyIconForTeamNum(oneOrTwo){
+        let ret = new EnergyIcon();
+        ret.setColor((oneOrTwo) ? "blue" : "red");
+        ret.setPos(50 * (oneOrTwo - 1), 90);
+        ret.setSize(50, 10);
+        return ret;
     }
     
     hpButtonFor(warrior){
@@ -159,16 +173,8 @@ export class BattlePage extends GamePane{
         
         this.purgeTempButtons();
         
-        //this will get erased by draw()
-        c.setColor("blue");
-        for(let i = 0; i < team.energy; i++){
-            c.circle(i * 10, 90, 5);
-        }
-        
-        c.setColor("red");
-        for(let i = 0; i < team.enemyTeam.energy; i++){
-            c.circle(100 - i * 10, 90, 5);
-        }
+        this.energyIcons[0].setTeam(team);
+        this.energyIcons[1].setTeam(team.enemyTeam);
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
@@ -190,17 +196,9 @@ export class BattlePage extends GamePane{
         this.purgeTempButtons();
         
         team.turn_part2(); //lots of non-GUI stuff done here
-        
-        //this will get erased by draw()
-        c.setColor("blue");
-        for(let i = 0; i < team.energy; i++){
-            c.circle(i * 10, 90, 5);
-        }
-        
-        c.setColor("red");
-        for(let i = 0; i < team.enemyTeam.energy; i++){
-            c.circle(100 - i * 10, 90, 5);
-        }
+       
+        this.energyIcons[0].setTeam(team);
+        this.energyIcons[1].setTeam(team.enemyTeam);
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         

@@ -10,6 +10,12 @@ export class WarriorHud extends GuiElement{
     draw(canvas){
         super.draw(canvas);
         
+        if(this.warrior.check_if_ko()){
+            canvas.setColor("black");
+            canvas.rect(this.x, this.y, this.w, this.h);
+            return;
+        }//########################################## STOPS HERE IF KOED
+        
         //'active' border
         if(this.warrior.team.active === this.warrior){
             canvas.setColor("grey");
