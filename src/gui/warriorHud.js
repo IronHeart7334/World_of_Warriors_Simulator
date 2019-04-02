@@ -43,9 +43,9 @@ export class WarriorHud extends GuiElement{
         // health value
         canvas.text(this.x + 10, this.y, this.warrior.name);
         if (this.warrior.regen){
-            canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem);
-        } else {
             canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem + "+");
+        } else {
+            canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem);
         }
         
         if (this.warrior.last_phys_dmg !== 0){

@@ -1,6 +1,7 @@
 import {warriors} from "./realWarriors.js";
 import {findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
+import {OnUpdateAction} from "../onUpdateAction.js";
 
 // The base values for both stats, might change them later
 export const OFFENSE = 33.73;
@@ -192,6 +193,10 @@ export class Warrior{
 		this.special.attack();
 		this.team.energy -= 2;
 	}
+    
+    addOnUpdateAction(action){
+        this.onUpdateActions.set(action.id, action);
+    }
 	
 	update(){
         this.check_durations();
@@ -202,14 +207,14 @@ export class Warrior{
 		    this.armor_boosts.push(new Stat_boost("shell", 0.36, 1));
 		}
 		
-		var new_update = [];
-		for(var a of this.on_update_actions){
-		    a.trip();
+		let new_update = new Map();
+		for(let a of this.onUpdateActions.values()){
+		    a.run();
 		    if(!a.should_terminate){
-		        new_update.push(a);
+		        new_update.set(a.id, a);
 		    }
 		}
-		this.on_update_actions = new_update;
+		this.onUpdateActions = new_update;
 	}
 	
 	// make this stuff better
@@ -232,7 +237,7 @@ export class Warrior{
 		
 		this.in_shell = false;
 		
-		this.on_update_actions = [];
+        this.onUpdateActions = new Map(); //new version
 	}
     
 	// update this once Resilience out
@@ -296,30 +301,17 @@ export class Warrior{
 	}
 
     poison(amount){
-        let remove = -1;
-        if(this.poisoned){
-            for(let a of this.on_update_actions){
-                if(a.id === "poison"){
-                    remove = this.on_update_actions.indexOf(a);
-                }
-            }
-            if(remove >= 0){
-                this.on_update_actions.splice(remove, 1);
-            }
-        }
-        let warrior = this;
-        let a = new On_update_action(
+        this.addOnUpdateAction(new OnUpdateAction(
             "poison",
-            function(){
-                warrior.poisoned = true;
-                warrior.take_damage(amount, 0);
+            ()=>{
+                this.poisoned = true;
+                this.take_damage(amount, 0);
             }, 3
-        );
-        warrior.on_update_actions.push(a);
+        ));
     }
 }
 
-class Stat_boost{
+export class Stat_boost{
     constructor(id, amount, dur){
         this.id = id;
         this.amount = amount;
@@ -335,7 +327,7 @@ class Stat_boost{
     }
 }
 
-class Lead{
+export class Lead{
     constructor(amount, type){
 	    this.amount = amount / 100;
         switch(type){
@@ -495,20 +487,4 @@ export class Team{
 		this.update();
 		this.check_if_ko();
 	}
-}
-
-class On_update_action{
-    constructor(id, f, uses){
-        this.id = id;
-        this.f = f;
-        this.dur = uses;
-        this.should_terminate = false;
-    }
-    trip(){
-        this.f();
-        this.dur -= 1;
-        if(this.dur <= 0){
-            this.should_terminate = true;
-        }
-    }
 }

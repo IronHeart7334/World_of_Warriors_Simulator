@@ -1,3 +1,5 @@
+import {OnUpdateAction} from "../onUpdateAction.js";
+import {Stat_boost} from "./warrior.js";
 /*
 These are Special Moves, powerful attacks that warriors can use.
 Each warrior comes with a preselected Special Move, which is determined in their data.
@@ -280,34 +282,14 @@ class Regeneration extends Special_move{
         this.ignores_ele = true;
     }
     attack(){
-		var healing = this.user.get_phys() * this.mod;
+		let healing = this.user.get_phys() * this.mod;
 		
-		function regenerate(warrior){
-		    return function(){
-		        warrior.regen = true;
-		        warrior.heal(healing);
-		    }
+		for (let member of this.user.team.members_rem){
+		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
+                member.regen = true;
+                member.heal(healing);
+            }, 3));
 		}
-		
-		for (var member of this.user.team.members_rem){
-		    var remove = -1;
-		    for(var a of member.on_update_actions){
-		        if(a.id == "regeneration"){
-		            remove = member.on_update_actions.indexOf(a);
-		        }
-		    }
-		    if(remove >= 0){
-		        member.on_update_actions.splice(remove, 1);
-		    }
-		    
-			member.on_update_actions.push(new On_update_action(
-			    "regeneration",
-			    regenerate(member), 
-			    3
-			)
-			);
-		}
-		this.user.pass();
     }
 }
 class Vengeance extends Special_move{
