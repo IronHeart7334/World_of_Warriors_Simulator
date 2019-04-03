@@ -1,7 +1,7 @@
 import {GlobalObject} from "./globalObject.js";
 import {Controller} from "./controller.js";
 import {warriors} from "./warrior/realWarriors.js";
-import {Team} from "./warrior/warrior.js";
+import {Team} from "./warrior/team.js";
 
 let user = new GlobalObject();
 user.warriors = warriors;

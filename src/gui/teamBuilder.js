@@ -1,7 +1,8 @@
 import {GamePane} from "./gamePane.js";
 import {Button} from   "./button.js";
 import {WarriorCard} from "./warriorCard.js";
-import {Warrior, Team} from "../warrior/warrior.js";
+import {Warrior} from "../warrior/warrior.js";
+import {Team} from "../warrior/team.js";
 import {Controller} from "../controller.js";
 
 export class TeamBuilder extends GamePane{

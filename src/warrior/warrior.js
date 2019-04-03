@@ -12,6 +12,7 @@ export const HP = 107.0149;
 
 
 export class Warrior{
+    //better way to do this?
     constructor(name, skills){
 	    /*
 	    The warrior Class takes data from an array:
@@ -155,13 +156,13 @@ export class Warrior{
 	
 	strike(pd, ed){
 	    var t = this.team.enemyTeam;
-	    t.gain_energy();
+	    t.gainEnergy();
 	    var dmg = t.active.calc_damage_taken(pd, ed);
 	    return dmg;
 	}
 	pass(){
 	    //var t = this.team.enemyTeam;
-	    //t.gain_energy();
+	    //t.gainEnergy();
 	    //t.turn_part1();
 	}
 	
@@ -352,139 +353,16 @@ export class Lead{
 		if (this.amount < 0){
 			var target = team.enemyTeam;
 		}
-		if (this.type == "p"){
-			for (var member of target.members_rem){
+		if (this.type === "p"){
+			target.forEach((member)=>{
 				member.phys_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
-			}
+			});
 		}else{
-		    for(var member of target.members_rem){
-		        if(member.element == this.type){
+		    target.forEach((member)=>{
+		        if(member.element === this.type){
 		            member.ele_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
 		        }
-		    }
+		    });
 		}
-	}
-}
-
-export class Team{
-    constructor(name, members){
-        this.members = [];
-        for(var member of members){
-        	this.members.push(new Warrior(member[0], member[1]));
-        }
-	    this.name = name;
-    }
-	init_for_battle(){
-		this.members_rem = [];
-		for (var member of this.members){
-		    member.init();
-		    member.team = this;
-		    member.enemyTeam = this.enemyTeam;
-		    this.members_rem.push(member);
-		}
-		this.leader = this.members_rem[0];
-		this.active = this.members_rem[0];
-		this.energy = 2;
-		this.won = false;
-	}
-	gain_energy(){
-		if (this.energy < 0){
-			this.energy = 1;
-		}
-		if (this.energy < 4){
-			this.energy += 1;
-		}
-	}
-	check_lead(){
-		if (!this.leader.check_if_ko()){
-			var team = this;
-			this.leader.lead_skill.apply(team);
-		}
-	}
-	prev(){
-		/*
-		Returns the member of this' members
-		above num
-		as an index
-		*/
-		var prev = this.members_rem.indexOf(this.active) - 1;
-		if (prev == -1){
-			prev = this.members_rem.length - 1;
-		}
-		return this.members_rem[prev];
-	}
-	next(){
-		/*
-		Returns the next member of this' members
-		*/
-		var nextup = this.members_rem.indexOf(this.active) + 1;
-		if (nextup >= this.members_rem.length){
-			nextup = 0;
-		}
-		return this.members_rem[nextup];
-	}
-	switchin(warrior){
-		if (this.members_rem.length == 1){
-			this.active = this.members_rem[0];
-			return;
-		}
-		for (var member of this.members_rem){
-			if (member == warrior){
-				this.active = member;
-				return;
-			}
-		}
-		console.log("Error: The warrior " + warrior + " does not exist!");
-	}
-	update(){
-		for (var member of this.members_rem){
-			member.update();
-		}
-		this.check_if_ko();
-	}
-	check_if_ko(){
-		// He's ded Jim!
-		var act_koed = false;
-		if (this.active.hp_rem <= 0){
-			act_koed = true;
-			var index = this.members_rem.indexOf(this.active);
-		}
-		var new_members_rem = [];
-		for (var member of this.members_rem){
-			if (!member.check_if_ko()){
-				new_members_rem.push(member);
-			}
-		}
-		this.members_rem = new_members_rem;
-		
-		if (this.members_rem.length == 0){
-			this.enemyTeam.win();
-		}
-		
-		if (act_koed){
-			if(index >= this.members_rem.length){
-				index = 0;
-			}
-			this.switchin(this.members_rem[index]);
-		}
-	}
-	win(){
-		alert(this.name + " wins!");
-		this.won = true;
-		disp_menu();
-	}
-	
-    //Don't delete me yet!
-	turn_part2(){
-		/*
-		Action phase
-		*/
-		
-		for (var member of this.members_rem){
-			member.reset_dmg();
-		}
-		this.check_lead();
-		this.update();
-		this.check_if_ko();
 	}
 }

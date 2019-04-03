@@ -24,12 +24,12 @@ export class BattlePage extends GamePane{
         this.team2 = team2;
         team1.enemyTeam = team2;
         team2.enemyTeam = team1;
-        team1.init_for_battle();
-        team2.init_for_battle();
+        team1.init();
+        team2.init();
         
         let y = 0;
         let hud;
-        team1.members_rem.forEach((member)=>{
+        team1.forEach((member)=>{
             hud = this.hpButtonFor(member);
             hud.setPos(0, y);
             this.addChild(hud);
@@ -37,7 +37,7 @@ export class BattlePage extends GamePane{
         });
         
         y = 0;
-        team2.members_rem.forEach((member)=>{
+        team2.forEach((member)=>{
             hud = this.hpButtonFor(member);
             hud.setPos(80, y);
             this.addChild(hud);
@@ -120,7 +120,7 @@ export class BattlePage extends GamePane{
         let ret = [];
         let offset = 0;
         let b;
-        team.members_rem.forEach((member)=>{
+        team.forEach((member)=>{
             b = new Button(member.special.name);
             b.setPos((team === this.team1) ? offset : 90 - offset, 70);
             b.setSize(10, 10);
@@ -169,7 +169,7 @@ export class BattlePage extends GamePane{
         if(this.team1.won || this.team2.won){
             return;
         } //#################################STOPS HERE IF A TEAM WON
-        team.members_rem.forEach((member)=>member.reset_heal());
+        team.forEach((member)=>member.reset_heal());
         
         this.purgeTempButtons();
         
