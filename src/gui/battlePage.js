@@ -2,6 +2,7 @@ import {GamePane} from "./gamePane.js";
 import {WarriorHud} from "./warriorHud.js";
 import {Button} from "./button.js";
 import {EnergyIcon} from "./energyIcon.js";
+import {Stat} from "../warrior/stat.js";
 
 export class BattlePage extends GamePane{
     constructor(){
@@ -67,7 +68,7 @@ export class BattlePage extends GamePane{
             this.dataText += "\tPhysical: " + warrior.get_phys() + "\n";
             this.dataText += "\tElemental: " + warrior.get_ele() + "\n";
             this.dataText += "\tMax HP: " + warrior.max_hp + "\n";
-            this.dataText += "\tArmor: " + warrior.armor + "\n";
+            this.dataText += "\tArmor: " + warrior.getStat(Stat.ARM) + "\n";
             this.update();
         });
         return ret;

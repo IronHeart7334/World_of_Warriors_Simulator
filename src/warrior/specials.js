@@ -1,4 +1,5 @@
 import {OnUpdateAction} from "../onUpdateAction.js";
+import {Stat} from "./stat.js";
 import {Stat_boost} from "./warrior.js";
 /*
 These are Special Moves, powerful attacks that warriors can use.
@@ -23,18 +24,18 @@ class Special_move {
     calc_mod(user, pip){
         var mod = 1.0;
         var dmg = this.base * Math.pow(1.2, pip - 1);
-        var multiplied = user.base_phys;
+        var multiplied = user.getBase(Stat.PHYS);
         if(this.ignores_ele){
-            this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.base_phys;
+            this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.getBase(Stat.PHYS);
             return;
         }
         if(this.multiplies_ele){
-            multiplied += user.base_ele;
+            multiplied += user.getBase(Stat.ELE);
         }
         if(this.multiplies_ele){
             mod = dmg / multiplied;
         } else {
-            mod = (dmg - user.base_ele) / multiplied;
+            mod = (dmg - user.getBase(Stat.ELE)) / multiplied;
         }
         this.mod = mod;
     }
@@ -197,15 +198,15 @@ class Armor_break extends Special_move{
     }
     attack(){
         var target = this.user.enemyTeam.active;
-        var save_arm = target.armor;
+        var save_arm = target.stats.get(Stat.ARM).copy();
         var save_boosts = target.armor_boosts.slice();
         
-        target.armor = 0;
+        target.stats.set(Stat.ARM, new Stat(Stat.ARM, 0));
         target.armor_boosts = [];
         
         super.attack();
         
-        target.armor = save_arm;
+        target.stats.set(Stat.ARM, save_arm);
         target.armor_boosts = save_boosts;
     }
 }

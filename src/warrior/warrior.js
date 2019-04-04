@@ -1,11 +1,12 @@
 import {warriors} from "./realWarriors.js";
 import {findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
+import {Stat} from "./stat.js";
 import {OnUpdateAction} from "../onUpdateAction.js";
 
 // The base values for both stats, might change them later
-export const OFFENSE = 33.73;
-export const HP = 107.0149;
+const OFFENSE = 33.73;
+const HP = 107.0149;
 
 
 //change how attacking, energy works
@@ -20,11 +21,15 @@ export class Warrior{
 	    */
 	    let data = this.find_warrior(name);
 	    this.name = data[0];
-	    this.base_off = OFFENSE * data[1][0];
-		this.base_ele = this.base_off * data[1][1];
-		this.base_phys = this.base_off - this.base_ele;
-	    this.base_hp = HP * data[1][2];
-	    this.armor = data[1][3];
+        this.stats = new Map();
+        
+	    let baseOff = OFFENSE * data[1][0];
+        
+        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, baseOff * (1 - data[1][1]), true));
+        this.stats.set(Stat.ELE, new Stat(Stat.ELE, baseOff * data[1][1], true));
+        this.stats.set(Stat.ARM, new Stat(Stat.ARM, data[1][3]));
+        this.stats.set(Stat.HP, new Stat(Stat.HP, data[1][2], true));
+        
 	    this.pip = data[1][4];
 	    this.element = getElement(data[2]);
 	    this.special = findSpecial(data[3]);
@@ -49,10 +54,18 @@ export class Warrior{
 		Increases by 7% per level
 		*/
 		
-		this.max_hp = Math.round(this.base_hp * Math.pow(1.07, this.level));
-		this.phys = Math.round(this.base_phys * Math.pow(1.07, this.level));
-		this.ele = Math.round(this.base_ele * Math.pow(1.07, this.level));
+		this.max_hp = Math.round(this.getBase(Stat.HP) * Math.pow(1.07, this.level));
+		this.phys = Math.round(this.getBase(Stat.PHYS) * Math.pow(1.07, this.level));
+		this.ele = Math.round(this.getBase(Stat.ELE) * Math.pow(1.07, this.level));
 	}
+    
+    getBase(statEnum){
+        return this.stats.get(statEnum).getBase();
+    }
+    
+    getStat(statEnum){
+        return this.stats.get(statEnum).getValue();
+    }
 	
 	// one method? one boost array?
 	get_phys(){
@@ -70,7 +83,7 @@ export class Warrior{
 		return Math.round(this.ele * mult);
 	}
 	get_armor(){
-	    var reduction = this.armor * 0.12;
+	    var reduction = this.getStat(Stat.ARM) * 0.12;
 	    
 	    for(var boost of this.armor_boosts){
 	        reduction += boost.amount;
@@ -112,10 +125,10 @@ export class Warrior{
 		return physical_damage + elemental_damage;
 	}
 	take_damage(phys, ele){
-	/*
-	Lose HP equal to the damage you took
-	If you survive, you can heal some of it off
-	*/
+        /*
+        Lose HP equal to the damage you took
+        If you survive, you can heal some of it off
+        */
 		var dmg = phys + ele;
 		this.hp_rem -= dmg;
 		this.last_phys_dmg += phys;
@@ -148,9 +161,9 @@ export class Warrior{
 		}
 	}
 	check_if_ko(){
-	/*
-	An I dead yet?
-	*/
+        /*
+        An I dead yet?
+        */
 		return this.hp_rem <= 0;
 	}
 	
@@ -160,11 +173,7 @@ export class Warrior{
 	    var dmg = t.active.calc_damage_taken(pd, ed);
 	    return dmg;
 	}
-	pass(){
-	    //var t = this.team.enemyTeam;
-	    //t.gainEnergy();
-	    //t.turn_part1();
-	}
+	pass(){}
 	
 	use_normal_move(){
 	/*
@@ -326,43 +335,4 @@ export class Stat_boost{
             this.should_terminate = true;
         }
     }
-}
-
-export class Lead{
-    constructor(amount, type){
-	    this.amount = amount / 100;
-        switch(type){
-            case "p":
-                this.type = "p";
-                break;
-            case "h":
-                this.type = "h";
-                break;
-            default:
-                this.type = getElement(type);
-                break;
-        }
-    }
-    
-    // need healing effects
-	// improve
-	apply(team){
-		if (this.amount >= 0){
-			var target = team;
-		}
-		if (this.amount < 0){
-			var target = team.enemyTeam;
-		}
-		if (this.type === "p"){
-			target.forEach((member)=>{
-				member.phys_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
-			});
-		}else{
-		    target.forEach((member)=>{
-		        if(member.element === this.type){
-		            member.ele_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
-		        }
-		    });
-		}
-	}
 }
