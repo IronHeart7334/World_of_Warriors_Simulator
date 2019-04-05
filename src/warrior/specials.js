@@ -40,8 +40,8 @@ class Special_move {
         this.mod = mod;
     }
     attack(){
-        var physical_damage = this.user.get_phys() * this.mod;
-		var elemental_damage = this.user.get_ele();
+        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+		var elemental_damage = this.user.getStat(Stat.ELE);
 		if(this.multiplies_ele){
 		    elemental_damage *= this.mod;
 		}
@@ -100,8 +100,8 @@ class AOE extends Special_move{
         }    
     }
     attack(){
-        var physical_damage = this.user.get_phys() * this.mod;
-		var elemental_damage = this.user.get_ele() * this.mod;
+        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+		var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
 		
 		this.user.enemyTeam.forEach((member)=>{
 			member.calc_damage_taken(physical_damage, elemental_damage);
@@ -122,17 +122,7 @@ class Boost extends Special_move{
 		this.user.team.forEach((member)=>{
 			if (member.element === this.user.element){
 				member.boost_up = true;
-                var add_boost = true;
-                for (var boost of member.ele_boosts){
-                    if (boost.id === this.name){
-                        boost.dur_rem = 3;
-                        add_boost = false;
-                    }
-                }
-
-                if (add_boost){
-                    member.ele_boosts.push(new Stat_boost(this.name, 1.35, 3));
-                }
+                member.applyBoost(Stat.ELE, new Stat_boost(this.name, 1.35, 3));
 			}
 		});   
     };
@@ -143,7 +133,7 @@ class Poison extends Special_move{
         this.ignores_ele = true;
     }
     attack(){
-		var dmg = this.user.get_phys() * this.mod;
+		var dmg = this.user.getStat(Stat.PHYS) * this.mod;
 		this.user.enemyTeam.active.poison(dmg);
 		this.user.pass();        
     }
@@ -154,8 +144,8 @@ class Rolling_thunder extends Special_move{
         super("Rolling Thunder", 7, true);
     }
     attack(){
-        var physical_damage = this.user.get_phys() * this.mod;
-	    var elemental_damage = this.user.get_ele() * this.mod;
+        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+	    var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
 		
 	    var gained_energy = false;
 		
@@ -227,7 +217,7 @@ class Healing extends Special_move{
                 }
 			}
 		});
-		var total_heal = this.user.get_phys() * this.mod;
+		var total_heal = this.user.getStat(Stat.PHYS) * this.mod;
 		
 		this.user.heal(total_heal * 0.2);
 		if (to_heal !== undefined){
@@ -242,7 +232,7 @@ class Soul_steal extends Special_move{
         this.ignores_ele = true;
     }
     attack(){
-		var physical_damage = this.user.get_phys() * this.mod;
+		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
 		this.user.heal(this.user.strike(physical_damage, 0) * 0.3);        
     }
 }
@@ -251,8 +241,8 @@ class Berserk extends Special_move{
         super("Berserk", 50, false);
     }
     attack(){
-		var physical_damage = this.user.get_phys() * this.mod;
-		var elemental_damage = this.user.get_ele();
+		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+		var elemental_damage = this.user.getStat(Stat.ELE);
 		
 		this.user.take_damage(this.user.strike(physical_damage, elemental_damage) * 0.2, 0);
 		if (this.user.hp_rem < 1){
@@ -266,7 +256,7 @@ class Poison_hive extends Special_move{
         this.ignores_ele = true;
     }
     attack(){
-		let dmg = this.user.get_phys() * this.mod;
+		let dmg = this.user.getStat(Stat.PHYS) * this.mod;
 		this.user.enemyTeam.forEach((member)=>member.poison(dmg));
     }
 }
@@ -276,7 +266,7 @@ class Regeneration extends Special_move{
         this.ignores_ele = true;
     }
     attack(){
-		let healing = this.user.get_phys() * this.mod;
+		let healing = this.user.getStat(Stat.PHYS) * this.mod;
 		
 		this.user.team.forEach((member)=>{
 		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
@@ -292,8 +282,8 @@ class Vengeance extends Special_move{
     }
     attack(){
 	    var mod = this.mod * (1.5 - this.user.hp_perc());
-	    var physical_damage = this.user.get_phys() * mod;
-	    var elemental_damage = this.user.get_ele() * mod;
+	    var physical_damage = this.user.getStat(Stat.PHYS) * mod;
+	    var elemental_damage = this.user.getStat(Stat.ELE) * mod;
 	    this.user.strike(physical_damage, elemental_damage);        
     }
 }
@@ -304,8 +294,8 @@ class Twister extends Special_move{
     attack(){
 		var mod = this.mod * (1.5 - this.user.hp_perc());
 		console.log(mod);
-		var physical_damage = this.user.get_phys() * mod;
-		var elemental_damage = this.user.get_ele() * mod;
+		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
+		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
 		
 		this.user.enemyTeam.forEach((member)=>{
 			member.calc_damage_taken(physical_damage, elemental_damage);
@@ -317,8 +307,8 @@ class Stealth_assault extends Special_move{
         super("Stealth Assault", 15, true);
     }
     attack(){
-	    var physical_damage = this.user.get_phys() * this.mod;
-	    var elemental_damage = this.user.get_ele() * this.mod;
+	    var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+	    var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
 	    
 	    this.user.enemyTeam.forEach((member)=>{
 		    member.calc_damage_taken(physical_damage, elemental_damage);
@@ -334,8 +324,8 @@ class Team_strike extends Special_move{
 	attack(){
 		var pow = this.user.team.membersRem.length - 1;
 		var mod = this.mod * Math.pow(RECOIL_MOD, pow);
-		var physical_damage = this.user.get_phys() * mod;
-		var elemental_damage = this.user.get_ele() * mod;
+		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
+		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
 		
 		var dmg = this.user.strike(physical_damage, elemental_damage); 
 		this.user.team.forEach((member)=>{
@@ -352,8 +342,8 @@ class Phantom_strike extends Special_move{
 		super("Phantom Strike", 10, true);
 	}
 	attack(){
-		var physical_damage = this.user.get_phys() * this.mod;
-		var elemental_damage = this.user.get_ele() * this.mod;
+		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
+		var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
 		var target_team = this.user.enemyTeam;
 		
 		//first hit

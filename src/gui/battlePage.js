@@ -65,8 +65,8 @@ export class BattlePage extends GamePane{
             this.dataText = warrior.name + ":\n";
             this.dataText += "\tSpecial Move: " + warrior.special.name + " " + warrior.pip + "\n";
             this.dataText += "\tElement: " + warrior.element.name + "\n";
-            this.dataText += "\tPhysical: " + warrior.get_phys() + "\n";
-            this.dataText += "\tElemental: " + warrior.get_ele() + "\n";
+            this.dataText += "\tPhysical: " + warrior.getStat(Stat.PHYS) + "\n";
+            this.dataText += "\tElemental: " + warrior.getStat(Stat.ELE) + "\n";
             this.dataText += "\tMax HP: " + warrior.max_hp + "\n";
             this.dataText += "\tArmor: " + warrior.getStat(Stat.ARM) + "\n";
             this.update();

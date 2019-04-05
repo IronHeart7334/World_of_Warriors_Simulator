@@ -1,4 +1,5 @@
 import {getElement} from "./elements.js";
+import {Stat} from "./stat.js";
 
 export class Lead{
     constructor(amount, type){
@@ -22,12 +23,12 @@ export class Lead{
 		
 		if (this.type === "p"){
 			target.forEach((member)=>{
-				member.phys_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
+				member.applyBoost(Stat.PHYS, new Stat_boost("Leader Skill", this.amount, 1));
 			});
 		}else{
 		    target.forEach((member)=>{
 		        if(member.element === this.type){
-		            member.ele_boosts.push(new Stat_boost("Leader Skill", this.amount, 1));
+		            member.applyBoost(Stat.ELE, new Stat_boost("Leader Skill", this.amount, 1));
 		        }
 		    });
 		}

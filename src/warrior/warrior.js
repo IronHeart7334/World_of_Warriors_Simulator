@@ -39,6 +39,8 @@ export class Warrior{
 	    
 	    this.special.set_user(this);
     }
+    
+    //change this too look in the player's warriors
     find_warrior(name){
     	for(let warrior of warriors){
     		if(warrior[0] === name){
@@ -53,10 +55,7 @@ export class Warrior{
 		Calculate a warrior's stats
 		Increases by 7% per level
 		*/
-		
-		this.max_hp = Math.round(this.getBase(Stat.HP) * Math.pow(1.07, this.level));
-		this.phys = Math.round(this.getBase(Stat.PHYS) * Math.pow(1.07, this.level));
-		this.ele = Math.round(this.getBase(Stat.ELE) * Math.pow(1.07, this.level));
+		this.stats.values().forEach((stat)=>stat.calc(this.level));
 	}
     
     getBase(statEnum){
@@ -66,22 +65,15 @@ export class Warrior{
     getStat(statEnum){
         return this.stats.get(statEnum).getValue();
     }
+    
+    applyBoost(statEnum, boost){
+        if(this.stats.has(statEnum)){
+            this.stats.get(statEnum).applyBoost(boost);
+        } else {
+            console.log("Stat not found: " + statEnum);
+        }
+    }
 	
-	// one method? one boost array?
-	get_phys(){
-		var mult = 1;
-		for (var boost of this.phys_boosts){
-			mult += boost.amount;
-		}
-		return Math.round(this.phys * mult);
-	}
-	get_ele(){
-		var mult = 1;
-		for (var boost of this.ele_boosts){
-			mult += boost.amount;
-		}
-		return Math.round(this.ele * mult);
-	}
 	get_armor(){
 	    var reduction = this.getStat(Stat.ARM) * 0.12;
 	    
@@ -176,9 +168,9 @@ export class Warrior{
 	pass(){}
 	
 	use_normal_move(){
-	/*
-	Strike at your enemy team's active warrior with your sword!
-	*/
+        /*
+        Strike at your enemy team's active warrior with your sword!
+        */
 	    var mod = 1.0;
 	    if(this.skills[0] === "critical hit"){
 	        if(Math.random() <= 0.24){
@@ -192,7 +184,7 @@ export class Warrior{
 	            mod -= 0.24;
 	        }
 	    }
-		this.strike(this.get_phys() * mod, this.get_ele() * mod);
+		this.strike(this.getStat(Stat.PHYS) * mod, this.getStat(Stat.ELE) * mod);
 	}
 	use_special(){
 		/*
@@ -232,8 +224,6 @@ export class Warrior{
 		this.calcStats();
 		this.hp_rem = this.max_hp;
 		
-		this.phys_boosts = [];
-		this.ele_boosts = [];
 		this.armor_boosts = [];
 		
 		this.poisoned = false;
@@ -274,27 +264,13 @@ export class Warrior{
 	    Then push whatever ones are left to a new array
 	    Your boosts become the new array
 	    */
-		let phys_boosts_rem = [];
-		for (var boost of this.phys_boosts){
-			boost.update();
-			if(!boost.should_terminate){
-			    phys_boosts_rem.push(boost);
-			}
-		}
-		this.phys_boosts = phys_boosts_rem;
+       
+        this.stats.forEach((stat)=>{
+            stat.update();
+        });
 		
-		this.boost_up = false;
-		let ele_boosts_rem = [];
-		for (var boost of this.ele_boosts){
-			boost.update();
-			if(!boost.should_terminate){
-			    ele_boosts_rem.push(boost);
-			    if(boost.id === this.element.name + " Boost"){
-			        this.boost_up = true;
-			    }
-			}
-		}
-		this.ele_boosts = ele_boosts_rem;
+		this.boost_up = this.stats.get(Stat.ELE).boosts
+                .some((boost)=>boost.id === this.element.name + " Boost");
 		
 		this.shield = false;
 		let armor_boosts_rem = [];
