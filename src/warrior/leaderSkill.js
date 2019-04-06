@@ -1,5 +1,6 @@
 import {getElement} from "./elements.js";
 import {Stat} from "./stat.js";
+import {Stat_boost} from "./warrior.js";
 
 export class Lead{
     constructor(amount, type){

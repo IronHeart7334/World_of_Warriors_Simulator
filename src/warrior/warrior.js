@@ -2,15 +2,12 @@ import {warriors} from "./realWarriors.js";
 import {findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
 import {Stat} from "./stat.js";
+import {Lead} from "./leaderSkill.js";
 import {OnUpdateAction} from "../onUpdateAction.js";
 
 // The base values for both stats, might change them later
 const OFFENSE = 33.73;
 const HP = 107.0149;
-
-
-//change how attacking, energy works
-
 
 export class Warrior{
     //better way to do this?
@@ -28,7 +25,7 @@ export class Warrior{
         this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, baseOff * (1 - data[1][1]), true));
         this.stats.set(Stat.ELE, new Stat(Stat.ELE, baseOff * data[1][1], true));
         this.stats.set(Stat.ARM, new Stat(Stat.ARM, data[1][3]));
-        this.stats.set(Stat.HP, new Stat(Stat.HP, data[1][2], true));
+        this.stats.set(Stat.HP, new Stat(Stat.HP, HP * data[1][2], true));
         
 	    this.pip = data[1][4];
 	    this.element = getElement(data[2]);
@@ -55,7 +52,10 @@ export class Warrior{
 		Calculate a warrior's stats
 		Increases by 7% per level
 		*/
-		this.stats.values().forEach((stat)=>stat.calc(this.level));
+        //values is a generator, not an array
+        for(let stat of this.stats.values()){
+            stat.calc(this.level);
+        }
 	}
     
     getBase(statEnum){
@@ -74,13 +74,9 @@ export class Warrior{
         }
     }
 	
+    //keep this
 	get_armor(){
-	    var reduction = this.getStat(Stat.ARM) * 0.12;
-	    
-	    for(var boost of this.armor_boosts){
-	        reduction += boost.amount;
-	    }
-		return 1 - reduction;
+		return 1 - this.getStat(Stat.ARM) * 0.12;
 	}
 	
 	hp_perc(){
@@ -89,7 +85,7 @@ export class Warrior{
 	    AS A VALUE BETWEEN 0 AND 1
 	    NOT 0 AND 100
 	    */
-		return this.hp_rem / this.max_hp;
+		return this.hp_rem / this.getStat(Stat.HP);
 	}
 	perc_hp(perc){
 	    /*
@@ -97,7 +93,7 @@ export class Warrior{
 		Example:
 			With 200 HP, this.perc_hp(0.5) will return 100
 	    */
-		return this.max_hp * (perc);
+		return this.getStat(Stat.HP) * (perc);
 	}
 	
 	calc_damage_taken(phys, ele){
@@ -135,15 +131,15 @@ export class Warrior{
 		}
 	}
 	heal(hp){
-	/*
-	Restore HP
-	Prevents from healing past full
-	Also rounds for you
-	*/
+        /*
+        Restore HP
+        Prevents from healing past full
+        Also rounds for you
+        */
 		this.last_healed += Math.round(hp);
 		this.hp_rem += hp;
-		if (this.hp_rem > this.max_hp){
-			this.hp_rem = this.max_hp;
+		if (this.hp_rem > this.getStat(Stat.HP)){
+			this.hp_rem = this.getStat(Stat.HP);
 		}
 		this.hp_rem = Math.round(this.hp_rem);
 		if(this.skills[0] === "shell"){
@@ -206,7 +202,7 @@ export class Warrior{
 		this.regen = false;
 		
 		if(this.in_shell){
-		    this.armor_boosts.push(new Stat_boost("shell", 0.36, 1));
+            this.applyBoost(Stat.ARM, new Stat_boost("shell", 0.36, 1));
 		}
 		
 		let new_update = new Map();
@@ -222,10 +218,8 @@ export class Warrior{
 	// make this stuff better
 	init(){
 		this.calcStats();
-		this.hp_rem = this.max_hp;
-		
-		this.armor_boosts = [];
-		
+		this.hp_rem = this.getStat(Stat.HP);
+        
 		this.poisoned = false;
 		this.regen = false;
 		this.shield = false;
@@ -257,7 +251,7 @@ export class Warrior{
 	reset_heal(){
 	    this.last_healed = 0;
 	}
-	// can be shortened?
+	
 	check_durations(){
 	    /*
 	    Check to see how long each of your boosts has left
@@ -269,21 +263,23 @@ export class Warrior{
             stat.update();
         });
 		
-		this.boost_up = this.stats.get(Stat.ELE).boosts
-                .some((boost)=>boost.id === this.element.name + " Boost");
+        this.boost_up = false;
+        for(let boost of this.stats.get(Stat.ELE).boosts.values()){
+            if(boost.id === this.element.name + " Boost"){
+                this.boost_up = true;
+                break;
+            }
+        }
+        
+		
 		
 		this.shield = false;
-		let armor_boosts_rem = [];
-		for(var boost of this.armor_boosts){
-		    boost.update();
-		    if(!boost.should_terminate){
-		        armor_boosts_rem.push(boost);
-		        if(boost.id === "Phantom Shield"){
-		            this.shield = true;
-		        }
-		    }
-		}
-		this.armor_boosts = armor_boosts_rem;
+        for(let boost of this.stats.get(Stat.ARM).boosts.values()){
+            if(boost.id === "Phantom Shield"){
+                this.shield = true;
+                break;
+            }
+        }
 	}
 
     poison(amount){

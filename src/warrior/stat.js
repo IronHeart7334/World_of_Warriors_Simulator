@@ -34,9 +34,9 @@ export class Stat{
     
     getValue(){
         let mod = 1;
-        this.boosts.values().forEach((boost)=>{
+        for(let boost of this.boosts){
             mod += boost.amount;
-        });
+        }
         return Math.round(this.value * mod);
     }
     

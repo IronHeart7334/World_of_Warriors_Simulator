@@ -187,17 +187,8 @@ class Armor_break extends Special_move{
         super("Armor Break", 40, true);
     }
     attack(){
-        var target = this.user.enemyTeam.active;
-        var save_arm = target.stats.get(Stat.ARM).copy();
-        var save_boosts = target.armor_boosts.slice();
-        
-        target.stats.set(Stat.ARM, new Stat(Stat.ARM, 0));
-        target.armor_boosts = [];
-        
         super.attack();
-        
-        target.stats.set(Stat.ARM, save_arm);
-        target.armor_boosts = save_boosts;
+        this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -0.24, 3));
     }
 }
 class Healing extends Special_move{
@@ -378,16 +369,7 @@ class Phantom_shield extends Special_move{
 	}
 	attack(){
 		this.user.team.forEach((member)=>{
-			var apply = true;
-			for(var boost of member.armor_boosts){
-				if(boost.id == this.name){
-					boost.dur_rem = 3;
-					apply = false
-				}
-			}
-			if(apply){
-    	    	member.armor_boosts.push(new Stat_boost("Phantom Shield", 0.55, 3));
-    	    }
+            member.applyBoost(Stat.ARM, new Stat_boost("Phantom Shield", 0.55, 3));
     	});
 	}
 }

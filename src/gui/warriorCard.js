@@ -1,4 +1,5 @@
 import {GuiElement} from "./guiElement.js";
+import {Stat} from "../warrior/stat.js";
 
 /*
  * Todo: make this divide into rows / cols so that it's easier to edit.
@@ -55,7 +56,7 @@ export class WarriorCard extends GuiElement{
         if(this.warrior){
             this.warrior.calcStats();
         }
-        let msgs = (this.warrior) ? [this.warrior.phys, this.warrior.ele, this.warrior.max_hp] : ["", "", ""];
+        let msgs = (this.warrior) ? [this.warrior.getStat(Stat.PHYS), this.warrior.getStat(Stat.ELE), this.warrior.getStat(Stat.HP)] : ["", "", ""];
         for(let i = 0; i < 3; i++){
             canvas.rect(
                     this.x + this.w / 20, 
