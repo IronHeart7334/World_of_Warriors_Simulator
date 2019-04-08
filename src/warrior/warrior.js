@@ -9,6 +9,8 @@ import {OnUpdateAction} from "../onUpdateAction.js";
 const OFFENSE = 33.73;
 const HP = 107.0149;
 
+//NaN armor from shell, AOE doesn't give energy
+
 export class Warrior{
     //better way to do this?
     constructor(name, skills){
@@ -202,7 +204,7 @@ export class Warrior{
 		this.regen = false;
 		
 		if(this.in_shell){
-            this.applyBoost(Stat.ARM, new Stat_boost("shell", 0.36, 1));
+            this.applyBoost(Stat.ARM, new Stat_boost("shell", 3, 1));
 		}
 		
 		let new_update = new Map();

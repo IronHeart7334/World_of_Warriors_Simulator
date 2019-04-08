@@ -10,7 +10,6 @@ export class EnergyIcon extends GuiElement{
         this.color = "white";
     }
     setTeam(team){
-        console.log(team);
         this.team = team;
     }
     setColor(color){

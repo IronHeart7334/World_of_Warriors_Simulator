@@ -40,12 +40,23 @@ class Special_move {
         this.mod = mod;
     }
     attack(){
-        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		var elemental_damage = this.user.getStat(Stat.ELE);
+        let phys = this.user.getStat(Stat.PHYS) * this.mod;
+		let ele = this.user.getStat(Stat.ELE);
 		if(this.multiplies_ele){
-		    elemental_damage *= this.mod;
+		    ele *= this.mod;
 		}
-		this.user.strike(physical_damage, elemental_damage);
+		this.user.strike(phys, ele);
+    }
+    //used for AOE attacks
+    attackAll(){
+        let phys = this.user.getStat(Stat.PHYS) * this.mod;
+        let ele = this.user.getStat(Stat.ELE) * this.mod;
+        this.user.enemyTeam.forEach((member)=>{
+            if(member !== this.user.enemyTeam.active){
+                member.calc_damage_taken(phys, ele);
+            }
+        });
+        this.user.strike(phys, ele);
     }
 }
 class Beat extends Special_move {
@@ -100,12 +111,7 @@ class AOE extends Special_move{
         }    
     }
     attack(){
-        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
-		
-		this.user.enemyTeam.forEach((member)=>{
-			member.calc_damage_taken(physical_damage, elemental_damage);
-		});
+        this.attackAll();
     }
 }
 class Boost extends Special_move{
@@ -188,7 +194,7 @@ class Armor_break extends Special_move{
     }
     attack(){
         super.attack();
-        this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -0.24, 3));
+        this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -2, 3));
     }
 }
 class Healing extends Special_move{
@@ -284,13 +290,13 @@ class Twister extends Special_move{
     }
     attack(){
 		var mod = this.mod * (1.5 - this.user.hp_perc());
-		console.log(mod);
 		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
 		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
-		
+		//can't use attackAll here
 		this.user.enemyTeam.forEach((member)=>{
 			member.calc_damage_taken(physical_damage, elemental_damage);
-		});       
+		});  
+        this.user.enemyTeam.gainEnergy();
     }
 }
 class Stealth_assault extends Special_move{
@@ -298,13 +304,7 @@ class Stealth_assault extends Special_move{
         super("Stealth Assault", 15, true);
     }
     attack(){
-	    var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-	    var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
-	    
-	    this.user.enemyTeam.forEach((member)=>{
-		    member.calc_damage_taken(physical_damage, elemental_damage);
-	    });
-		
+	    this.attackAll();
 	    this.user.team.switchin(this.user.team.switchback);        
     }
 }
@@ -357,6 +357,8 @@ class Phantom_strike extends Special_move{
 		this.user.pass();
 	}
 }
+
+//provides +3 armor for 3 turns
 class Phantom_shield extends Special_move{
 	constructor(){
 		super("Phantom Shield", 0, false);
@@ -369,7 +371,7 @@ class Phantom_shield extends Special_move{
 	}
 	attack(){
 		this.user.team.forEach((member)=>{
-            member.applyBoost(Stat.ARM, new Stat_boost("Phantom Shield", 0.55, 3));
+            member.applyBoost(Stat.ARM, new Stat_boost("Phantom Shield", 3, 3));
     	});
 	}
 }

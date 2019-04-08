@@ -33,11 +33,19 @@ export class Stat{
     }
     
     getValue(){
+        let ret;
         let mod = 1;
-        for(let boost of this.boosts){
+        for(let boost of this.boosts.values()){
             mod += boost.amount;
         }
-        return Math.round(this.value * mod);
+        
+        if(this.type === Stat.ARM){
+            //                    since mod starts at 1
+            ret = this.value + mod - 1;
+        } else {
+            ret = this.value * mod;
+        }
+        return Math.round(ret);
     }
     
     update(){

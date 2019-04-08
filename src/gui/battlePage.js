@@ -48,6 +48,8 @@ export class BattlePage extends GamePane{
         
         this.team1Turn = Math.random() >= 0.5;
         this.turnPart = 1;
+        this.energyIcons[0].setTeam(team1);
+        this.energyIcons[1].setTeam(team2);
         this.update();
     }
     
@@ -174,9 +176,6 @@ export class BattlePage extends GamePane{
         
         this.purgeTempButtons();
         
-        this.energyIcons[0].setTeam(team);
-        this.energyIcons[1].setTeam(team.enemyTeam);
-        
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
         if ((team.active.last_phys_dmg + team.active.last_ele_dmg) > 0){
@@ -197,9 +196,6 @@ export class BattlePage extends GamePane{
         this.purgeTempButtons();
         
         team.turn_part2(); //lots of non-GUI stuff done here
-       
-        this.energyIcons[0].setTeam(team);
-        this.energyIcons[1].setTeam(team.enemyTeam);
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
