@@ -159,13 +159,13 @@ class Rolling_thunder extends Special_move{
 		    var target_team = this.user.enemyTeam;
 		    var num_targ = target_team.membersRem.length;
 		    
-		    if(num_targ == 0){
+		    if(num_targ === 0){
 			    return;
 		    }
 			
 		    var target = target_team.membersRem[Math.floor(Math.random() * num_targ)];
 		    
-		    if (target_team.active == target){
+		    if (target_team.active === target){
 			    // this part
 			    if (gained_energy){
 				    target_team.energy -= 1;

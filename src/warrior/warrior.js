@@ -3,13 +3,13 @@ import {findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
 import {Stat} from "./stat.js";
 import {Lead} from "./leaderSkill.js";
-import {OnUpdateAction} from "../onUpdateAction.js";
+import {OnUpdateAction} from "../actions/onUpdateAction.js";
+import {OnHitAction} from "../actions/onHitAction.js";
+import {HitEvent} from "../actions/hitEvent.js";
 
 // The base values for both stats, might change them later
 const OFFENSE = 33.73;
 const HP = 107.0149;
-
-//NaN armor from shell, AOE doesn't give energy
 
 export class Warrior{
     //better way to do this?
@@ -194,6 +194,11 @@ export class Warrior{
 		this.team.energy -= 2;
 	}
     
+    addOnHitAction(action){
+        this.onHitActions.set(action.id, action);
+        action.setUser(this);
+    }
+    
     addOnUpdateAction(action){
         this.onUpdateActions.set(action.id, action);
     }
@@ -233,7 +238,8 @@ export class Warrior{
 		
 		this.in_shell = false;
 		
-        this.onUpdateActions = new Map(); //new version
+        this.onUpdateActions = new Map();
+        this.onHitActions = new Map();
 	}
     
 	// update this once Resilience out
