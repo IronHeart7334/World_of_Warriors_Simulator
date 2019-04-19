@@ -1,4 +1,4 @@
-import {OnUpdateAction} from "../onUpdateAction.js";
+import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {Stat} from "./stat.js";
 import {Stat_boost} from "./warrior.js";
 /*
@@ -45,7 +45,7 @@ class Special_move {
 		if(this.multiplies_ele){
 		    ele *= this.mod;
 		}
-		this.user.strike(phys, ele);
+		this.user.strike(phys, ele, this);
     }
     //used for AOE attacks
     attackAll(){

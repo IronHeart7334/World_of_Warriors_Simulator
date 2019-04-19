@@ -2,17 +2,15 @@ import {Warrior} from "./warrior.js";
 
 export class Team{
     /*
-     * Currently, members is an array of arrays,
-     * the first element being their name, 
-     * second is an array of strings, their skills.
+     * Currently, members is an array of strings,
+     * warrior names, 
      * Once I have a better way of doing this, 
      * change this to invoke copy constructor
      */
     constructor(name, members){
-        this.members = [];
-        for(let member of members){
-        	this.members.push(new Warrior(member[0], member[1]));
-        }
+        this.members = members.map((warriorName)=>{
+            return new Warrior(warriorName);
+        });
 	    this.name = name;
     }
     //use this instead of this.membersRem

@@ -13,7 +13,7 @@ const HP = 107.0149;
 
 export class Warrior{
     //better way to do this?
-    constructor(name, skills){
+    constructor(name){
 	    /*
 	    The warrior Class takes data from an array:
 	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
@@ -33,13 +33,14 @@ export class Warrior{
 	    this.element = getElement(data[2]);
 	    this.special = findSpecial(data[3]);
 	    this.lead_skill = new Lead(data[4][0], data[4][1]);
-	    this.skills = skills;
 	    this.level = 34;
 	    
+        this.warriorSkills = [];
+        
 	    this.special.set_user(this);
     }
     
-    //change this too look in the player's warriors
+    //change this to look in the player's warriors
     find_warrior(name){
     	for(let warrior of warriors){
     		if(warrior[0] === name){
@@ -47,6 +48,11 @@ export class Warrior{
     		}
     	}
     	return ["ERROR", [1, 0.5, 1, 1, 2], "none", "ERROR", [5, "p"]];
+    }
+    
+    addSkill(warriorSkill){
+        this.warriorSkills.push(warriorSkill);
+        warriorSkill.setUser(this);
     }
     
 	calcStats(){
@@ -114,7 +120,9 @@ export class Warrior{
 		this.last_hitby = this.team.enemyTeam.active;
 		return physical_damage + elemental_damage;
 	}
-	take_damage(phys, ele){
+	
+    //shell here
+    take_damage(phys, ele){
         /*
         Lose HP equal to the damage you took
         If you survive, you can heal some of it off
@@ -126,12 +134,16 @@ export class Warrior{
 		
 		this.hp_rem = Math.round(this.hp_rem);
 		
+        /*
 		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() <= 0.5){
 		        this.in_shell = true;
 		    }
 		}
+        */
 	}
+    
+    //shell here
 	heal(hp){
         /*
         Restore HP
@@ -144,46 +156,56 @@ export class Warrior{
 			this.hp_rem = this.getStat(Stat.HP);
 		}
 		this.hp_rem = Math.round(this.hp_rem);
+        /*
 		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() > 0.5){
 		        this.in_shell = false;
 		    }
-		}
+		}*/
 	}
-	check_if_ko(){
+	
+    check_if_ko(){
         /*
         An I dead yet?
         */
 		return this.hp_rem <= 0;
 	}
 	
-	strike(pd, ed){
+    
+    //physical damage, elemental damage
+	strike(pd, ed, using){
 	    var t = this.team.enemyTeam;
 	    t.gainEnergy();
 	    var dmg = t.active.calc_damage_taken(pd, ed);
+        
 	    return dmg;
 	}
+    
 	pass(){}
 	
+    //guard, critical hit here
 	use_normal_move(){
         /*
         Strike at your enemy team's active warrior with your sword!
         */
 	    var mod = 1.0;
+        /*
 	    if(this.skills[0] === "critical hit"){
 	        if(Math.random() <= 0.24){
 	            console.log("Critical hit!");
 	            mod += 0.24;
 	        }
-	    }
+	    }*/
+        /*
 	    if(this.team.enemyTeam.active.skills[0] === "guard"){
 	        if(Math.random() <= 0.24){
 	            console.log("Guard!");
 	            mod -= 0.24;
 	        }
-	    }
-		this.strike(this.getStat(Stat.PHYS) * mod, this.getStat(Stat.ELE) * mod);
+	    }*/
+		this.strike(this.getStat(Stat.PHYS) * mod, this.getStat(Stat.ELE) * mod, "Normal Move");
 	}
+    
 	use_special(){
 		/*
 		Use your powerful Special Move!
@@ -240,6 +262,10 @@ export class Warrior{
 		
         this.onUpdateActions = new Map();
         this.onHitActions = new Map();
+        
+        this.warriorSkills.forEach((skill)=>{
+            skill.apply();
+        });
 	}
     
 	// update this once Resilience out
@@ -279,8 +305,6 @@ export class Warrior{
             }
         }
         
-		
-		
 		this.shield = false;
         for(let boost of this.stats.get(Stat.ARM).boosts.values()){
             if(boost.id === "Phantom Shield"){
