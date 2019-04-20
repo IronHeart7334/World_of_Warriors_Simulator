@@ -48,9 +48,8 @@ export class Warrior{
     
     // new attack stuff
     //hunter will apply here
-    calcDamage(attack){
-        let phys = attack.getPhysicalDamage() * this.get_armor();
-        let ele = attack.getElementalDamage();
+    calcDamage(phys, ele, attack){
+        phys *= (1 - this.getStat(Stat.ARM) * 0.12);
         if (this.element.weakness === attack.user.element.name){
 			ele *= 1.7;
 		} else if (this.element.name === attack.user.element.weakness){
@@ -58,14 +57,59 @@ export class Warrior{
 		}
         return phys + ele;
     }
-    newStrike(target, using){
-        let dmg = target.calcDamage(using);
+    newStrike(using, target=undefined, phys=undefined, ele=undefined){
+        if(target === undefined){
+            target = this.user.enemyTeam.active;
+        }
+        if(phys === undefined){
+            phys = using.getPhysicalDamage();
+        }
+        if(ele === undefined){
+            ele = using.getElementalDamage();
+        }
+        let dmg = target.calcDamage(phys, ele, using);
+        let event = new HitEvent(this, target, using, dmg);
+        this.onHitActions.forEach((v, k)=>{
+            console.log(k);
+            console.log(v);
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        
+        target.takeDamage(dmg);
+        if(target.team.active === target){
+            target.team.gainEnergy();
+        }
+        
+        this.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.last_hitby = this;
+        return event.dmg; //for Soul Steal
+    }
+    takeDamage(amount){
+        //this.last_phys_dmg += ?;
+        //this.last_ele_dmg += ?;
+        this.lastDmg += amount;
+        this.hp_rem -= amount;
+        this.hp_rem = Math.round(this.hp_rem);
     }
     
-    //old, rubbish attack stuff
-	get_armor(){
-		return 1 - this.getStat(Stat.ARM) * 0.12;
-	}
+    
+    
     calc_damage_taken(phys, ele){
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
@@ -125,14 +169,6 @@ export class Warrior{
 		    }
 		}*/
 	}
-	//physical damage, elemental damage
-	strike(pd, ed, using){
-	    var t = this.team.enemyTeam;
-	    t.gainEnergy();
-	    var dmg = t.active.calc_damage_taken(pd, ed);
-        
-	    return dmg;
-	}
     
 	pass(){}
 	
@@ -156,7 +192,7 @@ export class Warrior{
 	            mod -= 0.24;
 	        }
 	    }*/
-		this.strike(this.getStat(Stat.PHYS) * mod, this.getStat(Stat.ELE) * mod, "Normal Move");
+		//use normal move
 	}
     
 	use_special(){

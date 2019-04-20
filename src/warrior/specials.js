@@ -94,23 +94,13 @@ class SpecialMove extends Attack{
     }
     
     attack(){
-        let phys = this.getPhysicalDamage();
-		let ele = this.getElementalDamage();
-		if(this.multiplies_ele){
-		    ele *= this.mod;
-		}
-		this.user.strike(phys, ele, this);
+		this.user.newStrike(this);
     }
     //used for AOE attacks
     attackAll(){
-        let phys = this.getPhysicalDamage();
-        let ele = this.getElementalDamage();
         this.user.enemyTeam.forEach((member)=>{
-            if(member !== this.user.enemyTeam.active){
-                member.calc_damage_taken(phys, ele);
-            }
+            this.user.newStrike(this, member);
         });
-        this.user.strike(phys, ele);
     }
 }
 class Beat extends SpecialMove {
@@ -284,7 +274,7 @@ class Soul_steal extends SpecialMove{
     }
     attack(){
 		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.heal(this.user.strike(physical_damage, 0) * 0.3);        
+		this.user.heal(this.user.newStrike(this, phys=physical_damage) * 0.3);        
     }
 }
 class Berserk extends SpecialMove{
@@ -292,10 +282,8 @@ class Berserk extends SpecialMove{
         super("Berserk", 50, false);
     }
     attack(){
-		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		var elemental_damage = this.user.getStat(Stat.ELE);
 		
-		this.user.take_damage(this.user.strike(physical_damage, elemental_damage) * 0.2, 0);
+		this.user.take_damage(this.user.newStrike(this) * 0.2, 0);
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
 		}        
@@ -335,7 +323,7 @@ class Vengeance extends SpecialMove{
 	    var mod = this.mod * (1.5 - this.user.hp_perc());
 	    var physical_damage = this.user.getStat(Stat.PHYS) * mod;
 	    var elemental_damage = this.user.getStat(Stat.ELE) * mod;
-	    this.user.strike(physical_damage, elemental_damage);        
+	    this.user.newStrike(this, phys=physical_damage, ele=elemental_damage);        
     }
 }
 class Twister extends SpecialMove{
@@ -362,6 +350,8 @@ class Stealth_assault extends SpecialMove{
 	    this.user.team.switchin(this.user.team.switchback);        
     }
 }
+
+//work here
 class Team_strike extends SpecialMove{
 	constructor(){
 		super("Team Strike", 60, true);
@@ -372,7 +362,7 @@ class Team_strike extends SpecialMove{
 		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
 		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
 		
-		var dmg = this.user.strike(physical_damage, elemental_damage); 
+		let dmg = this.user.newStrike(this, phys=physical_damage, ele=elemental_damage); 
 		this.user.team.forEach((member)=>{
 			member.take_dmg(dmg / 6, 0);
 			member.hp_rem = Math.round(member.hp_rem);
