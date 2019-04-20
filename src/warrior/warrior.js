@@ -1,5 +1,5 @@
 import {warriors} from "./realWarriors.js";
-import {findSpecial} from "./specials.js";
+import {NormalMove, findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
 import {Stat} from "./stat.js";
 import {Lead} from "./leaderSkill.js";
@@ -37,6 +37,8 @@ export class Warrior{
 	    
         this.warriorSkills = [];
         
+        this.normalMove = new NormalMove();
+        this.normalMove.setUser(this);
 	    this.special.setUser(this);
     }
     
@@ -59,7 +61,7 @@ export class Warrior{
     }
     newStrike(using, target=undefined, phys=undefined, ele=undefined){
         if(target === undefined){
-            target = this.user.enemyTeam.active;
+            target = this.enemyTeam.active;
         }
         if(phys === undefined){
             phys = using.getPhysicalDamage();
@@ -70,8 +72,6 @@ export class Warrior{
         let dmg = target.calcDamage(phys, ele, using);
         let event = new HitEvent(this, target, using, dmg);
         this.onHitActions.forEach((v, k)=>{
-            console.log(k);
-            console.log(v);
             if(v.applyBeforeHit){
                 v.run(event);
             }
@@ -98,7 +98,7 @@ export class Warrior{
             }
         });
         target.last_hitby = this;
-        return event.dmg; //for Soul Steal
+        return event.damage; //for Soul Steal
     }
     takeDamage(amount){
         //this.last_phys_dmg += ?;
@@ -107,7 +107,9 @@ export class Warrior{
         this.hp_rem -= amount;
         this.hp_rem = Math.round(this.hp_rem);
     }
-    
+    useNormalMove(){
+        this.newStrike(this.normalMove);
+    }
     
     
     calc_damage_taken(phys, ele){
@@ -171,29 +173,6 @@ export class Warrior{
 	}
     
 	pass(){}
-	
-    //guard, critical hit here
-	use_normal_move(){
-        /*
-        Strike at your enemy team's active warrior with your sword!
-        */
-	    var mod = 1.0;
-        /*
-	    if(this.skills[0] === "critical hit"){
-	        if(Math.random() <= 0.24){
-	            console.log("Critical hit!");
-	            mod += 0.24;
-	        }
-	    }*/
-        /*
-	    if(this.team.enemyTeam.active.skills[0] === "guard"){
-	        if(Math.random() <= 0.24){
-	            console.log("Guard!");
-	            mod -= 0.24;
-	        }
-	    }*/
-		//use normal move
-	}
     
 	use_special(){
 		/*

@@ -112,7 +112,7 @@ export class BattlePage extends GamePane{
         ret.setSize(10, 10);
         ret.setColor(team.active.element.color);
         ret.addOnClick(()=>{
-            team.active.use_normal_move();
+            team.active.useNormalMove();
             this.team1Turn = !this.team1Turn;
             this.turnPart = 1;
             this.update();

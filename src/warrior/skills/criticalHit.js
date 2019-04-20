@@ -1,5 +1,6 @@
 import {WarriorSkill} from "./warriorSkill.js";
 import {OnHitAction} from "../../actions/onHitAction.js";
+import {NormalMove} from "../specials.js";
 
 export class CriticalHit extends WarriorSkill{
     constructor(pip=1){
@@ -10,10 +11,11 @@ export class CriticalHit extends WarriorSkill{
         let user = this.user;
         user.addOnHitAction(new OnHitAction("Critical Hit", OnHitAction.PRE_HIT, (hitEvent)=>{
             //make Normal Move a special
-            if(hitEvent.hitter === user && hitEvent.attackUsed === "Normal Move"){
+            if(hitEvent.hitter === user && hitEvent.attackUsed instanceof NormalMove){
                 if(this.checkForTrigger()){
                     this.run(hitEvent);
                 }
+                console.log("normal move");
             }
         }));
     }
