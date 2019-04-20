@@ -129,7 +129,7 @@ export class BattlePage extends GamePane{
             b.setSize(10, 10);
             b.setColor(member.element.color);
             b.addOnClick(()=>{
-                member.use_special();
+                member.useSpecial();
                 this.team1Turn = !this.team1Turn;
                 this.turnPart = 1;
                 this.update();

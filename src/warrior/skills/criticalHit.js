@@ -10,7 +10,6 @@ export class CriticalHit extends WarriorSkill{
     apply(){
         let user = this.user;
         user.addOnHitAction(new OnHitAction("Critical Hit", OnHitAction.PRE_HIT, (hitEvent)=>{
-            //make Normal Move a special
             if(hitEvent.hitter === user && hitEvent.attackUsed instanceof NormalMove){
                 if(this.checkForTrigger()){
                     this.run(hitEvent);
@@ -26,6 +25,7 @@ export class CriticalHit extends WarriorSkill{
     
     run(hitEvent){
         console.log("Critical hit!");
-        hitEvent.damage *= 1.24;
+        hitEvent.physDmg *= 1.24;
+        hitEvent.eleDmg *= 1.24;
     }
 }

@@ -42,153 +42,6 @@ export class Warrior{
 	    this.special.setUser(this);
     }
     
-    
-    
-    
-    
-    
-    
-    // new attack stuff
-    //hunter will apply here
-    calcDamage(phys, ele, attack){
-        phys *= (1 - this.getStat(Stat.ARM) * 0.12);
-        if (this.element.weakness === attack.user.element.name){
-			ele *= 1.7;
-		} else if (this.element.name === attack.user.element.weakness){
-			ele *= 0.3;
-		}
-        return phys + ele;
-    }
-    newStrike(using, target=undefined, phys=undefined, ele=undefined){
-        if(target === undefined){
-            target = this.enemyTeam.active;
-        }
-        if(phys === undefined){
-            phys = using.getPhysicalDamage();
-        }
-        if(ele === undefined){
-            ele = using.getElementalDamage();
-        }
-        let dmg = target.calcDamage(phys, ele, using);
-        let event = new HitEvent(this, target, using, dmg);
-        this.onHitActions.forEach((v, k)=>{
-            if(v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        target.onHitActions.forEach((v, k)=>{
-            if(v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        
-        target.takeDamage(dmg);
-        if(target.team.active === target){
-            target.team.gainEnergy();
-        }
-        
-        this.onHitActions.forEach((v, k)=>{
-            if(!v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        target.onHitActions.forEach((v, k)=>{
-            if(!v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        target.last_hitby = this;
-        return event.damage; //for Soul Steal
-    }
-    takeDamage(amount){
-        //this.last_phys_dmg += ?;
-        //this.last_ele_dmg += ?;
-        this.lastDmg += amount;
-        this.hp_rem -= amount;
-        this.hp_rem = Math.round(this.hp_rem);
-    }
-    useNormalMove(){
-        this.newStrike(this.normalMove);
-    }
-    
-    
-    calc_damage_taken(phys, ele){
-		var physical_damage = phys * this.get_armor();
-		var elemental_damage = ele;
-		
-		if (this.element.weakness === this.team.enemyTeam.active.element.name){
-			elemental_damage *= 1.7;
-		}
-		
-		else if (this.element.name === this.team.enemyTeam.active.element.weakness){
-			elemental_damage *= 0.3;
-		}
-		
-		this.take_damage(physical_damage, elemental_damage);
-		this.last_hitby = this.team.enemyTeam.active;
-		return physical_damage + elemental_damage;
-	}
-	
-    //shell here
-    take_damage(phys, ele){
-        /*
-        Lose HP equal to the damage you took
-        If you survive, you can heal some of it off
-        */
-		var dmg = phys + ele;
-		this.hp_rem -= dmg;
-		this.last_phys_dmg += phys;
-		this.last_ele_dmg += ele;
-		
-		this.hp_rem = Math.round(this.hp_rem);
-		
-        /*
-		if(this.skills[0] === "shell"){
-		    if(this.hp_perc() <= 0.5){
-		        this.in_shell = true;
-		    }
-		}
-        */
-	}
-    
-    //shell here
-	heal(hp){
-        /*
-        Restore HP
-        Prevents from healing past full
-        Also rounds for you
-        */
-		this.last_healed += Math.round(hp);
-		this.hp_rem += hp;
-		if (this.hp_rem > this.getStat(Stat.HP)){
-			this.hp_rem = this.getStat(Stat.HP);
-		}
-		this.hp_rem = Math.round(this.hp_rem);
-        /*
-		if(this.skills[0] === "shell"){
-		    if(this.hp_perc() > 0.5){
-		        this.in_shell = false;
-		    }
-		}*/
-	}
-    
-	pass(){}
-    
-	use_special(){
-		/*
-		Use your powerful Special Move!
-		*/
-		this.team.switchback = this.team.active;
-		this.team.switchin(this);
-		this.special.attack();
-		this.team.energy -= 2;
-	}
-    
-    
-    
-    
-    
-    
     //change this to look in the player's warriors
     find_warrior(name){
     	for(let warrior of warriors){
@@ -254,6 +107,117 @@ export class Warrior{
         */
 		return this.hp_rem <= 0;
 	}
+    
+    // new attack stuff
+    calcPhysDmg(phys, attack){
+        return phys * (1 - this.getStat(Stat.ARM) * 0.12);
+    }
+    calcEleDmg(ele, attack){
+        if (this.element.weakness === attack.user.element.name){
+			ele *= 1.7;
+		} else if (this.element.name === attack.user.element.weakness){
+			ele *= 0.3;
+		}
+        return ele;
+    }
+    calcDamage(phys, ele, attack){
+        return this.calcPhysDmg(phys, attack) + this.calcEleDmg(ele, attack);
+    }
+    
+    strike(using, target=undefined, phys=undefined, ele=undefined){
+        if(target === undefined){
+            target = this.enemyTeam.active;
+        }
+        if(phys === undefined){
+            phys = using.getPhysicalDamage();
+        }
+        if(ele === undefined){
+            ele = using.getElementalDamage();
+        }
+        
+        let physDmg = target.calcPhysDmg(phys, using);
+        let eleDmg = target.calcEleDmg(ele, using);
+        let dmg = target.calcDamage(phys, ele, using);
+        let event = new HitEvent(this, target, using, physDmg, eleDmg);
+        
+        this.onHitActions.forEach((v, k)=>{
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        
+        
+        
+        target.takeDamage(physDmg, eleDmg);
+        target.last_hitby = this;
+        if(target.team.active === target){
+            target.team.gainEnergy();
+        }
+        
+        
+        this.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        
+        return event.physDmg + event.eleDmg; //for Soul Steal
+    }
+    
+    //shell here
+    takeDamage(phys, ele=0){
+        let amount = phys + ele;
+        this.lastPhysDmg += phys;
+        this.lastEleDmg += ele;
+        this.lastDmg += amount;
+        this.hp_rem -= amount;
+        this.hp_rem = Math.round(this.hp_rem);
+    }
+    
+    useNormalMove(){
+        this.strike(this.normalMove);
+    }
+    
+    useSpecial(){
+		/*
+		Use your powerful Special Move!
+		*/
+		this.team.switchback = this.team.active;
+		this.team.switchin(this);
+		this.special.attack();
+		this.team.energy -= 2;
+	}
+    
+    //shell here
+	heal(hp){
+        /*
+        Restore HP
+        Prevents from healing past full
+        Also rounds for you
+        */
+		this.last_healed += Math.round(hp);
+		this.hp_rem += hp;
+		if (this.hp_rem > this.getStat(Stat.HP)){
+			this.hp_rem = this.getStat(Stat.HP);
+		}
+		this.hp_rem = Math.round(this.hp_rem);
+        /*
+		if(this.skills[0] === "shell"){
+		    if(this.hp_perc() > 0.5){
+		        this.in_shell = false;
+		    }
+		}*/
+	}
 	
     addOnHitAction(action){
         this.onHitActions.set(action.id, action);
@@ -292,8 +256,9 @@ export class Warrior{
 		this.regen = false;
 		this.shield = false;
 		
-		this.last_phys_dmg = 0;
-		this.last_ele_dmg = 0;
+		this.lastPhysDmg = 0;
+		this.lastEleDmg = 0;
+        this.lastDmg = 0;
 		this.last_hitby = undefined;
 		this.last_healed = 0;
 		
@@ -310,7 +275,7 @@ export class Warrior{
 	// update this once Resilience out
 	nat_regen(){
 		let x = this;
-		this.heal((x.last_phys_dmg + x.last_ele_dmg) * 0.4);
+		this.heal(x.lastDmg * 0.4);
 	}
 	reset_dmg(){
 	    /*
@@ -318,8 +283,9 @@ export class Warrior{
 	    DOES NOT HEAL YOU
 	    Used for heart collection
 	    */
-		this.last_phys_dmg = 0;
-		this.last_ele_dmg = 0;
+		this.lastPhysDmg = 0;
+		this.lastEleDmg = 0;
+        this.lastDmg = 0;
 	}
 	reset_heal(){
 	    this.last_healed = 0;
@@ -358,7 +324,7 @@ export class Warrior{
             "poison",
             ()=>{
                 this.poisoned = true;
-                this.take_damage(amount, 0);
+                this.takeDamage(amount);
             }, 3
         ));
     }
