@@ -37,74 +37,36 @@ export class Warrior{
 	    
         this.warriorSkills = [];
         
-	    this.special.set_user(this);
+	    this.special.setUser(this);
     }
     
-    //change this to look in the player's warriors
-    find_warrior(name){
-    	for(let warrior of warriors){
-    		if(warrior[0] === name){
-    			return warrior;
-    		}
-    	}
-    	return ["ERROR", [1, 0.5, 1, 1, 2], "none", "ERROR", [5, "p"]];
+    
+    
+    
+    
+    
+    
+    // new attack stuff
+    //hunter will apply here
+    calcDamage(attack){
+        let phys = attack.getPhysicalDamage() * this.get_armor();
+        let ele = attack.getElementalDamage();
+        if (this.element.weakness === attack.user.element.name){
+			ele *= 1.7;
+		} else if (this.element.name === attack.user.element.weakness){
+			ele *= 0.3;
+		}
+        return phys + ele;
+    }
+    newStrike(target, using){
+        let dmg = target.calcDamage(using);
     }
     
-    addSkill(warriorSkill){
-        this.warriorSkills.push(warriorSkill);
-        warriorSkill.setUser(this);
-    }
-    
-	calcStats(){
-		/*
-		Calculate a warrior's stats
-		Increases by 7% per level
-		*/
-        //values is a generator, not an array
-        for(let stat of this.stats.values()){
-            stat.calc(this.level);
-        }
-	}
-    
-    getBase(statEnum){
-        return this.stats.get(statEnum).getBase();
-    }
-    
-    getStat(statEnum){
-        return this.stats.get(statEnum).getValue();
-    }
-    
-    applyBoost(statEnum, boost){
-        if(this.stats.has(statEnum)){
-            this.stats.get(statEnum).applyBoost(boost);
-        } else {
-            console.log("Stat not found: " + statEnum);
-        }
-    }
-	
-    //keep this
+    //old, rubbish attack stuff
 	get_armor(){
 		return 1 - this.getStat(Stat.ARM) * 0.12;
 	}
-	
-	hp_perc(){
-	    /*
-	    Returns the percentage of your HP remaining
-	    AS A VALUE BETWEEN 0 AND 1
-	    NOT 0 AND 100
-	    */
-		return this.hp_rem / this.getStat(Stat.HP);
-	}
-	perc_hp(perc){
-	    /*
-	    Returns how much of your max HP will equal perc
-		Example:
-			With 200 HP, this.perc_hp(0.5) will return 100
-	    */
-		return this.getStat(Stat.HP) * (perc);
-	}
-	
-	calc_damage_taken(phys, ele){
+    calc_damage_taken(phys, ele){
 		var physical_damage = phys * this.get_armor();
 		var elemental_damage = ele;
 		
@@ -163,16 +125,7 @@ export class Warrior{
 		    }
 		}*/
 	}
-	
-    check_if_ko(){
-        /*
-        An I dead yet?
-        */
-		return this.hp_rem <= 0;
-	}
-	
-    
-    //physical damage, elemental damage
+	//physical damage, elemental damage
 	strike(pd, ed, using){
 	    var t = this.team.enemyTeam;
 	    t.gainEnergy();
@@ -216,6 +169,77 @@ export class Warrior{
 		this.team.energy -= 2;
 	}
     
+    
+    
+    
+    
+    
+    //change this to look in the player's warriors
+    find_warrior(name){
+    	for(let warrior of warriors){
+    		if(warrior[0] === name){
+    			return warrior;
+    		}
+    	}
+    	return ["ERROR", [1, 0.5, 1, 1, 2], "none", "ERROR", [5, "p"]];
+    }
+    
+    addSkill(warriorSkill){
+        this.warriorSkills.push(warriorSkill);
+        warriorSkill.setUser(this);
+    }
+    
+	calcStats(){
+		/*
+		Calculate a warrior's stats
+		Increases by 7% per level
+		*/
+        //values is a generator, not an array
+        for(let stat of this.stats.values()){
+            stat.calc(this.level);
+        }
+	}
+    
+    getBase(statEnum){
+        return this.stats.get(statEnum).getBase();
+    }
+    
+    getStat(statEnum){
+        return this.stats.get(statEnum).getValue();
+    }
+    
+    applyBoost(statEnum, boost){
+        if(this.stats.has(statEnum)){
+            this.stats.get(statEnum).applyBoost(boost);
+        } else {
+            console.log("Stat not found: " + statEnum);
+        }
+    }
+	
+	hp_perc(){
+	    /*
+	    Returns the percentage of your HP remaining
+	    AS A VALUE BETWEEN 0 AND 1
+	    NOT 0 AND 100
+	    */
+		return this.hp_rem / this.getStat(Stat.HP);
+	}
+	perc_hp(perc){
+	    /*
+	    Returns how much of your max HP will equal perc
+		Example:
+			With 200 HP, this.perc_hp(0.5) will return 100
+	    */
+		return this.getStat(Stat.HP) * (perc);
+    }
+	
+    check_if_ko(){
+        /*
+        An I dead yet?
+        */
+		return this.hp_rem <= 0;
+	}
+	
     addOnHitAction(action){
         this.onHitActions.set(action.id, action);
         action.setUser(this);
