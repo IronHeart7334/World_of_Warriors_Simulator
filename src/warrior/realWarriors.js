@@ -1,10 +1,13 @@
+//store as a spreadsheet
 // need: Lance, Kadam, Pacorus, Gaja Mada, Gwen, zuu, balash, alboin
 export let warriors = [
+    //["Lance", [], "e", "thunder strike", [15, "e"]],
     ["Naro", [0.766, 0.25, 0.6, 1, 3], "f", "thunder strike", [25, "p"]],
 	["Le Roc", [1.05, 0.25, 0.7, 2, 3], "a", "thunder strike", [15, "a"]],
  	["Yada", [0.7, 0.25, 1.1, 2, 1], "w", "thunder strike", [10, "h"]],
  	
  	["Abu", [0.9334, 0.4, 1.05, 1, 1], "f", "beat", [15, "f"]],
+    //["Kadam", []],
  	["Volten", [1.2665, 0.4, 0.58, 2, 3], "f", "beat", [30, "f"]],
  	["Anil", [0.9, 0.4, 0.85, 0, 4], "f", "beat", [-30, "w"]],
  	

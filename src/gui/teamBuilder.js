@@ -74,7 +74,9 @@ export class TeamBuilder extends GamePane{
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
             //save the team
-            this.user.teams.push(new Team(teamName, this.teamWorkshop));
+            this.user.teams.push(new Team(teamName, this.teamWorkshop.map((name)=>{
+                return new Warrior(name);
+            })));
             console.log(this.user.teams);
             this.controller.setView(Controller.MAIN_MENU);
         } else {

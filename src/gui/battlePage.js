@@ -178,7 +178,7 @@ export class BattlePage extends GamePane{
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
-        if ((team.active.last_phys_dmg + team.active.last_ele_dmg) > 0){
+        if (team.active.lastDmg > 0){
 			this.heartCol = this.heartCollectionFor(team);
             this.bomb = this.bombFor(team);
             this.addChild(this.heartCol);

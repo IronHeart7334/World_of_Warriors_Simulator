@@ -1,17 +1,7 @@
-import {Warrior} from "./warrior.js";
-
 export class Team{
-    /*
-     * Currently, members is an array of strings,
-     * warrior names, 
-     * Once I have a better way of doing this, 
-     * change this to invoke copy constructor
-     */
-    constructor(name, members){
-        this.members = members.map((warriorName)=>{
-            return new Warrior(warriorName);
-        });
+    constructor(name, members=[]){
 	    this.name = name;
+        this.members = members;
     }
     //use this instead of this.membersRem
     forEach(func){

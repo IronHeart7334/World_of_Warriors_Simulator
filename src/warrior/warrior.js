@@ -153,7 +153,7 @@ export class Warrior{
         
         
         
-        target.takeDamage(physDmg, eleDmg);
+        target.takeDamage(event.physDmg, event.eleDmg);
         target.last_hitby = this;
         if(target.team.active === target){
             target.team.gainEnergy();
