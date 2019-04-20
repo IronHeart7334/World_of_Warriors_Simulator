@@ -23,7 +23,7 @@ export class WarriorHud extends GuiElement{
         }
         
         //boost
-        if(this.warrior.boost_up){
+        if(this.warrior.boostIsUp){
             canvas.setColor(this.warrior.element.color);
             canvas.rect(this.x, this.y, this.w, this.h / 2);
         }

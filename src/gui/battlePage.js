@@ -167,6 +167,7 @@ export class BattlePage extends GamePane{
     //might want to move some of this back to team later
     turnPart1For(team){
         let c = this.controller.canvas;
+        let switched = team.activeKoed();
         
         team.check_if_ko();
         if(this.team1.won || this.team2.won){
@@ -178,7 +179,7 @@ export class BattlePage extends GamePane{
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
-        if (team.active.lastDmg > 0){
+        if (team.active.lastDmg > 0 && !switched){
 			this.heartCol = this.heartCollectionFor(team);
             this.bomb = this.bombFor(team);
             this.addChild(this.heartCol);

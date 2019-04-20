@@ -302,10 +302,10 @@ export class Warrior{
             stat.update();
         });
 		
-        this.boost_up = false;
+        this.boostIsUp = false;
         for(let boost of this.stats.get(Stat.ELE).boosts.values()){
             if(boost.id === this.element.name + " Boost"){
-                this.boost_up = true;
+                this.boostIsUp = true;
                 break;
             }
         }

@@ -49,9 +49,9 @@ class SpecialMove extends Attack{
         super(name);
         this.base = base_damage;
         this.multiplies_ele = mult_ele;
-        this.gives_energy = true;
         this.ignores_ele = false;
     }
+    
     setUser(user){
         this.user = user;
         user.calcStats();
@@ -103,15 +103,16 @@ class SpecialMove extends Attack{
         });
     }
 }
+
 class Beat extends SpecialMove {
-    constructor(check_ele){
+    constructor(checkEle=true){
         super("Thunder Strike", 40, false);
-        this.should_check_ele = check_ele;
+        this.shouldCheckEle = checkEle;
     }
     setUser(user){
         super.setUser(user);
         
-        if(this.should_check_ele){
+        if(this.shouldCheckEle){
             switch(user.element.name){
             case "Fire":
 			    this.name = "Inferno";
@@ -131,6 +132,7 @@ class Beat extends SpecialMove {
         }
     }
 }
+
 class AOE extends SpecialMove{
     constructor(){
         super("null", 20, true);
@@ -158,10 +160,10 @@ class AOE extends SpecialMove{
         this.attackAll();
     }
 }
+
 class Boost extends SpecialMove{
     constructor(){
         super("null", 0, false);
-        this.gives_energy = false;
     }
     setUser(user){
         this.user = user;
@@ -171,56 +173,67 @@ class Boost extends SpecialMove{
     attack(){
 		this.user.team.forEach((member)=>{
 			if (member.element === this.user.element){
-				member.boost_up = true;
+				member.boostIsUp = true;
                 member.applyBoost(Stat.ELE, new Stat_boost(this.name, 1.35, 3));
 			}
 		});   
     };
 }
+
+//manual gainEnergy
 class Poison extends SpecialMove{
     constructor(){
         super("Poison", 15, false);
-        this.ignores_ele = true;
+        this.ignores_ele = true; //needed for pip calculation
     }
     attack(){
-		this.user.enemyTeam.active.poison(this.getPhysicalDamage());  
+		this.user.enemyTeam.active.poison(this.getPhysicalDamage());
+        this.user.enemyTeam.gainEnergy();
     }
 }
-// will need to be changed once I update energy
-class Rolling_thunder extends SpecialMove{
+
+class RollingThunder extends SpecialMove{
     constructor(){
         super("Rolling Thunder", 7, true);
     }
+    
+    //strikes 3 random targets on the enemy team. May hit the same person multiple times
     attack(){
-        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-	    var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
+        let gainedEnergy = false; //keep track of if the active has been hit,
+        //since teams gain energy every time the active is hit, 
+        ////I need to prevent them from gaining more than one energy per use of this special
 		
-	    var gained_energy = false;
-		
-	    for(var i = 0; i < 3; i++){
-		    var target_team = this.user.enemyTeam;
-		    var num_targ = target_team.membersRem.length;
+        let targetTeam = this.user.enemyTeam;
+        let numTargets; //need to constantly recalculate
+        let target;
+        
+	    for(let i = 0; i < 3; i++){
+		    numTargets = targetTeam.membersRem.length;
 		    
-		    if(num_targ === 0){
+		    if(numTargets === 0){
 			    return;
 		    }
-			
-		    var target = target_team.membersRem[Math.floor(Math.random() * num_targ)];
+            
+            //choose a random target
+			target = targetTeam.membersRem[Math.floor(Math.random() * numTargets)];
 		    
-		    if (target_team.active === target){
+		    if (targetTeam.active === target){
 			    // this part
-			    if (gained_energy){
-				    target_team.energy -= 1;
-			    }
-			    gained_energy = true;
+			    if (gainedEnergy){
+				    targetTeam.energy -= 1;
+			    } else {
+                    gainedEnergy = true;
+                }
 		    }
-			
-		    target.calc_damage_taken(physical_damage, elemental_damage);
-		    target_team.check_if_ko();
+			this.user.strike(this, target);
+		    targetTeam.check_if_ko();
 	    }
     }
 }
-class Stealth_strike extends SpecialMove{
+
+// User switches in, attacks, 
+// then switches back to whoever was active before them
+class StealthStrike extends SpecialMove{
     constructor(){
         super("Stealth Strike", 40, false);
     }
@@ -229,6 +242,7 @@ class Stealth_strike extends SpecialMove{
 		this.user.team.switchin(this.user.team.switchback);        
     }
 }
+
 class Armor_break extends SpecialMove{
     constructor(){
         super("Armor Break", 40, true);
@@ -425,9 +439,9 @@ export function findSpecial(name){
 		case "poison":
 			return new Poison();
 		case "rolling thunder":
-			return new Rolling_thunder();
+			return new RollingThunder();
 		case "stealth strike":
-			return new Stealth_strike();
+			return new StealthStrike();
 		case "armor break":
 			return new Armor_break();
 		case "healing":

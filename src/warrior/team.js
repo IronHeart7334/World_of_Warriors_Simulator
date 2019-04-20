@@ -71,6 +71,14 @@ export class Team{
 		}
 		this.check_if_ko();
 	}
+    
+    //returns whether or not this' active
+    //warrior has no HP left
+    activeKoed(){
+        //used by battlePage to see if it should allow heart collection
+        return this.active.check_if_ko();
+    }
+    
 	check_if_ko(){
 		/*
          * Removes KOed warriors from the members remaining
@@ -79,7 +87,7 @@ export class Team{
         this.membersRem = this.membersRem.filter((member)=>!member.check_if_ko());
 		if (this.membersRem.length === 0){
 			this.enemyTeam.win();
-		} else if (this.active.check_if_ko()){
+		} else if (this.activeKoed()){
             if(index >= this.membersRem.length){
 				index = 0;
 			}
