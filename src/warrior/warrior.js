@@ -92,6 +92,7 @@ export class Warrior{
 	    */
 		return this.hp_rem / this.getStat(Stat.HP);
 	}
+    
 	perc_hp(perc){
 	    /*
 	    Returns how much of your max HP will equal perc
@@ -124,6 +125,34 @@ export class Warrior{
         return this.calcPhysDmg(phys, attack) + this.calcEleDmg(ele, attack);
     }
     
+    /*
+     * This is what all attacking should call.
+     * this warrior performs an attack against a given target,
+     * going through a series of steps:
+     * 1. calculate how much damage the attack will do to the target,
+     *    reducing the physical damage of the attack by 12% for each point of armor the target has,
+     *    and dealing more (+70%) or less (-70%) elemental damage based on the matchup between the user and target's elements
+     * 2. generates a HitEvent to keep track of the details for this attack
+     * 3. calls all functions in this warrior's onHitActions that have their applyBeforeHit flag set to true
+     * 4. does the same for all the functions in the target's onHitActions that meet the same condition
+     * 5. Some things to note about these onHitActions:
+     *    (a): they should check if their user is the hitter or the hittee in the attack
+     *    (b): they should check if the attack used is an instance of NormalMove (see warriorSkills.js)
+     *    (c): they may modify the damage passed into the event, so you should never reference the local variables
+     *         physDmg, eleDmg, and dmg in this function, only use the event's properties.
+     * 6. after running all of these pre-hit functions, the target takes damage 
+     *    using the damage values from the event.
+     * 7. runs any on hit functions in this and the target's onHitActions that have to applyBeforeHit flag set to false
+     *    (not using this currently, will need for poison edge I think)
+     * 8. if the target is the active warrior for his team, allows them to recover the damage during heart collection,
+     *    and gives their team energy.
+     * 
+     * @param {Attack} using the NormalMove or SpecialMove the attack was made using.
+     * @param {Warrior} target who the attack is made against. Defaults to the active enemy.
+     * @param {number} phys the base physical damage of the attack. Defaults to using.getPhysicalDamage() 
+     * @param {number} ele the base elemental damage of the attack. Defaults to using.getElementalDamage()
+     * @returns {HitEvent.eleDmg|HitEvent.physDmg}
+     */
     strike(using, target=undefined, phys=undefined, ele=undefined){
         if(target === undefined){
             target = this.enemyTeam.active;
@@ -155,9 +184,6 @@ export class Warrior{
         
         target.takeDamage(event.physDmg, event.eleDmg);
         target.last_hitby = this;
-        if(target.team.active === target){
-            target.team.gainEnergy();
-        }
         
         
         this.onHitActions.forEach((v, k)=>{
@@ -171,6 +197,12 @@ export class Warrior{
             }
         });
         
+        if(target.team.active === target){
+            //damage that can be healed from heart collection
+            target.healableDamage += event.physDmg + event.eleDmg;
+            target.team.gainEnergy();
+        }
+        
         return event.physDmg + event.eleDmg; //for Soul Steal
     }
     
@@ -179,7 +211,6 @@ export class Warrior{
         let amount = phys + ele;
         this.lastPhysDmg += phys;
         this.lastEleDmg += ele;
-        this.lastDmg += amount;
         this.hp_rem -= amount;
         this.hp_rem = Math.round(this.hp_rem);
     }
@@ -256,9 +287,9 @@ export class Warrior{
 		this.regen = false;
 		this.shield = false;
 		
-		this.lastPhysDmg = 0;
+		this.lastPhysDmg = 0; //these first two are just used for the GUI for now
 		this.lastEleDmg = 0;
-        this.lastDmg = 0;
+        this.healableDamage = 0; //damage that can be healed through heart collection
 		this.last_hitby = undefined;
 		this.last_healed = 0;
 		
@@ -275,7 +306,7 @@ export class Warrior{
 	// update this once Resilience out
 	nat_regen(){
 		let x = this;
-		this.heal(x.lastDmg * 0.4);
+		this.heal(x.healableDamage * 0.4);
 	}
 	reset_dmg(){
 	    /*
@@ -285,7 +316,7 @@ export class Warrior{
 	    */
 		this.lastPhysDmg = 0;
 		this.lastEleDmg = 0;
-        this.lastDmg = 0;
+        this.healableDamage = 0;
 	}
 	reset_heal(){
 	    this.last_healed = 0;
@@ -325,10 +356,6 @@ export class Warrior{
             ()=>{
                 this.poisoned = true;
                 this.takeDamage(amount);
-                
-                //this way, warriors can't heal off poison damage
-                this.lastPhysDmg -= amount;
-                this.lastDmg -= amount;
             }, 3
         ));
     }

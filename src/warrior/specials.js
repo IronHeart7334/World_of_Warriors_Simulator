@@ -304,13 +304,10 @@ class Berserk extends SpecialMove{
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
 		}
-        
-        //prevent from including recoil in heart collection
-        this.user.lastPhysDmg -= recoil;
-        this.user.lastDmg -= recoil;
     }
 }
 
+//manual gainEnergy
 class PoisonHive extends SpecialMove{
     constructor(){
         super("Poison Hive", 10, false);
@@ -318,6 +315,7 @@ class PoisonHive extends SpecialMove{
     }
     attack(){
 		this.user.enemyTeam.forEach((member)=>member.poison(this.getPhysicalDamage()));
+        this.user.enemyTeam.gainEnergy();
     }
 }
 
