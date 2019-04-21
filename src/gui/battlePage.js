@@ -112,7 +112,7 @@ export class BattlePage extends GamePane{
         ret.setSize(10, 10);
         ret.setColor(team.active.element.color);
         ret.addOnClick(()=>{
-            team.active.use_normal_move();
+            team.active.useNormalMove();
             this.team1Turn = !this.team1Turn;
             this.turnPart = 1;
             this.update();
@@ -129,7 +129,7 @@ export class BattlePage extends GamePane{
             b.setSize(10, 10);
             b.setColor(member.element.color);
             b.addOnClick(()=>{
-                member.use_special();
+                member.useSpecial();
                 this.team1Turn = !this.team1Turn;
                 this.turnPart = 1;
                 this.update();
@@ -178,7 +178,7 @@ export class BattlePage extends GamePane{
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
-        if ((team.active.last_phys_dmg + team.active.last_ele_dmg) > 0){
+        if (team.active.healableDamage > 0){
 			this.heartCol = this.heartCollectionFor(team);
             this.bomb = this.bombFor(team);
             this.addChild(this.heartCol);

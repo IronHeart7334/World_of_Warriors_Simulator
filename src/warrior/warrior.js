@@ -1,5 +1,5 @@
 import {warriors} from "./realWarriors.js";
-import {findSpecial} from "./specials.js";
+import {NormalMove, findSpecial} from "./specials.js";
 import {getElement, NO_ELE} from "./elements.js";
 import {Stat} from "./stat.js";
 import {Lead} from "./leaderSkill.js";
@@ -37,7 +37,9 @@ export class Warrior{
 	    
         this.warriorSkills = [];
         
-	    this.special.set_user(this);
+        this.normalMove = new NormalMove();
+        this.normalMove.setUser(this);
+	    this.special.setUser(this);
     }
     
     //change this to look in the player's warriors
@@ -82,11 +84,6 @@ export class Warrior{
         }
     }
 	
-    //keep this
-	get_armor(){
-		return 1 - this.getStat(Stat.ARM) * 0.12;
-	}
-	
 	hp_perc(){
 	    /*
 	    Returns the percentage of your HP remaining
@@ -95,6 +92,7 @@ export class Warrior{
 	    */
 		return this.hp_rem / this.getStat(Stat.HP);
 	}
+    
 	perc_hp(perc){
 	    /*
 	    Returns how much of your max HP will equal perc
@@ -102,45 +100,133 @@ export class Warrior{
 			With 200 HP, this.perc_hp(0.5) will return 100
 	    */
 		return this.getStat(Stat.HP) * (perc);
-	}
+    }
 	
-	calc_damage_taken(phys, ele){
-		var physical_damage = phys * this.get_armor();
-		var elemental_damage = ele;
-		
-		if (this.element.weakness === this.team.enemyTeam.active.element.name){
-			elemental_damage *= 1.7;
-		}
-		
-		else if (this.element.name === this.team.enemyTeam.active.element.weakness){
-			elemental_damage *= 0.3;
-		}
-		
-		this.take_damage(physical_damage, elemental_damage);
-		this.last_hitby = this.team.enemyTeam.active;
-		return physical_damage + elemental_damage;
+    check_if_ko(){
+        /*
+        An I dead yet?
+        */
+		return this.hp_rem <= 0;
 	}
-	
+    
+    // new attack stuff
+    calcPhysDmg(phys, attack){
+        return phys * (1 - this.getStat(Stat.ARM) * 0.12);
+    }
+    calcEleDmg(ele, attack){
+        if (this.element.weakness === attack.user.element.name){
+			ele *= 1.7;
+		} else if (this.element.name === attack.user.element.weakness){
+			ele *= 0.3;
+		}
+        return ele;
+    }
+    calcDamage(phys, ele, attack){
+        return this.calcPhysDmg(phys, attack) + this.calcEleDmg(ele, attack);
+    }
+    
+    /*
+     * This is what all attacking should call.
+     * this warrior performs an attack against a given target,
+     * going through a series of steps:
+     * 1. calculate how much damage the attack will do to the target,
+     *    reducing the physical damage of the attack by 12% for each point of armor the target has,
+     *    and dealing more (+70%) or less (-70%) elemental damage based on the matchup between the user and target's elements
+     * 2. generates a HitEvent to keep track of the details for this attack
+     * 3. calls all functions in this warrior's onHitActions that have their applyBeforeHit flag set to true
+     * 4. does the same for all the functions in the target's onHitActions that meet the same condition
+     * 5. Some things to note about these onHitActions:
+     *    (a): they should check if their user is the hitter or the hittee in the attack
+     *    (b): they should check if the attack used is an instance of NormalMove (see warriorSkills.js)
+     *    (c): they may modify the damage passed into the event, so you should never reference the local variables
+     *         physDmg, eleDmg, and dmg in this function, only use the event's properties.
+     * 6. after running all of these pre-hit functions, the target takes damage 
+     *    using the damage values from the event.
+     * 7. runs any on hit functions in this and the target's onHitActions that have to applyBeforeHit flag set to false
+     *    (not using this currently, will need for poison edge I think)
+     * 8. if the target is the active warrior for his team, allows them to recover the damage during heart collection,
+     *    and gives their team energy.
+     * 
+     * @param {Attack} using the NormalMove or SpecialMove the attack was made using.
+     * @param {Warrior} target who the attack is made against. Defaults to the active enemy.
+     * @param {number} phys the base physical damage of the attack. Defaults to using.getPhysicalDamage() 
+     * @param {number} ele the base elemental damage of the attack. Defaults to using.getElementalDamage()
+     * @returns {HitEvent.eleDmg|HitEvent.physDmg}
+     */
+    strike(using, target=undefined, phys=undefined, ele=undefined){
+        if(target === undefined){
+            target = this.enemyTeam.active;
+        }
+        if(phys === undefined){
+            phys = using.getPhysicalDamage();
+        }
+        if(ele === undefined){
+            ele = using.getElementalDamage();
+        }
+        
+        let physDmg = target.calcPhysDmg(phys, using);
+        let eleDmg = target.calcEleDmg(ele, using);
+        let dmg = target.calcDamage(phys, ele, using);
+        let event = new HitEvent(this, target, using, physDmg, eleDmg);
+        
+        this.onHitActions.forEach((v, k)=>{
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        
+        
+        
+        target.takeDamage(event.physDmg, event.eleDmg);
+        target.last_hitby = this;
+        
+        
+        this.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        target.onHitActions.forEach((v, k)=>{
+            if(!v.applyBeforeHit){
+                v.run(event);
+            }
+        });
+        
+        if(target.team.active === target){
+            //damage that can be healed from heart collection
+            target.healableDamage += event.physDmg + event.eleDmg;
+            target.team.gainEnergy();
+        }
+        
+        return event.physDmg + event.eleDmg; //for Soul Steal
+    }
+    
     //shell here
-    take_damage(phys, ele){
-        /*
-        Lose HP equal to the damage you took
-        If you survive, you can heal some of it off
-        */
-		var dmg = phys + ele;
-		this.hp_rem -= dmg;
-		this.last_phys_dmg += phys;
-		this.last_ele_dmg += ele;
-		
-		this.hp_rem = Math.round(this.hp_rem);
-		
-        /*
-		if(this.skills[0] === "shell"){
-		    if(this.hp_perc() <= 0.5){
-		        this.in_shell = true;
-		    }
-		}
-        */
+    takeDamage(phys, ele=0){
+        let amount = phys + ele;
+        this.lastPhysDmg += phys;
+        this.lastEleDmg += ele;
+        this.hp_rem -= amount;
+        this.hp_rem = Math.round(this.hp_rem);
+    }
+    
+    useNormalMove(){
+        this.strike(this.normalMove);
+    }
+    
+    useSpecial(){
+		/*
+		Use your powerful Special Move!
+		*/
+		this.team.switchback = this.team.active;
+		this.team.switchin(this);
+		this.special.attack();
+		this.team.energy -= 2;
 	}
     
     //shell here
@@ -164,58 +250,6 @@ export class Warrior{
 		}*/
 	}
 	
-    check_if_ko(){
-        /*
-        An I dead yet?
-        */
-		return this.hp_rem <= 0;
-	}
-	
-    
-    //physical damage, elemental damage
-	strike(pd, ed, using){
-	    var t = this.team.enemyTeam;
-	    t.gainEnergy();
-	    var dmg = t.active.calc_damage_taken(pd, ed);
-        
-	    return dmg;
-	}
-    
-	pass(){}
-	
-    //guard, critical hit here
-	use_normal_move(){
-        /*
-        Strike at your enemy team's active warrior with your sword!
-        */
-	    var mod = 1.0;
-        /*
-	    if(this.skills[0] === "critical hit"){
-	        if(Math.random() <= 0.24){
-	            console.log("Critical hit!");
-	            mod += 0.24;
-	        }
-	    }*/
-        /*
-	    if(this.team.enemyTeam.active.skills[0] === "guard"){
-	        if(Math.random() <= 0.24){
-	            console.log("Guard!");
-	            mod -= 0.24;
-	        }
-	    }*/
-		this.strike(this.getStat(Stat.PHYS) * mod, this.getStat(Stat.ELE) * mod, "Normal Move");
-	}
-    
-	use_special(){
-		/*
-		Use your powerful Special Move!
-		*/
-		this.team.switchback = this.team.active;
-		this.team.switchin(this);
-		this.special.attack();
-		this.team.energy -= 2;
-	}
-    
     addOnHitAction(action){
         this.onHitActions.set(action.id, action);
         action.setUser(this);
@@ -253,8 +287,9 @@ export class Warrior{
 		this.regen = false;
 		this.shield = false;
 		
-		this.last_phys_dmg = 0;
-		this.last_ele_dmg = 0;
+		this.lastPhysDmg = 0; //these first two are just used for the GUI for now
+		this.lastEleDmg = 0;
+        this.healableDamage = 0; //damage that can be healed through heart collection
 		this.last_hitby = undefined;
 		this.last_healed = 0;
 		
@@ -271,7 +306,7 @@ export class Warrior{
 	// update this once Resilience out
 	nat_regen(){
 		let x = this;
-		this.heal((x.last_phys_dmg + x.last_ele_dmg) * 0.4);
+		this.heal(x.healableDamage * 0.4);
 	}
 	reset_dmg(){
 	    /*
@@ -279,8 +314,9 @@ export class Warrior{
 	    DOES NOT HEAL YOU
 	    Used for heart collection
 	    */
-		this.last_phys_dmg = 0;
-		this.last_ele_dmg = 0;
+		this.lastPhysDmg = 0;
+		this.lastEleDmg = 0;
+        this.healableDamage = 0;
 	}
 	reset_heal(){
 	    this.last_healed = 0;
@@ -297,10 +333,10 @@ export class Warrior{
             stat.update();
         });
 		
-        this.boost_up = false;
+        this.boostIsUp = false;
         for(let boost of this.stats.get(Stat.ELE).boosts.values()){
             if(boost.id === this.element.name + " Boost"){
-                this.boost_up = true;
+                this.boostIsUp = true;
                 break;
             }
         }
@@ -319,7 +355,7 @@ export class Warrior{
             "poison",
             ()=>{
                 this.poisoned = true;
-                this.take_damage(amount, 0);
+                this.takeDamage(amount);
             }, 3
         ));
     }

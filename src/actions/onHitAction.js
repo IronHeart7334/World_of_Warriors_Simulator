@@ -1,6 +1,6 @@
 
 export class OnHitAction{
-    construction(id, preHitOrPostHit, func, duration=-1){
+    constructor(id, preHitOrPostHit, func, duration=-1){
         this.id = id;
         this.applyBeforeHit = preHitOrPostHit === OnHitAction.PRE_HIT;
         this.func = func;

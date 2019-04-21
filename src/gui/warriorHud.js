@@ -23,7 +23,7 @@ export class WarriorHud extends GuiElement{
         }
         
         //boost
-        if(this.warrior.boost_up){
+        if(this.warrior.boostIsUp){
             canvas.setColor(this.warrior.element.color);
             canvas.rect(this.x, this.y, this.w, this.h / 2);
         }
@@ -48,11 +48,12 @@ export class WarriorHud extends GuiElement{
             canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem);
         }
         
-        if (this.warrior.last_phys_dmg !== 0){
-            canvas.text(this.x + 10, this.y + 20, "-" + String(Math.round(this.warrior.last_phys_dmg)));
+        if (this.warrior.lastPhysDmg !== 0){
+            canvas.text(this.x + 10, this.y + 20, "-" + String(Math.round(this.warrior.lastPhysDmg)));
         }
-        if (this.warrior.last_ele_dmg !== 0){
-            canvas.text(this.x + 10, this.y + 30, "-" + String(Math.round(this.warrior.last_ele_dmg)));
+        if (this.warrior.lastEleDmg !== 0){
+            //make this text colored
+            canvas.text(this.x + 10, this.y + 30, "-" + String(Math.round(this.warrior.lastEleDmg)));
         }
         if (this.warrior.last_healed !== 0){
             canvas.text(this.x + 10, this.y + 40, "+" + String(this.warrior.last_healed));

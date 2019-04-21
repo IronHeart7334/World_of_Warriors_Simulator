@@ -6,68 +6,112 @@ These are Special Moves, powerful attacks that warriors can use.
 Each warrior comes with a preselected Special Move, which is determined in their data.
 */
 
-// currently in the process of redoing, balancing
-
-class Special_move {
-    constructor(name, base_damage, mult_ele){
+class Attack{
+    constructor(name){
         this.name = name;
-        this.base = base_damage;
-        this.multiplies_ele = mult_ele;
-        this.gives_energy = true;
-        this.ignores_ele = false;
+        this.user = null;
     }
-    set_user(user){
+    
+    setUser(warrior){
+        this.user = warrior;
+    }
+    
+    getPhysicalDamage(){
+        throw new Error("getPhysicalDamage not overridden for " + this.name);
+    }
+    
+    getElementalDamage(){
+        throw new Error("getPhysicalDamage not overridden for " + this.name);
+    }
+}
+
+
+
+export class NormalMove extends Attack{
+    constructor(){
+        super("Normal Move");
+    }
+    
+    getPhysicalDamage(){
+        return this.user.getStat(Stat.PHYS);
+    }
+    
+    getElementalDamage(){
+        return this.user.getStat(Stat.ELE);
+    }
+}
+
+
+
+class SpecialMove extends Attack{
+    constructor(name, base_damage, mult_ele){
+        super(name);
+        this.base = base_damage;
+        this.multipliesEle = mult_ele;
+        this.ignoresEle = false;
+    }
+    
+    setUser(user){
         this.user = user;
         user.calcStats();
-        this.calc_mod(user, user.pip);
-    }
-    calc_mod(user, pip){
-        var mod = 1.0;
-        var dmg = this.base * Math.pow(1.2, pip - 1);
-        var multiplied = user.getBase(Stat.PHYS);
-        if(this.ignores_ele){
+        
+        //calculate pip modifier
+        /*
+         * Each special move has a base damage value,
+         * which is how much damage it should do when used
+         * by a level 0 warrior, based on their pip level.
+         * Some special moves multiply the user's elemental
+         * damage for the attack, while others don't deal any
+         * elemental damage at all.
+         */
+        let dmg = this.base * Math.pow(1.2, user.pip - 1);
+        let multiplied = user.getBase(Stat.PHYS);
+        if(this.ignoresEle){
             this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.getBase(Stat.PHYS);
-            return;
-        }
-        if(this.multiplies_ele){
-            multiplied += user.getBase(Stat.ELE);
-        }
-        if(this.multiplies_ele){
-            mod = dmg / multiplied;
         } else {
-            mod = (dmg - user.getBase(Stat.ELE)) / multiplied;
+            if(this.multipliesEle){
+                multiplied += user.getBase(Stat.ELE);
+                this.mod = dmg / multiplied;
+            } else {
+                this.mod = (dmg - user.getBase(Stat.ELE)) / multiplied;
+            }
         }
-        this.mod = mod;
     }
+    
+    getPhysicalDamage(){
+        return this.user.getStat(Stat.PHYS) * this.mod;
+    }
+    
+    getElementalDamage(){
+        let ret = this.user.getStat(Stat.ELE);
+        if(this.ignoresEle){
+            ret = 0;
+        }else if(this.multipliesEle){
+            ret *= this.mod;
+        }
+        return ret;
+    }
+    
     attack(){
-        let phys = this.user.getStat(Stat.PHYS) * this.mod;
-		let ele = this.user.getStat(Stat.ELE);
-		if(this.multiplies_ele){
-		    ele *= this.mod;
-		}
-		this.user.strike(phys, ele, this);
+		this.user.strike(this);
     }
     //used for AOE attacks
     attackAll(){
-        let phys = this.user.getStat(Stat.PHYS) * this.mod;
-        let ele = this.user.getStat(Stat.ELE) * this.mod;
         this.user.enemyTeam.forEach((member)=>{
-            if(member !== this.user.enemyTeam.active){
-                member.calc_damage_taken(phys, ele);
-            }
+            this.user.strike(this, member);
         });
-        this.user.strike(phys, ele);
     }
 }
-class Beat extends Special_move {
-    constructor(check_ele){
+
+class Beat extends SpecialMove {
+    constructor(checkEle=true){
         super("Thunder Strike", 40, false);
-        this.should_check_ele = check_ele;
+        this.shouldCheckEle = checkEle;
     }
-    set_user(user){
-        super.set_user(user);
+    setUser(user){
+        super.setUser(user);
         
-        if(this.should_check_ele){
+        if(this.shouldCheckEle){
             switch(user.element.name){
             case "Fire":
 			    this.name = "Inferno";
@@ -87,12 +131,13 @@ class Beat extends Special_move {
         }
     }
 }
-class AOE extends Special_move{
+
+class AOE extends SpecialMove{
     constructor(){
         super("null", 20, true);
     }
-    set_user(user){
-        super.set_user(user);
+    setUser(user){
+        super.setUser(user);
         switch(user.element.name){
         case "Fire":
 			this.name = "Fire Storm";
@@ -114,12 +159,12 @@ class AOE extends Special_move{
         this.attackAll();
     }
 }
-class Boost extends Special_move{
+
+class Boost extends SpecialMove{
     constructor(){
         super("null", 0, false);
-        this.gives_energy = false;
     }
-    set_user(user){
+    setUser(user){
         this.user = user;
         this.mod = 1;
         this.name = user.element.name + " Boost";
@@ -127,59 +172,67 @@ class Boost extends Special_move{
     attack(){
 		this.user.team.forEach((member)=>{
 			if (member.element === this.user.element){
-				member.boost_up = true;
+				member.boostIsUp = true;
                 member.applyBoost(Stat.ELE, new Stat_boost(this.name, 1.35, 3));
 			}
 		});   
     };
 }
-class Poison extends Special_move{
+
+//manual gainEnergy
+class Poison extends SpecialMove{
     constructor(){
         super("Poison", 15, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true; //needed for pip calculation
     }
     attack(){
-		var dmg = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.enemyTeam.active.poison(dmg);
-		this.user.pass();        
+		this.user.enemyTeam.active.poison(this.getPhysicalDamage());
+        this.user.enemyTeam.gainEnergy();
     }
 }
-// will need to be changed once I update energy
-class Rolling_thunder extends Special_move{
+
+class RollingThunder extends SpecialMove{
     constructor(){
         super("Rolling Thunder", 7, true);
     }
+    
+    //strikes 3 random targets on the enemy team. May hit the same person multiple times
     attack(){
-        var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-	    var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
+        let gainedEnergy = false; //keep track of if the active has been hit,
+        //since teams gain energy every time the active is hit, 
+        ////I need to prevent them from gaining more than one energy per use of this special
 		
-	    var gained_energy = false;
-		
-	    for(var i = 0; i < 3; i++){
-		    var target_team = this.user.enemyTeam;
-		    var num_targ = target_team.membersRem.length;
+        let targetTeam = this.user.enemyTeam;
+        let numTargets; //need to constantly recalculate
+        let target;
+        
+	    for(let i = 0; i < 3; i++){
+		    numTargets = targetTeam.membersRem.length;
 		    
-		    if(num_targ === 0){
+		    if(numTargets === 0){
 			    return;
 		    }
-			
-		    var target = target_team.membersRem[Math.floor(Math.random() * num_targ)];
+            
+            //choose a random target
+			target = targetTeam.membersRem[Math.floor(Math.random() * numTargets)];
 		    
-		    if (target_team.active === target){
+		    if (targetTeam.active === target){
 			    // this part
-			    if (gained_energy){
-				    target_team.energy -= 1;
-			    }
-			    gained_energy = true;
+			    if (gainedEnergy){
+				    targetTeam.energy -= 1;
+			    } else {
+                    gainedEnergy = true;
+                }
 		    }
-			
-		    target.calc_damage_taken(physical_damage, elemental_damage);
-		    target_team.check_if_ko();
+			this.user.strike(this, target);
+		    targetTeam.check_if_ko();
 	    }
-	    this.user.pass();
     }
 }
-class Stealth_strike extends Special_move{
+
+// User switches in, attacks, 
+// then switches back to whoever was active before them
+class StealthStrike extends SpecialMove{
     constructor(){
         super("Stealth Strike", 40, false);
     }
@@ -188,7 +241,10 @@ class Stealth_strike extends Special_move{
 		this.user.team.switchin(this.user.team.switchback);        
     }
 }
-class Armor_break extends Special_move{
+
+
+
+class ArmorBreak extends SpecialMove{
     constructor(){
         super("Armor Break", 40, true);
     }
@@ -197,73 +253,78 @@ class Armor_break extends Special_move{
         this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -2, 3));
     }
 }
-class Healing extends Special_move{
+
+class Healing extends SpecialMove{
     constructor(){
         super("Healing", 17, false);
-        this.gives_energy = false;
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		var to_heal = undefined;
-		var lowest = 1;
+		let toHeal = undefined;
+		let lowest = 1;
 		this.user.team.forEach((member)=>{
 			if (member !== this.user){
 				if (member.hp_perc() < lowest){
-                    to_heal = member;
+                    toHeal = member;
                     lowest = member.hp_perc();
                 }
 			}
 		});
-		var total_heal = this.user.getStat(Stat.PHYS) * this.mod;
+		let totalHeal = this.getPhysicalDamage();
 		
-		this.user.heal(total_heal * 0.2);
-		if (to_heal !== undefined){
-			to_heal.heal(total_heal * 0.8);
+		this.user.heal(totalHeal * 0.2);
+		if (toHeal !== undefined){
+			toHeal.heal(totalHeal * 0.8);
         }
-        this.user.pass();
     }
 }
-class Soul_steal extends Special_move{
+
+/*
+ * Attacks the active enemy, healing 
+ * the user by 30% of the damage dealt
+ */
+class SoulSteal extends SpecialMove{
     constructor(){
         super("Soul Steal", 30, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.heal(this.user.strike(physical_damage, 0) * 0.3);        
+        this.user.heal(this.user.strike(this) * 0.3);        
     }
 }
-class Berserk extends Special_move{
+
+class Berserk extends SpecialMove{
     constructor(){
         super("Berserk", 50, false);
     }
     attack(){
-		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		var elemental_damage = this.user.getStat(Stat.ELE);
-		
-		this.user.take_damage(this.user.strike(physical_damage, elemental_damage) * 0.2, 0);
+		let recoil = this.user.strike(this) * 0.2;
+		this.user.takeDamage(recoil);
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
-		}        
+		}
     }
 }
-class Poison_hive extends Special_move{
+
+//manual gainEnergy
+class PoisonHive extends SpecialMove{
     constructor(){
         super("Poison Hive", 10, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		let dmg = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.enemyTeam.forEach((member)=>member.poison(dmg));
+		this.user.enemyTeam.forEach((member)=>member.poison(this.getPhysicalDamage()));
+        this.user.enemyTeam.gainEnergy();
     }
 }
-class Regeneration extends Special_move{
+
+class Regeneration extends SpecialMove{
     constructor(){
         super("Regeneration", 3, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		let healing = this.user.getStat(Stat.PHYS) * this.mod;
+		let healing = this.getPhysicalDamage();
 		
 		this.user.team.forEach((member)=>{
 		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
@@ -273,33 +334,37 @@ class Regeneration extends Special_move{
 		});
     }
 }
-class Vengeance extends Special_move{
+
+class Vengeance extends SpecialMove{
     constructor(){
         super("Vengeance", 25, true);
     }
     attack(){
-	    var mod = this.mod * (1.5 - this.user.hp_perc());
-	    var physical_damage = this.user.getStat(Stat.PHYS) * mod;
-	    var elemental_damage = this.user.getStat(Stat.ELE) * mod;
-	    this.user.strike(physical_damage, elemental_damage);        
+	    let mod = (1.5 - this.user.hp_perc());
+	    let p = this.getPhysicalDamage() * mod;
+	    let e = this.getElementalDamage() * mod;
+	    this.user.strike(this, this.user.enemyTeam.active, p, e);        
     }
 }
-class Twister extends Special_move{
+
+class Twister extends SpecialMove{
     constructor(){
         super("Twister", 10, true);
     }
     attack(){
-		var mod = this.mod * (1.5 - this.user.hp_perc());
-		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
-		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
+		let mod = (1.5 - this.user.hp_perc());
+	    let p = this.getPhysicalDamage() * mod;
+	    let e = this.getElementalDamage() * mod;
 		//can't use attackAll here
 		this.user.enemyTeam.forEach((member)=>{
-			member.calc_damage_taken(physical_damage, elemental_damage);
-		});  
-        this.user.enemyTeam.gainEnergy();
+			this.user.strike(this, member, p, e);
+		});
     }
 }
-class Stealth_assault extends Special_move{
+
+
+
+class StealthAssault extends SpecialMove{
     constructor(){
         super("Stealth Assault", 15, true);
     }
@@ -308,19 +373,21 @@ class Stealth_assault extends Special_move{
 	    this.user.team.switchin(this.user.team.switchback);        
     }
 }
-class Team_strike extends Special_move{
+
+//might want to make this do less damage
+class TeamStrike extends SpecialMove{
 	constructor(){
-		super("Team Strike", 60, true);
+		super("Team Strike", 40, true);
 	}
 	attack(){
-		var pow = this.user.team.membersRem.length - 1;
-		var mod = this.mod * Math.pow(RECOIL_MOD, pow);
-		var physical_damage = this.user.getStat(Stat.PHYS) * mod;
-		var elemental_damage = this.user.getStat(Stat.ELE) * mod;
+		let pow = this.user.team.membersRem.length - 1;
+		let mod = Math.pow(1.2, pow);
+		let p = this.getPhysicalDamage() * mod;
+		let e = this.getElementalDamage() * mod;
 		
-		var dmg = this.user.strike(physical_damage, elemental_damage); 
+		let dmg = this.user.strike(this, this.user.enemyTeam.active, p, e); 
 		this.user.team.forEach((member)=>{
-			member.take_dmg(dmg / 6, 0);
+			member.takeDamage(dmg / 6, 0);
 			member.hp_rem = Math.round(member.hp_rem);
 		});
 		if (this.user.hp_rem <= 1){
@@ -328,56 +395,66 @@ class Team_strike extends Special_move{
 		}	
 	}
 }
-class Phantom_strike extends Special_move{
+
+class PhantomStrike extends SpecialMove{
 	constructor(){
 		super("Phantom Strike", 10, true);
 	}
 	attack(){
-		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		var elemental_damage = this.user.getStat(Stat.ELE) * this.mod;
-		var target_team = this.user.enemyTeam;
+		let basePhys = this.getPhysicalDamage();
+		let baseEle = this.getElementalDamage();
+		let targetTeam = this.user.enemyTeam;
 		
 		//first hit
-		var pd = physical_damage * 1.33;
-		var ed = elemental_damage * 1.33;
-		target_team.active.calc_damage_taken(pd, ed);
-		if (target_team.membersRem.length < 2){return;}
+        this.user.strike(
+            this, 
+            targetTeam.active, 
+            basePhys * 1.33, 
+            baseEle * 1.33
+        );
+		if (targetTeam.membersRem.length < 2){return;}
 		
 		//second hit
-		var target = target_team.next();
-		target.calc_damage_taken(physical_damage, elemental_damage);
-		if (target_team.membersRem.length < 3){return;}
+        this.user.strike(
+            this, 
+            targetTeam.next(), 
+            basePhys, 
+            baseEle
+        );
+		if (targetTeam.membersRem.length < 3){return;}
 		
 		//third hit
-		pd = physical_damage * 0.67;
-		ed = elemental_damage * 0.67;
-		target = target_team.prev();
-		target.calc_damage_taken(pd, ed);
-		
-		this.user.pass();
+        this.user.strike(
+            this, 
+            targetTeam.prev(), 
+            basePhys * 0.67, 
+            baseEle * 0.67
+        );
 	}
 }
 
 //provides +3 armor for 3 turns
-class Phantom_shield extends Special_move{
+//change this to apply physical damage reduction of ~50%
+class PhantomShield extends SpecialMove{
 	constructor(){
 		super("Phantom Shield", 0, false);
-		this.ignores_ele = true;
-		this.gives_energy = false;
 	}
-	set_user(user){
+	setUser(user){
 		this.user = user;
 		this.mod = 1;
 	}
 	attack(){
 		this.user.team.forEach((member)=>{
             member.applyBoost(Stat.ARM, new Stat_boost("Phantom Shield", 3, 3));
+            member.shield = true;
     	});
 	}
 }
 
 export function findSpecial(name){
     switch(name){
+        case "thunder strike":
+            return new Beat(false);
 		case "beat":
 			return new Beat(true);
 		case "aoe":
@@ -387,19 +464,19 @@ export function findSpecial(name){
 		case "poison":
 			return new Poison();
 		case "rolling thunder":
-			return new Rolling_thunder();
+			return new RollingThunder();
 		case "stealth strike":
-			return new Stealth_strike();
+			return new StealthStrike();
 		case "armor break":
-			return new Armor_break();
+			return new ArmorBreak();
 		case "healing":
 			return new Healing();
 		case "soul steal":
-			return new Soul_steal();
+			return new SoulSteal();
 		case "berserk":
 			return new Berserk();
 		case "poison hive":
-			return new Poison_hive();
+			return new PoisonHive();
 		case "regeneration":
 			return new Regeneration();
 		case "vengeance":
@@ -407,13 +484,13 @@ export function findSpecial(name){
 		case "twister":
 			return new Twister();
 		case "stealth assault":
-			return new Stealth_assault();
+			return new StealthAssault();
 		case "team strike":
-			return new Team_strike();
+			return new TeamStrike();
 		case "phantom strike":
-			return new Phantom_strike();
+			return new PhantomStrike();
 		case "phantom shield":
-			return new Phantom_shield();
+			return new PhantomShield();
 		default:
 			console.log("The Special move by the name of " + name + " does not exist. Defaulting to Thunder Strike");
 			return new Beat(false);
