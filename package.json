@@ -1,43 +1,39 @@
 {
-  
-  "name": "world_of_warriors_simulator",
-
+  "name": "World-of-Warriors-Simulator",
   "version": "1.0.0",
-
   "description": "My own simulator of the now deceased mobile game \"World of Warriors\"",
-
   "main": "app.js",
-  
-  "scripts": {
-
-    "test": "test",
-    "run": "http-server"
-  },
-
   "repository": {
-
     "type": "git",
-
     "url": "git+https://github.com/IronHeart7334/World_of_Warriors_Simulator.git"
-
   },
-
   "author": "Matt Crow",
-
   "license": "ISC",
-
   "bugs": {
-
     "url": "https://github.com/IronHeart7334/World_of_Warriors_Simulator/issues"
-
   },
-
   "homepage": "https://github.com/IronHeart7334/World_of_Warriors_Simulator#readme",
-
+  "private": true,
   "dependencies": {
-
-    "http-server": "^0.11.1"
-
-  }
-
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "2.1.8",
+    "webpack": "^4.30.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {}
 }
