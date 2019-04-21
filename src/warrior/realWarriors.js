@@ -72,19 +72,24 @@ export let warriors = [
     
     ["Kazumi", [0.95, 0.15, 0.92, 1, 2], "w", "stealth strike", [30, "w"]],
     
-    
+    ["Kanar", [1, 0.20, 0.92, 2, 2], "a", "armor break", [10, "p"]],
     
  	["Clovis", [0.8, 0.3, 0.91, 1, 2], "w", "healing", [-15, "w"]],
+    
  	["Brutus", [0.9334, 0.1, 0.8, 2, 2], "f", "soul steal", [-15, "f"]],
+    
  	["Gunnar", [1.0665, 0.1, 0.78, 2, 3], "e", "berserk", [15, "e"]],
  	["Kendrix", [0.9334, 0.1, 1.1, 1, 2], "a", "berserk", [-15, "e"]],
- 	["Blaine", [0.9167, 0.25, 0.75, 2, 2], "e", "regeneration", [15, "e"]],
+ 	
+    //need to fix his stats
+    ["Luuser Tarhu", [1, 0.25, 1, 1, 2], "e", "poison hive", [10, "h"]],
+    
+    ["Blaine", [0.9167, 0.25, 0.75, 2, 2], "e", "regeneration", [15, "e"]],
+    
+    
  	["Sakuma", [1.1665, 0.15, 0.75, 2, 2], "a", "phantom strike", [5, "p"]],
  	["Zazan", [0.9, 0.25, 0.96, 1, 2], "f", "phantom shield", [15, "f"]],
  	["Sama", [1.0834, 0.3, 1.03, 1, 2], "a", "phantom shield", [10, "p"]],
  	["Breth", [1.1834, 0.25, 0.85, 1, 2], "w", "phantom shield", [-30, "a"]],
- 	["Agoolik", [0.9334, 0.30, 1.1, 1, 2], "w", "phantom shield", [-30, "a"]],
- 	
- 	
- 	["Kanar", [1, 0.20, 0.92, 2, 2], "a", "armor break", [10, "p"]]
+ 	["Agoolik", [0.9334, 0.30, 1.1, 1, 2], "w", "phantom shield", [-30, "a"]]
 ];

@@ -48,8 +48,8 @@ class SpecialMove extends Attack{
     constructor(name, base_damage, mult_ele){
         super(name);
         this.base = base_damage;
-        this.multiplies_ele = mult_ele;
-        this.ignores_ele = false;
+        this.multipliesEle = mult_ele;
+        this.ignoresEle = false;
     }
     
     setUser(user){
@@ -67,10 +67,10 @@ class SpecialMove extends Attack{
          */
         let dmg = this.base * Math.pow(1.2, user.pip - 1);
         let multiplied = user.getBase(Stat.PHYS);
-        if(this.ignores_ele){
+        if(this.ignoresEle){
             this.mod = this.base * Math.pow(1.2, user.pip - 1) / user.getBase(Stat.PHYS);
         } else {
-            if(this.multiplies_ele){
+            if(this.multipliesEle){
                 multiplied += user.getBase(Stat.ELE);
                 this.mod = dmg / multiplied;
             } else {
@@ -85,9 +85,9 @@ class SpecialMove extends Attack{
     
     getElementalDamage(){
         let ret = this.user.getStat(Stat.ELE);
-        if(this.ignores_ele){
+        if(this.ignoresEle){
             ret = 0;
-        }else if(this.multiplies_ele){
+        }else if(this.multipliesEle){
             ret *= this.mod;
         }
         return ret;
@@ -184,7 +184,7 @@ class Boost extends SpecialMove{
 class Poison extends SpecialMove{
     constructor(){
         super("Poison", 15, false);
-        this.ignores_ele = true; //needed for pip calculation
+        this.ignoresEle = true; //needed for pip calculation
     }
     attack(){
 		this.user.enemyTeam.active.poison(this.getPhysicalDamage());
@@ -243,7 +243,9 @@ class StealthStrike extends SpecialMove{
     }
 }
 
-class Armor_break extends SpecialMove{
+
+
+class ArmorBreak extends SpecialMove{
     constructor(){
         super("Armor Break", 40, true);
     }
@@ -252,70 +254,80 @@ class Armor_break extends SpecialMove{
         this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -2, 3));
     }
 }
+
 class Healing extends SpecialMove{
     constructor(){
         super("Healing", 17, false);
-        this.gives_energy = false;
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		var to_heal = undefined;
-		var lowest = 1;
+		let toHeal = undefined;
+		let lowest = 1;
 		this.user.team.forEach((member)=>{
 			if (member !== this.user){
 				if (member.hp_perc() < lowest){
-                    to_heal = member;
+                    toHeal = member;
                     lowest = member.hp_perc();
                 }
 			}
 		});
-		var total_heal = this.user.getStat(Stat.PHYS) * this.mod;
+		let totalHeal = this.getPhysicalDamage();
 		
-		this.user.heal(total_heal * 0.2);
-		if (to_heal !== undefined){
-			to_heal.heal(total_heal * 0.8);
+		this.user.heal(totalHeal * 0.2);
+		if (toHeal !== undefined){
+			toHeal.heal(totalHeal * 0.8);
         }
     }
 }
-class Soul_steal extends SpecialMove{
+
+/*
+ * Attacks the active enemy, healing 
+ * the user by 30% of the damage dealt
+ */
+class SoulSteal extends SpecialMove{
     constructor(){
         super("Soul Steal", 30, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		var physical_damage = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.heal(this.user.strike(this, phys=physical_damage) * 0.3);        
+        this.user.heal(this.user.strike(this) * 0.3);        
     }
 }
+
 class Berserk extends SpecialMove{
     constructor(){
         super("Berserk", 50, false);
     }
     attack(){
-		
-		this.user.take_damage(this.user.strike(this) * 0.2, 0);
+		let recoil = this.user.strike(this) * 0.2;
+		this.user.takeDamage(recoil);
 		if (this.user.hp_rem < 1){
 			this.user.hp_rem = 1;
-		}        
+		}
+        
+        //prevent from including recoil in heart collection
+        this.user.lastPhysDmg -= recoil;
+        this.user.lastDmg -= recoil;
     }
 }
-class Poison_hive extends SpecialMove{
+
+class PoisonHive extends SpecialMove{
     constructor(){
         super("Poison Hive", 10, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		let dmg = this.user.getStat(Stat.PHYS) * this.mod;
-		this.user.enemyTeam.forEach((member)=>member.poison(dmg));
+		this.user.enemyTeam.forEach((member)=>member.poison(this.getPhysicalDamage()));
     }
 }
+
 class Regeneration extends SpecialMove{
     constructor(){
         super("Regeneration", 3, false);
-        this.ignores_ele = true;
+        this.ignoresEle = true;
     }
     attack(){
-		let healing = this.user.getStat(Stat.PHYS) * this.mod;
+		let healing = this.getPhysicalDamage();
 		
 		this.user.team.forEach((member)=>{
 		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
@@ -325,6 +337,9 @@ class Regeneration extends SpecialMove{
 		});
     }
 }
+
+
+
 class Vengeance extends SpecialMove{
     constructor(){
         super("Vengeance", 25, true);
@@ -443,15 +458,15 @@ export function findSpecial(name){
 		case "stealth strike":
 			return new StealthStrike();
 		case "armor break":
-			return new Armor_break();
+			return new ArmorBreak();
 		case "healing":
 			return new Healing();
 		case "soul steal":
-			return new Soul_steal();
+			return new SoulSteal();
 		case "berserk":
 			return new Berserk();
 		case "poison hive":
-			return new Poison_hive();
+			return new PoisonHive();
 		case "regeneration":
 			return new Regeneration();
 		case "vengeance":

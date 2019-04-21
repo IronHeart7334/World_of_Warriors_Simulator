@@ -325,6 +325,10 @@ export class Warrior{
             ()=>{
                 this.poisoned = true;
                 this.takeDamage(amount);
+                
+                //this way, warriors can't heal off poison damage
+                this.lastPhysDmg -= amount;
+                this.lastDmg -= amount;
             }, 3
         ));
     }
