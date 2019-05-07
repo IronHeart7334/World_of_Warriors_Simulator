@@ -13,15 +13,15 @@ class WarriorSkill{
     }
     
     apply(){
-        throw new Error("Method apply not set for " + name);
+        throw new Error("Method apply not set for " + this.name);
     }
     
     checkForTrigger(){
-        throw new Error("Method checkForTrigger not set for " + name);
+        throw new Error("Method checkForTrigger not set for " + this.name);
     }
     
     run(){
-        throw new Error("Method run not set for " + name);
+        throw new Error("Method run not set for " + this.name);
     }
 }
 

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/IronHeart7334/World_of_Warriors_Simulator/precache-manifest.c159668960437418a7cb6e5a0d9f44c1.js"
+  "/IronHeart7334/World_of_Warriors_Simulator/precache-manifest.11a2d53c735c5345afe0ca433f21fca7.js"
 );
 
 self.addEventListener('message', (event) => {

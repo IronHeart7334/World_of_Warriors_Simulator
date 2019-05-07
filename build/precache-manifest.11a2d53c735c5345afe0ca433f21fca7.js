@@ -1,19 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "6c601c6d4901169d21fde443d533d22e",
+    "revision": "a78b658134616b935905d3e96e51d985",
     "url": "/IronHeart7334/World_of_Warriors_Simulator/index.html"
   },
   {
-    "revision": "cd864a88be4489431830",
+    "revision": "2bf1fd41a9eb362e9fcb",
     "url": "/IronHeart7334/World_of_Warriors_Simulator/static/css/main.584f321a.chunk.css"
   },
   {
-    "revision": "c9f12982f372f0147487",
-    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/2.c6e4a416.chunk.js"
+    "revision": "6098d3ca56c97a35203a",
+    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/2.324c688b.chunk.js"
   },
   {
-    "revision": "cd864a88be4489431830",
-    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/main.590ca446.chunk.js"
+    "revision": "2bf1fd41a9eb362e9fcb",
+    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/main.439043bf.chunk.js"
   },
   {
     "revision": "a05973d0c421129e13ad",

@@ -90,7 +90,7 @@ export class Team{
 	win(){
 		alert(this.name + " wins!");
 		this.won = true;
-		disp_menu();
+		//disp_menu();
 	}
 	
     //Don't delete me yet!
