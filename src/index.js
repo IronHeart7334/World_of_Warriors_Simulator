@@ -31,8 +31,8 @@ user.teams[0].members[1].addSkill(new Guard());
 
 let controller = new Controller();
 controller.setUser(user);
-controller.setCanvas("canvas");
-controller.setView(Controller.MAIN_MENU);
+//controller.setCanvas("canvas");
+//controller.setView(Controller.MAIN_MENU);
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
