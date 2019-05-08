@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 
-class MainMenu extends Component {
+function f(){
+    console.log("works?");
+}
+export class MainMenu extends Component {
     render(){
         return (
             <div className="MainMenu">
-                <div className="HowToPlay" onClick="console.log('does this work?')">
+                <div className="HowToPlay" onClick={f}>
                     <p> How to Play </p>
                 </div>
             </div>
