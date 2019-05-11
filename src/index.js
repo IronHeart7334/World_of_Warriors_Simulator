@@ -12,6 +12,9 @@ import {Warrior} from "./warrior/warrior.js";
 
 import {CriticalHit, Guard} from "./warrior/warriorSkills.js";
 
+import {MainMenu} from "./gui/reactMainMenu.js";
+import {ReactController} from "./gui/reactController.js";
+
 let user = new GlobalObject();
 user.warriors = warriors;
 user.teams = [
@@ -34,9 +37,9 @@ controller.setUser(user);
 //controller.setCanvas("canvas");
 //controller.setView(Controller.MAIN_MENU);
 
-ReactDOM.render(<App />, document.getElementById('root'));
-
-
+//ReactDOM.render(<App />, document.getElementById('root'));
+//ReactDOM.render(<MainMenu />, document.getElementById('root'));
+ReactDOM.render(<ReactController />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
