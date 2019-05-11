@@ -32,14 +32,13 @@ user.teams = [
 user.teams[0].members[0].addSkill(new CriticalHit());
 user.teams[0].members[1].addSkill(new Guard());
 
-let controller = new Controller();
-controller.setUser(user);
-//controller.setCanvas("canvas");
-//controller.setView(Controller.MAIN_MENU);
+//let controller = new ReactController();
+//controller.setUser(user);
 
 //ReactDOM.render(<App />, document.getElementById('root'));
 //ReactDOM.render(<MainMenu />, document.getElementById('root'));
 ReactDOM.render(<ReactController />, document.getElementById('root'));
+//change this to render controller 
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

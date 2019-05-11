@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
+import {ReactController} from "./reactController.js";
 
-function f(){
-    console.log("works?");
-}
 export class MainMenu extends Component {
     howToPlay(){
         console.log("How to play not created yet");
     }
     fight(){
         console.log("Fight!");
-        console.log(this);
-        this.props.controller.view = 9;
-        this.props.controller.forceUpdate();
+        this.props.controller.setView(ReactController.BATTLE);
     }
     teamBuilder(){
         console.log("Buid teams");
