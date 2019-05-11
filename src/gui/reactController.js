@@ -1,12 +1,46 @@
 import {Controller as OldController} from "../controller.js";
 import React, { Component } from 'react';
 import {MainMenu} from "../gui/reactMainMenu.js";
+import {TeamSelect} from "../gui/reactTeamSelect.js";
+
+
+import {GlobalObject} from "../globalObject.js";
+import {warriors} from "../warrior/realWarriors.js";
+import {Team} from "../warrior/team.js";
+import {Warrior} from "../warrior/warrior.js";
+
+import {CriticalHit, Guard} from "../warrior/warriorSkills.js";
+
+
 
 export class ReactController extends Component {
     constructor(props={}){
         super(props);
+        
+        
+        
+        
+        let tempUser = new GlobalObject();
+        tempUser.warriors = warriors;
+        tempUser.teams = [
+            new Team("Starter Team", [
+                new Warrior("Abu"), 
+                new Warrior("Toki"), 
+                new Warrior("Zenghis")
+            ]),
+            new Team("Arena Favorites", [
+                new Warrior("Ironhart"), 
+                new Warrior("Erika"), 
+                new Warrior("Boris")
+            ])
+        ];
+        tempUser.teams[0].members[0].addSkill(new CriticalHit());
+        tempUser.teams[0].members[1].addSkill(new Guard());
+        
+        
+        
         this.state = {
-            user: null,
+            user: tempUser,
             view: ReactController.MAIN_MENU
         };
     }
@@ -37,7 +71,7 @@ export class ReactController extends Component {
             case ReactController.TEAM_SELECT:
                 //if not logged in, redirect to login
                 //if fewer than 2 teams, redirect to teambuilder
-                contents = <p>Select teams</p>;
+                contents = <TeamSelect controller={this} />;
                 break;
             case ReactController.TEAM_BUILDER:
                 //if not logged in, redirect to login

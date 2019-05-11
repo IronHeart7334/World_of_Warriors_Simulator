@@ -6,11 +6,10 @@ export class MainMenu extends Component {
         console.log("How to play not created yet");
     }
     fight(){
-        console.log("Fight!");
-        this.props.controller.setView(ReactController.BATTLE);
+        this.props.controller.setView(ReactController.TEAM_SELECT);
     }
     teamBuilder(){
-        console.log("Buid teams");
+        console.log("build teams");
     }
     info(){
         console.log("Info not created yet");
