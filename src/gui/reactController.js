@@ -2,7 +2,7 @@ import {Controller as OldController} from "../controller.js";
 import React, { Component } from 'react';
 import {MainMenu} from "../gui/mainMenu.js";
 import {TeamSelect} from "../gui/teamSelect.js";
-
+import {TeamBuilder} from "../gui/teamBuilder.js";
 
 import {GlobalObject} from "../globalObject.js";
 import {warriors} from "../warrior/realWarriors.js";
@@ -75,7 +75,7 @@ export class ReactController extends Component {
                 break;
             case ReactController.TEAM_BUILDER:
                 //if not logged in, redirect to login
-                contents = <p>Build team</p>;
+                contents = <TeamBuilder controller={this}/>;
                 break;
             case ReactController.BATTLE:
                 contents = <p>Fight!</p>;

@@ -12,7 +12,7 @@ export class MainMenu extends Component {
     }
     teamBuilder(){
         //make sure user is logged in
-        console.log("build teams");
+        this.props.controller.setView(ReactController.TEAM_BUILDER);
     }
     info(){
         console.log("Info not created yet");

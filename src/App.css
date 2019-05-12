@@ -32,6 +32,10 @@ Use bootstrap for layout stuff? or does react have built in?
 }
 
 
+.TeamBuilder{
+    overflow: scroll;
+}
+
 .App {
   text-align: center;
 }

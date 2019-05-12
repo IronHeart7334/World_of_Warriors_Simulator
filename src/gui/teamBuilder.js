@@ -1,68 +1,21 @@
-import {GamePane} from "./gamePane.js";
+import React, {Component} from "react";
+
 import {Button} from   "./button.js";
 import {WarriorCard} from "./warriorCard.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
 import {Controller} from "../controller.js";
 
-export class TeamBuilder extends GamePane{
-    constructor(){
-        super();
-        this.user = null;
-        //cannot add warriors initially; need to wait until user is set
-        this.teamWorkshop = [];
-        this.currIdx = 0;
-        this.options = ["Toki"];
-        this.addChild(this.leftButton());
-        this.addChild(this.rightButton());
-        this.addChild(this.selectButton());
-    }
-    
-    setController(controller){
-        super.setController(controller);
-        this.user = controller.user;
-        this.currIdx = Math.round(this.user.warriors.length / 2);
-        this.options = this.user.warriors.map((data)=>data[0]);
-        this.update();
-    }
-    
-    leftButton(){
-        let ret = new Button("Previous warrior");
-        ret.setPos(0, 75);
-        ret.setSize(25, 25);
-        ret.setColor("blue");
-        ret.addOnClick(()=>{
-            if(this.currIdx > 0){
-                this.currIdx--;
-                this.update();
-            }
-        });
-        return ret;
-    }
-    
-    rightButton(){
-        let ret = new Button("Next warrior");
-        ret.setPos(75, 75);
-        ret.setSize(25, 25);
-        ret.setColor("green");
-        ret.addOnClick(()=>{
-            if(this.currIdx < this.options.length - 1){
-                this.currIdx++;
-                this.update();
-            }
-        });
-        return ret;
-    }
-    
-    selectButton(){
-        let ret = new Button("Choose this warrior");
-        ret.setPos(25, 75);
-        ret.setSize(50, 25);
-        ret.setColor("yellow");
-        ret.addOnClick(()=>{
-            this.selectWarrior(this.options[this.currIdx]);
-        });
-        return ret;
+export class TeamBuilder extends Component{
+    constructor(props={}){
+        super(props);
+        
+        this.options = this.props.controller.state.user.warriors.map((data)=>data[0]);
+        this.state = {
+            warrior1: this.options[0],
+            warrior2: this.options[1],
+            warrior3: this.options[2]
+        };
     }
     
     selectWarrior(name){
@@ -106,5 +59,55 @@ export class TeamBuilder extends GamePane{
         }
         
         this.draw();
+    }
+    
+    selectWarrior1(name){
+        this.setState({
+            warrior1: name
+        });
+        console.log(name);
+    }
+    selectWarrior2(name){
+        this.setState({
+            warrior2: name
+        });
+        console.log(name);
+    }
+    selectWarrior3(name){
+        this.setState({
+            warrior3: name
+        });
+        console.log(name);
+    }
+    
+    render(){
+        //todo warrior cards instead
+        const opt1 = this.options.map((name)=>
+            <td key={name} onClick={()=>this.selectWarrior1(name)}>{name}</td>
+        );
+        const opt2 = this.options.map((name)=>
+            <td key={name} onClick={()=>this.selectWarrior2(name)}>{name}</td>
+        );
+        const opt3 = this.options.map((name)=>
+            <td key={name} onClick={()=>this.selectWarrior3(name)}>{name}</td>
+        );
+        
+        return (
+            <div className="TeamBuilder">
+                <table>
+                    <tbody>
+                        <tr>
+                            {opt1}
+                        </tr>
+                        <tr>
+                            {opt2}
+                        </tr>
+                        <tr>
+                            {opt3}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        );
     }
 }
