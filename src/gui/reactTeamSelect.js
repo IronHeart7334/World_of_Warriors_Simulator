@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import {ReactController} from "./reactController.js";
+import {TeamDisplay} from "./teamDisplay.js";
 
+function sayHi(){
+    console.log("hi");
+}
 export class TeamSelect extends Component{
     constructor(props={}){
         super(props);
@@ -30,31 +34,16 @@ export class TeamSelect extends Component{
     
     render(){
         let teams = this.props.controller.state.user.teams;
-        let content = "";
-        let x1 = 10;
-        let x2 = 50;
-        let y1 = 10;
-        let y2 = 10;
-        let button;
-        teams.forEach((team)=>{
-            //just make button class for this
-            //ooh, button that list the members and team name
-            button = (<div 
-                style="left: {x1}%; top: {y1}%; width: 10%; height: 10%"
-                onClick="()=>{console.log('hi');}"
-            ></div>);
-            y1 += 10;
-            if(y1 >= 90){
-                y1 = 10;
-                x1 += 10;
-            }
-            console.log(button);
-            content += button;
-        });
+        
+        const t = teams.map((team)=>
+            <li key={team.name} onClick={sayHi}>
+                <TeamDisplay team={team} onClick={sayHi}/>
+            </li>
+        );
         
         return (
             <div className="TeamSelect">
-                {content}
+                <ul>{t}</ul>
             </div>
         );
     }

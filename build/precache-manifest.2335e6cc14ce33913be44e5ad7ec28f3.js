@@ -8,19 +8,19 @@ self.__precacheManifest = [
     "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/runtime~main.9d75d2e8.js"
   },
   {
-    "revision": "c69cd4db89cf85af9d78",
-    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/main.9f8c9fb1.chunk.js"
+    "revision": "250fd614376fe71d565e",
+    "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/main.d7a17228.chunk.js"
   },
   {
     "revision": "3bf8bb8668a150b945db",
     "url": "/IronHeart7334/World_of_Warriors_Simulator/static/js/2.d3c486dd.chunk.js"
   },
   {
-    "revision": "c69cd4db89cf85af9d78",
+    "revision": "250fd614376fe71d565e",
     "url": "/IronHeart7334/World_of_Warriors_Simulator/static/css/main.b8a1904e.chunk.css"
   },
   {
-    "revision": "63b9933977447250e7abeeed581f9723",
+    "revision": "02fa8bb07f0fb3bb4e0c67161c3625da",
     "url": "/IronHeart7334/World_of_Warriors_Simulator/index.html"
   }
 ];
