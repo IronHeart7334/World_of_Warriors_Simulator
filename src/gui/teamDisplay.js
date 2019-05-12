@@ -6,11 +6,11 @@ import React, { Component } from 'react';
 */
 export class TeamDisplay extends Component{
     render(){
-        let contents = "";
         //for some reason I can't include the curly brackets
         const members = this.props.team.members.map((member)=>
             <li key={member.name}>{member.name}</li>
         );
+        
         return (
             <div className="TeamDisplay">
                 <h1>{this.props.team.name}</h1>

@@ -1,7 +1,7 @@
 import {Controller as OldController} from "../controller.js";
 import React, { Component } from 'react';
-import {MainMenu} from "../gui/reactMainMenu.js";
-import {TeamSelect} from "../gui/reactTeamSelect.js";
+import {MainMenu} from "../gui/mainMenu.js";
+import {TeamSelect} from "../gui/teamSelect.js";
 
 
 import {GlobalObject} from "../globalObject.js";

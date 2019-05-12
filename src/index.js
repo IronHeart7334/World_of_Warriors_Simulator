@@ -4,8 +4,6 @@ import './index.css';
 import App from './ReactApp';
 import * as serviceWorker from './serviceWorker';
 
-
-import {MainMenu} from "./gui/reactMainMenu.js";
 import {ReactController} from "./gui/reactController.js";
 
 

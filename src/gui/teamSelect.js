@@ -1,90 +1,61 @@
-import {GamePane} from "./gamePane.js";
-import {Button} from "./button.js";
-import {Controller} from "../controller.js";
+import React, { Component } from 'react';
+import {ReactController} from "./reactController.js";
+import {TeamDisplay} from "./teamDisplay.js";
 
-export class TeamSelect extends GamePane{
-    constructor(){
-        super();
-        this.user = null;
-        this.team1 = null;
-        this.team2 = null;
-        this.fight = this.fightButton();
-        this.addChild(this.fight);
-        this.addChild(this.backButton());
+export class TeamSelect extends Component{
+    constructor(props={}){
+        super(props);
+        this.state = {
+            team1: props.controller.state.user.teams[0],
+            team2: props.controller.state.user.teams[1]
+        };
+    }
+    back(){
+        this.props.controller.setView(ReactController.MAIN_MENU);
+    }
+    setTeam1(team){
+        this.setState({
+            team1: team
+        });
+    }
+    setTeam2(team){
+        this.setState({
+            team2: team
+        });
+    }
+    fight(){
+        this.props.controller.setView(ReactController.BATTLE);
+        //this.props.controller.state.view.setTeams(this.state.team1, this.state.team2);
     }
     
-    setController(controller){
-        super.setController(controller);
-        this.user = controller.user;
+    render(){
+        let teams = this.props.controller.state.user.teams;
         
-        this.team1 = this.user.teams[0];
-        this.team2 = this.user.teams[1];
+        const t1 = teams.map((team)=>
+            <li key={team.name} onClick={()=>this.setTeam1(team)}>
+                <TeamDisplay team={team}/>
+            </li>
+        );
+        const t2 = teams.map((team)=>
+            <li key={team.name} onClick={()=>this.setTeam2(team)}>
+                <TeamDisplay team={team}/>
+            </li>
+        );
         
-        let x1 = 10;
-        let x2 = 50;
-        let y1 = 10;
-        let y2 = 10;
-        let button;
-        this.user.teams.forEach((team)=>{
-            button = new Button(team.name);
-            button.setPos(x1, y1);
-            button.setSize(10, 10);
-            button.setColor("blue");
-            button.addOnClick(()=>{
-                this.team1 = team;
-                this.update();
-            });
-            y1 += 10;
-            if(y1 >= 90){
-                y1 = 10;
-                x1 += 10;
-            }
-            this.addChild(button);
-            
-            button = new Button(team.name);
-            button.setPos(x2, y2);
-            button.setSize(10, 10);
-            button.setColor("blue");
-            button.addOnClick(()=>{
-                this.team2 = team;
-                this.update();
-            });
-            y2 += 10;
-            if(y2 >= 90){
-                y2 = 10;
-                x2 += 10;
-            }
-            this.addChild(button);
-        });
-        this.draw();
+        return (
+            <div className="TeamSelect">
+                <div className="BackButton" onClick={this.back.bind(this)}>Back</div>
+                <table>
+                <tbody>
+                    <tr>
+                        <td><ul>{t1}</ul></td>
+                        <td><ul>{t2}</ul></td>
+                    </tr>
+                </tbody>
+                </table>
+                <h2>{this.state.team1.name} VS {this.state.team2.name}</h2>
+                <div onClick={this.fight.bind(this)}><p>Fight!</p></div>
+            </div>
+        );
     }
-    
-    fightButton(){
-        let ret = new Button("VS");
-        ret.setPos(0, 90);
-        ret.setSize(100, 10);
-        ret.setColor("green");
-        ret.addOnClick(()=>{
-            this.controller.setView(Controller.BATTLE);
-            //probably a better way to do this
-            this.controller.view.setTeams(this.team1, this.team2);
-        });
-        return ret;
-    }
-    
-    backButton(){
-        let ret = new Button("Back");
-        ret.setPos(0, 0);
-        ret.setSize(100, 10);
-        ret.setColor("red");
-        ret.addOnClick(()=>{
-            this.controller.setView(Controller.MAIN_MENU);
-        });
-        return ret;
-    }
-    
-    update(){
-        this.fight.setText(this.team1.name + " VS " + this.team2.name + ". Fight!");
-        this.draw();
-    }
-}
+};
