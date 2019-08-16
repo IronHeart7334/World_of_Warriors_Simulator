@@ -1,23 +1,19 @@
 import {GamePane} from "./gamePane.js";
 import {WarriorHud} from "./warriorHud.js";
 import {Button} from "./button.js";
-import {EnergyIcon} from "./energyIcon.js";
 import {Stat} from "../warrior/stat.js";
 
-export class BattlePage extends GamePane{
+//repurpose this as backend
+export class BattlePage{
     constructor(){
-        super();
         this.team1 = null;
         this.team2 = null;
         this.team1Turn = true;
         this.vsText = ""; //display actives
         this.dataText = ""; //displays warrior data
         this.turnPart = 0;
-        this.energyIcons = [
-            this.energyIconForTeamNum(1),
-            this.energyIconForTeamNum(2)
-        ];
-        this.energyIcons.forEach((icon)=>this.addChild(icon));
+        
+        console.log(this);
     }
     
     setTeams(team1, team2){
@@ -33,7 +29,7 @@ export class BattlePage extends GamePane{
         team1.forEach((member)=>{
             hud = this.hpButtonFor(member);
             hud.setPos(0, y);
-            this.addChild(hud);
+            //this.addChild(hud);
             y += 20;
         });
         
@@ -41,24 +37,25 @@ export class BattlePage extends GamePane{
         team2.forEach((member)=>{
             hud = this.hpButtonFor(member);
             hud.setPos(80, y);
-            this.addChild(hud);
+            //this.addChild(hud);
             y += 20;
         });
         
         
         this.team1Turn = Math.random() >= 0.5;
         this.turnPart = 1;
-        this.energyIcons[0].setTeam(team1);
-        this.energyIcons[1].setTeam(team2);
         this.update();
     }
     
-    energyIconForTeamNum(oneOrTwo){
-        let ret = new EnergyIcon();
-        ret.setColor((oneOrTwo) ? "blue" : "red");
-        ret.setPos(50 * (oneOrTwo - 1), 90);
-        ret.setSize(50, 10);
-        return ret;
+    updateEnergy(){
+        $(".team-1-energy").hide();
+        $(".team-2-energy").hide();
+        for(let i = 0; i < this.team1.energy; i++){
+            $("#t1-energy-" + (i + 1)).show();
+        }
+        for(let i = 0; i < this.team2.energy; i++){
+            $("#t2-energy-" + (i + 1)).show();
+        }
     }
     
     hpButtonFor(warrior){
@@ -166,6 +163,7 @@ export class BattlePage extends GamePane{
     
     //might want to move some of this back to team later
     turnPart1For(team){
+        return;
         let c = this.controller.canvas;
         
         team.check_if_ko();
@@ -210,6 +208,7 @@ export class BattlePage extends GamePane{
     
     update(){
         //more stuffs here
+        this.updateEnergy();
         if(this.team1Turn !== null && this.turnPart === 1){
             if(this.team1Turn){
                 this.turnPart1For(this.team1);
@@ -217,11 +216,12 @@ export class BattlePage extends GamePane{
                 this.turnPart1For(this.team2);
             }
         }
+        this.updateEnergy();
         this.draw();
     }
     
     draw(){
-        super.draw();
+        return;
         this.controller.canvas.text(20, 0, this.vsText);
         let i = 20;
         this.dataText.split("\n").forEach((line)=>{

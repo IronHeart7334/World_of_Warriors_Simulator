@@ -12,12 +12,24 @@
             <div class="row h-75">
                 <div id="leftTeamDisplay" class="col h-100 text-center">
                     <p>Team1 stuff here</p>
+                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                        <div id="t1-energy-1" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-2" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-3" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-4" class="energy team-1-energy">&nbsp;</div>
+                    </div>
                 </div>
                 <div id="middle" class="col h-100 text-center">
                     <p>middle stuff here</p>
                 </div>
                 <div id="rightTeamDisplay" class="col h-100 text-center">
                     <p>Team2 stuff here</p>
+                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                        <div id="t2-energy-4" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-3" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-2" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-1" class="energy team-2-energy">&nbsp;</div>
+                    </div>
                 </div>
             </div>
             <div class="row h-25">
@@ -26,5 +38,32 @@
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script type="module">
+            import {BattlePage} from "../src/gui/battlePage.js";
+            import {warriors} from "../src/warrior/realWarriors.js";
+            import {Team} from "../src/warrior/team.js";
+            import {Warrior} from "../src/warrior/warrior.js";
+            
+            let bp = new BattlePage();
+            bp.setTeams(
+                new Team("Starter Team", [
+                    new Warrior("Abu"), 
+                    new Warrior("Toki"), 
+                    new Warrior("Zenghis")
+                ]),
+                new Team("Arena Favorites", [
+                    new Warrior("Ironhart"), 
+                    new Warrior("Erika"), 
+                    new Warrior("Boris")
+                ])
+            );
+            $("#middle").append("<button id='tempButton'>Update</button>");
+            $("#tempButton").click(
+                ()=>{
+                    bp.team1.energy = (bp.team1.energy + 1) % 5;
+                    bp.updateEnergy();
+                }
+            );
+        </script>
     </body>
 </html>
