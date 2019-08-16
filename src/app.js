@@ -1,5 +1,5 @@
 import {GlobalObject} from "./globalObject.js";
-import {ReactController} from "./reactController.js";
+import {Controller} from "./controller.js";
 import {warriors} from "./warrior/realWarriors.js";
 import {Team} from "./warrior/team.js";
 import {Warrior} from "./warrior/warrior.js";
@@ -23,5 +23,7 @@ user.teams = [
 user.teams[0].members[0].addSkill(new CriticalHit());
 user.teams[0].members[1].addSkill(new Guard());
 
-let controller = new ReactController();
+let controller = new Controller();
 controller.setUser(user);
+
+localStorage.setItem("controller", JSON.stringify(controller));

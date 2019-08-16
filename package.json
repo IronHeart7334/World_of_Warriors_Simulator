@@ -2,7 +2,6 @@
   "name": "World-of-Warriors-Simulator",
   "version": "1.0.0",
   "description": "My own simulator of the now deceased mobile game \"World of Warriors\"",
-  "main": "app.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/IronHeart7334/World_of_Warriors_Simulator.git"

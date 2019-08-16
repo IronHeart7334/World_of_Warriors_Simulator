@@ -1,9 +1,10 @@
+/*
 import {MainMenu} from "./gui/mainMenu.js";
 import {TeamBuilder} from "./gui/teamBuilder.js";
 import {TeamSelect} from "./gui/teamSelect.js";
 import {BattlePage} from "./gui/battlePage.js";
 import {Canvas} from "./gui/canvas.js";
-
+*/
 //todo check if user is logged in
 export class Controller{
     constructor(){
@@ -22,6 +23,7 @@ export class Controller{
     
     //view is an enum (Controller.MAIN_MENU, for example)
     setView(view){
+        /*
         switch(view){
             case Controller.MAIN_MENU:
                 this.view = new MainMenu();
@@ -47,7 +49,7 @@ export class Controller{
             this.view.setController(this);
             this.view.setCanvas(this.canvas);//need this for checking click
             this.view.draw();
-        }
+        }*/
     }
 }
 Controller.MAIN_MENU = 0;
