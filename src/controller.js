@@ -1,5 +1,4 @@
 /*
-import {MainMenu} from "./gui/mainMenu.js";
 import {TeamBuilder} from "./gui/teamBuilder.js";
 import {TeamSelect} from "./gui/teamSelect.js";
 import {BattlePage} from "./gui/battlePage.js";
@@ -25,9 +24,6 @@ export class Controller{
     setView(view){
         /*
         switch(view){
-            case Controller.MAIN_MENU:
-                this.view = new MainMenu();
-                break;
             case Controller.TEAM_SELECT:
                 if(this.user.teams.length < 2){
                     alert("You need at least 2 teams to battle");
@@ -52,7 +48,6 @@ export class Controller{
         }*/
     }
 }
-Controller.MAIN_MENU = 0;
 Controller.TEAM_SELECT = 1;
 Controller.TEAM_BUILDER = 2;
 Controller.BATTLE = 3;

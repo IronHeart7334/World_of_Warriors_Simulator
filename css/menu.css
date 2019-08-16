@@ -1,0 +1,15 @@
+.MainMenuItem{
+    
+}
+#HowToPlayButton{
+    background-color: green;
+}
+#FightButton{
+    background-color: red;
+}
+#TeamBuilderButton{
+    background-color: blue;
+}
+#InfoButton{
+    background-color: yellow;
+}
