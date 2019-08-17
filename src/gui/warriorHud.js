@@ -1,31 +1,30 @@
-import {GuiElement} from "./guiElement.js";
+import {Canvas} from "./canvas.js";
 
-export class WarriorHud extends GuiElement{
-    constructor(warrior){
-        super();
+export class WarriorHud{
+    constructor(elementId, warrior){
         this.warrior = warrior;
-        this.setSize(20, 20);
+        this.canvas = new Canvas(elementId);
     }
     
-    draw(canvas){
-        super.draw(canvas);
+    draw(){
+        let canvas = this.canvas;
         
         if(this.warrior.check_if_ko()){
             canvas.setColor("black");
-            canvas.rect(this.x, this.y, this.w, this.h);
+            canvas.rect(0, 0, 100, 100);
             return;
         }//########################################## STOPS HERE IF KOED
         
         //'active' border
         if(this.warrior.team.active === this.warrior){
             canvas.setColor("grey");
-            canvas.rect(this.x, this.y, this.w, this.h);
+            canvas.rect(0, 0, 100, 100);
         }
         
         //boost
         if(this.warrior.boostIsUp){
             canvas.setColor(this.warrior.element.color);
-            canvas.rect(this.x, this.y, this.w, this.h / 2);
+            canvas.rect(0, 0, 100, 100 / 2);
         }
         
         //health bar
@@ -38,35 +37,35 @@ export class WarriorHud extends GuiElement{
             color = "red";
         }
         canvas.setColor(color);
-        canvas.rect(this.x + 5, this.y + 5, 15 * this.warrior.hp_perc(), 5);
+        canvas.rect(5, 5, 15 * this.warrior.hp_perc(), 5);
         
         // health value
-        canvas.text(this.x + 10, this.y, this.warrior.name);
+        canvas.text(10, 0, this.warrior.name);
         if (this.warrior.regen){
-            canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem + "+");
+            canvas.text(10, 10, this.warrior.hp_rem + "+");
         } else {
-            canvas.text(this.x + 10, this.y + 10, this.warrior.hp_rem);
+            canvas.text(10, 10, this.warrior.hp_rem);
         }
         
         if (this.warrior.lastPhysDmg !== 0){
-            canvas.text(this.x + 10, this.y + 20, "-" + String(Math.round(this.warrior.lastPhysDmg)));
+            canvas.text(10, 20, "-" + String(Math.round(this.warrior.lastPhysDmg)));
         }
         if (this.warrior.lastEleDmg !== 0){
             //make this text colored
-            canvas.text(this.x + 10, this.y + 30, "-" + String(Math.round(this.warrior.lastEleDmg)));
+            canvas.text(10, 30, "-" + String(Math.round(this.warrior.lastEleDmg)));
         }
         if (this.warrior.last_healed !== 0){
-            canvas.text(this.x + 10, this.y + 40, "+" + String(this.warrior.last_healed));
+            canvas.text(10, 40, "+" + String(this.warrior.last_healed));
         }
 
         // Phantom Shield overlay
         if (this.warrior.shield){
             canvas.setColor("rgba(0, 0, 155, 0.5)");
-            canvas.rect(this.x, this.y, this.w, this.h / 2);
+            canvas.rect(0, 0, 100, 100 / 2);
         }
 
         // icon
         canvas.setColor(this.warrior.element.color);
-        canvas.circle(this.x, this.y, 5);
+        canvas.circle(0, 0, 5);
     }
 }

@@ -3,8 +3,7 @@ export class Canvas{
     constructor(elementId){
         this.htmlElement = document.getElementById(elementId);
         if(this.htmlElement === null || this.htmlElement.tagName !== "CANVAS"){
-            this.htmlElement = document.createElement("canvas");
-            document.appendChild(this.htmlElement);
+            throw new Error("The is no HTML element with an ID of " + elementId);
         }
         this.draw = this.htmlElement.getContext("2d");
     }

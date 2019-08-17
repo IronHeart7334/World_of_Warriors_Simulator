@@ -24,22 +24,21 @@ export class BattlePage{
         team1.init();
         team2.init();
         
-        let y = 0;
         let hud;
-        team1.forEach((member)=>{
-            hud = this.hpButtonFor(member);
-            hud.setPos(0, y);
-            //this.addChild(hud);
-            y += 20;
-        });
-        
-        y = 0;
-        team2.forEach((member)=>{
-            hud = this.hpButtonFor(member);
-            hud.setPos(80, y);
-            //this.addChild(hud);
-            y += 20;
-        });
+        let id;
+        //todo: add huds to an array so they can be redrawn,
+        //      add click functionality from hpButtonFor
+        for(let i = 0; i < 3; i++){
+            id = `t1-member-${i + 1}`;
+            //                                          change this
+            hud = new WarriorHud(id, team1.members[i]);
+            hud.draw();
+            
+            id = `t2-member-${i + 1}`;
+            //                                          change this
+            hud = new WarriorHud(id, team1.members[i]);
+            hud.draw();
+        }
         
         
         this.team1Turn = Math.random() >= 0.5;
