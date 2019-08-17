@@ -6,6 +6,11 @@ export class WarriorHud{
         this.canvas = new Canvas(elementId);
     }
     
+    /*
+     * I want to redo this so that text looks better.
+     * Maybe incorperate multiple elements into the hud, 
+     * not just a canvas?
+     */
     draw(){
         let canvas = this.canvas;
         
@@ -37,25 +42,25 @@ export class WarriorHud{
             color = "red";
         }
         canvas.setColor(color);
-        canvas.rect(5, 5, 15 * this.warrior.hp_perc(), 5);
+        canvas.rect(50, 0, 50 * this.warrior.hp_perc(), 50);
         
         // health value
-        canvas.text(10, 0, this.warrior.name);
+        canvas.text(50, 0, this.warrior.name);
         if (this.warrior.regen){
-            canvas.text(10, 10, this.warrior.hp_rem + "+");
+            canvas.text(50, 50, this.warrior.hp_rem + "+");
         } else {
-            canvas.text(10, 10, this.warrior.hp_rem);
+            canvas.text(50, 50, this.warrior.hp_rem);
         }
         
         if (this.warrior.lastPhysDmg !== 0){
-            canvas.text(10, 20, "-" + String(Math.round(this.warrior.lastPhysDmg)));
+            canvas.text(50, 50, "-" + String(Math.round(this.warrior.lastPhysDmg)));
         }
         if (this.warrior.lastEleDmg !== 0){
             //make this text colored
-            canvas.text(10, 30, "-" + String(Math.round(this.warrior.lastEleDmg)));
+            canvas.text(50, 50, "-" + String(Math.round(this.warrior.lastEleDmg)));
         }
         if (this.warrior.last_healed !== 0){
-            canvas.text(10, 40, "+" + String(this.warrior.last_healed));
+            canvas.text(50, 50, "+" + String(this.warrior.last_healed));
         }
 
         // Phantom Shield overlay
@@ -66,6 +71,6 @@ export class WarriorHud{
 
         // icon
         canvas.setColor(this.warrior.element.color);
-        canvas.circle(0, 0, 5);
+        canvas.circle(0, 0, 50);
     }
 }

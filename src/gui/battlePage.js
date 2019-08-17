@@ -3,7 +3,6 @@ import {WarriorHud} from "./warriorHud.js";
 import {Button} from "./button.js";
 import {Stat} from "../warrior/stat.js";
 
-//repurpose this as backend
 export class BattlePage{
     constructor(){
         this.team1 = null;
@@ -12,6 +11,8 @@ export class BattlePage{
         this.vsText = ""; //display actives
         this.dataText = ""; //displays warrior data
         this.turnPart = 0;
+        
+        this.repaintThese = []; //stuff to redraw
         
         console.log(this);
     }
@@ -26,20 +27,28 @@ export class BattlePage{
         
         let hud;
         let id;
-        //todo: add huds to an array so they can be redrawn,
-        //      add click functionality from hpButtonFor
+        let page = this;
+        $(window).resize(()=>{
+            this.draw();
+        });
+        
         for(let i = 0; i < 3; i++){
             id = `t1-member-${i + 1}`;
-            //                                          change this
+            //                         change this
             hud = new WarriorHud(id, team1.members[i]);
-            hud.draw();
+            this.repaintThese.push(hud);
+            $("#" + id).click(()=>{
+                page.setDataText(team1.members[i]);
+            });
             
             id = `t2-member-${i + 1}`;
-            //                                          change this
-            hud = new WarriorHud(id, team1.members[i]);
-            hud.draw();
+            //                       change this
+            hud = new WarriorHud(id, team2.members[i]);
+            $("#" + id).click(()=>{
+                page.setDataText(team2.members[i]);
+            });
+            this.repaintThese.push(hud);
         }
-        
         
         this.team1Turn = Math.random() >= 0.5;
         this.turnPart = 1;
@@ -57,19 +66,15 @@ export class BattlePage{
         }
     }
     
-    hpButtonFor(warrior){
-        let ret = new WarriorHud(warrior);
-        ret.addOnClick(()=>{
-            this.dataText = warrior.name + ":\n";
-            this.dataText += "\tSpecial Move: " + warrior.special.name + " " + warrior.pip + "\n";
-            this.dataText += "\tElement: " + warrior.element.name + "\n";
-            this.dataText += "\tPhysical: " + warrior.getStat(Stat.PHYS) + "\n";
-            this.dataText += "\tElemental: " + warrior.getStat(Stat.ELE) + "\n";
-            this.dataText += "\tMax HP: " + warrior.getStat(Stat.HP) + "\n";
-            this.dataText += "\tArmor: " + warrior.getStat(Stat.ARM) + "\n";
-            this.update();
-        });
-        return ret;
+    setDataText(warrior){
+        this.dataText = `${warrior.name}:\n
+        * Special Move: ${warrior.special.name} ${warrior.pip}\n
+        * Element: ${warrior.element.name}\n
+        * Physical: ${warrior.getStat(Stat.PHYS)}\n
+        * Elemental: ${warrior.getStat(Stat.ELE)}\n
+        * Max HP: ${warrior.getStat(Stat.HP)}\n
+        * Armor: ${warrior.getStat(Stat.ARM)}\n`;
+        this.draw();
     }
     
     heartCollectionFor(team){
@@ -207,7 +212,6 @@ export class BattlePage{
     
     update(){
         //more stuffs here
-        this.updateEnergy();
         if(this.team1Turn !== null && this.turnPart === 1){
             if(this.team1Turn){
                 this.turnPart1For(this.team1);
@@ -215,11 +219,17 @@ export class BattlePage{
                 this.turnPart1For(this.team2);
             }
         }
-        this.updateEnergy();
         this.draw();
     }
     
     draw(){
+        this.updateEnergy();
+        this.repaintThese.forEach((element)=>{
+            element.draw();
+        });
+        
+        $("#data-text").empty().html(this.dataText);
+        
         return;
         this.controller.canvas.text(20, 0, this.vsText);
         let i = 20;
