@@ -32,7 +32,9 @@ export class BattlePage{
             this.draw();
         });
         
+        //this is a mess.
         for(let i = 0; i < 3; i++){
+            //team 1
             id = `t1-member-${i + 1}`;
             //                         change this
             hud = new WarriorHud(id, team1.members[i]);
@@ -40,14 +42,21 @@ export class BattlePage{
             $("#" + id).click(()=>{
                 page.setDataText(team1.members[i]);
             });
+            $("#t1-spec-" + (i + 1))
+                .text(team1.members[i].special.name)
+                .css("background-color", team1.members[i].element.color);
             
+            //team 2
             id = `t2-member-${i + 1}`;
             //                       change this
             hud = new WarriorHud(id, team2.members[i]);
+            this.repaintThese.push(hud);
             $("#" + id).click(()=>{
                 page.setDataText(team2.members[i]);
             });
-            this.repaintThese.push(hud);
+            $("#t2-spec-" + (i + 1))
+                .text(team2.members[i].special.name)
+                .css("background-color", team2.members[i].element.color);
         }
         
         this.team1Turn = Math.random() >= 0.5;
@@ -63,6 +72,17 @@ export class BattlePage{
         }
         for(let i = 0; i < this.team2.energy; i++){
             $("#t2-energy-" + (i + 1)).show();
+        }
+    }
+    updateSpecials(){
+        for(let i = 0; i < 3; i++){
+            if(this.team1Turn){
+                $("#t1-spec-" + (i + 1)).show();
+                $("#t2-spec-" + (i + 1)).hide();
+            } else {
+                $("#t1-spec-" + (i + 1)).hide();
+                $("#t2-spec-" + (i + 1)).show();
+            }
         }
     }
     
@@ -224,6 +244,7 @@ export class BattlePage{
     
     draw(){
         this.updateEnergy();
+        this.updateSpecials(); //oh wait, don't put this here
         this.repaintThese.forEach((element)=>{
             element.draw();
         });
