@@ -11,6 +11,7 @@ import {HitEvent} from "../actions/hitEvent.js";
 const OFFENSE = 33.73;
 const HP = 107.0149;
 
+let nextId = 0;
 export class Warrior{
     //better way to do this?
     constructor(name){
@@ -40,6 +41,11 @@ export class Warrior{
         this.normalMove = new NormalMove();
         this.normalMove.setUser(this);
 	    this.special.setUser(this);
+        
+        this.koListeners = []; //fired when this is KOed
+        
+        this.id = nextId;
+        nextId++;
     }
     
     //change this to look in the player's warriors
@@ -213,6 +219,10 @@ export class Warrior{
         this.lastEleDmg += ele;
         this.hp_rem -= amount;
         this.hp_rem = Math.round(this.hp_rem);
+        
+        if(this.check_if_ko()){
+            this.knockOut();
+        }
     }
     
     useNormalMove(){
@@ -259,6 +269,17 @@ export class Warrior{
         this.onUpdateActions.set(action.id, action);
     }
 	
+    addKoListener(f){
+        this.koListeners.push(f);
+    }
+    
+    knockOut(){
+        let warrior = this;
+        this.koListeners.forEach((f)=>{
+            f(warrior);
+        });
+    }
+    
 	update(){
         this.check_durations();
 		this.poisoned = false;

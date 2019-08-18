@@ -10,8 +10,6 @@ export class BattlePage{
         this.team1Turn = true;
         this.inAttackPhase = false;
         this.repaintThese = []; //stuff to redraw
-        
-        console.log(this);
     }
     
     setTeams(team1, team2){
@@ -26,7 +24,7 @@ export class BattlePage{
         let id;
         let page = this;
         $(window).resize(()=>{
-            this.draw();
+            page.draw();
         });
         
         //this is a mess.
@@ -39,10 +37,8 @@ export class BattlePage{
             $("#" + id).click(()=>{
                 page.setDataText(team1.members[i]);
             });
-            $("#t1-spec-" + (i + 1))
-                .text(team1.members[i].special.name)
-                .css("background-color", team1.members[i].element.color)
-                .click(()=>page.specialMove(team1.members[i]));
+            
+            this.linkSpecialMoveButton("t1-spec-" + (i + 1), team1.members[i]);
             
             //team 2
             id = `t2-member-${i + 1}`;
@@ -52,10 +48,8 @@ export class BattlePage{
             $("#" + id).click(()=>{
                 page.setDataText(team2.members[i]);
             });
-            $("#t2-spec-" + (i + 1))
-                .text(team2.members[i].special.name)
-                .css("background-color", team2.members[i].element.color)
-                .click(()=>page.specialMove(team2.members[i]));
+            
+            this.linkSpecialMoveButton("t2-spec-" + (i + 1), team2.members[i]);
         }
         
         $("#heart-coll").click(()=>{
@@ -131,6 +125,18 @@ export class BattlePage{
         }
     }
     
+    linkSpecialMoveButton(id, warrior){
+        let page = this;
+        $("#" + id)
+            .addClass("owner-" + warrior.id)
+            .text(warrior.special.name)
+            .css("background-color", warrior.element.color)
+            .click(()=>page.specialMove(warrior));
+        warrior.addKoListener((w)=>{
+            $(".owner-" + w.id).remove();
+        });
+    }
+    
     updateEnergy(){
         $(".team-1-energy").hide();
         $(".team-2-energy").hide();
@@ -142,7 +148,6 @@ export class BattlePage{
         }
     }
     
-    //todo remove specials of KOed team members
     updateSpecials(){
         $(".t1-spec").hide();
         $(".t2-spec").hide();
@@ -167,7 +172,6 @@ export class BattlePage{
         * Armor: ${warrior.getStat(Stat.ARM)}\n`);
     }
     
-    //might want to move some of this back to team later
     recoverPhaseFor(team){
         this.inAttackPhase = false;
         team.check_if_ko();
@@ -199,7 +203,6 @@ export class BattlePage{
     }
     
     update(){
-        //more stuffs here
         if(this.team1Turn !== null){
             let team = (this.team1Turn) ? this.team1 : this.team2;
             if(this.inAttackPhase){
