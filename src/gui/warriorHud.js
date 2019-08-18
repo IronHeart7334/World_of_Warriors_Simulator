@@ -13,10 +13,10 @@ export class WarriorHud{
      */
     draw(){
         let canvas = this.canvas;
+        canvas.setColor("black");
+        canvas.rect(0, 0, 100, 100); //clear the canvas
         
         if(this.warrior.check_if_ko()){
-            canvas.setColor("black");
-            canvas.rect(0, 0, 100, 100);
             return;
         }//########################################## STOPS HERE IF KOED
         
