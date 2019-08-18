@@ -4,10 +4,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="../css/style.css">
         <link rel="stylesheet" href="../css/battle.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
-    <body style="height: 100vh">
+    <body>
         <div id="body" class="container-fluid h-100">
             <div class="row h-75">
                 <div id="leftTeamDisplay" class="col-4 h-100 text-center">
@@ -55,28 +56,12 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script type="module">
             import {BattlePage} from "../src/gui/battlePage.js";
-            import {warriors} from "../src/warrior/realWarriors.js";
-            import {Team} from "../src/warrior/team.js";
-            import {Warrior} from "../src/warrior/warrior.js";
+            import {DEFAULT_USER as user} from "../src/util/user.js";
             
             let bp = new BattlePage();
             bp.setTeams(
-                new Team("Starter Team", [
-                    new Warrior("Abu"), 
-                    new Warrior("Toki"), 
-                    new Warrior("Zenghis")
-                ]),
-                new Team("Arena Favorites", [
-                    new Warrior("Ironhart"), 
-                    new Warrior("Erika"), 
-                    new Warrior("Boris")
-                ])
-            );
-            $("#middle").append("<button id='tempButton'>Update</button>");
-            $("#tempButton").click(
-                ()=>{
-                    console.log(bp);
-                }
+                user.teams[0],
+                user.teams[1]
             );
         </script>
     </body>
