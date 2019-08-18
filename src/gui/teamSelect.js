@@ -1,14 +1,43 @@
 //import {TeamDisplay} from "./teamDisplay.js";
 
 export class TeamSelect{
-    constructor(props={}){
-        this.availableTeams = [];
+    constructor(){
+        this.player1 = null;
+        this.player2 = null;
         this.team1 = null;
         this.team2 = null;
     }
     setPlayer1(user){
+        this.player1 = user;
+        let newEle;
+        let sel = $("#player-1-teams");
+        let ts = this;
+        sel.empty();
         
+        user.teams.forEach((team)=>{
+            newEle = $(`<button>${team.name}</button>`);
+            newEle.click(()=>{
+                ts.setTeam1(team);
+            });
+            sel.append(newEle);
+        });
     }
+    setPlayer2(user){
+        this.player2 = user;
+        let newEle;
+        let sel = $("#player-2-teams");
+        let ts = this;
+        sel.empty();
+        
+        user.teams.forEach((team)=>{
+            newEle = $(`<button>${team.name}</button>`);
+            newEle.click(()=>{
+                ts.setTeam2(team);
+            });
+            sel.append(newEle);
+        });
+    }
+    
     setTeam1(team){
         return;
         this.setState({
