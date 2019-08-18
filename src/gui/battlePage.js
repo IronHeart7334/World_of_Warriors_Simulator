@@ -58,9 +58,15 @@ export class BattlePage{
                 .text(team2.members[i].special.name)
                 .css("background-color", team2.members[i].element.color);
         }
+        
+        $("#heart-coll").click(()=>{
+            page.heartColl();
+        });
+        $("#bomb").click(()=>{
+            page.bomb();
+        });
         $("#nm-button").click(()=>{
             page.normalMove();
-            console.log("nm");
         });
         
         
@@ -81,6 +87,39 @@ export class BattlePage{
             this.team1Turn = !this.team1Turn;
             this.turnPart = 1;
             this.update();
+        }
+    }
+    
+    heartColl(){
+        if(this.turnPart === 2){
+            //in choosing attack phase, so do nothing
+        } else {
+            if(this.team1Turn){
+                this.team1.active.nat_regen();
+                this.turnPart2For(this.team1);
+            } else {
+                this.team2.active.nat_regen();
+                this.turnPart2For(this.team2);
+            }
+            console.log("heal");
+        }
+    }
+    
+    bomb(){
+        if(this.turnPart === 2){
+            //in choosing attack phase, so do nothing
+        } else {
+            let team = (this.team1Turn) ? this.team1 : this.team2;
+            
+            let d = team.active.perc_hp(0.15);
+            team.active.hp_rem -= d;
+            if(team.active.hp_rem <= 1){
+                team.active.hp_rem = 1;
+            }
+            team.active.hp_rem = Math.round(team.active.hp_rem);
+            this.turnPart2For(team);
+            
+            console.log("boom!");
         }
     }
     
@@ -117,18 +156,6 @@ export class BattlePage{
         this.draw();
     }
     
-    heartCollectionFor(team){
-        let ret = new Button("Heart Collection");
-        ret.setColor("red");
-        ret.setPos(40, 90);
-        ret.setSize(10, 10);
-        ret.addOnClick(()=>{
-            team.active.nat_regen();
-            this.turnPart2For(team);
-        });
-        return ret;
-    }
-    
     bombFor(team){
         let ret = new Button("Bomb");
         ret.setColor("black");
@@ -147,6 +174,7 @@ export class BattlePage{
         return ret;
     }
     
+    //use this stuff
     displaySpecialsFor(team){
         let ret = [];
         let offset = 0;
@@ -206,8 +234,7 @@ export class BattlePage{
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
         if (team.active.healableDamage > 0){
-			this.heartCol = this.heartCollectionFor(team);
-            this.bomb = this.bombFor(team);
+            //this.bomb = this.bombFor(team);
             //this.addChild(this.heartCol);
             //this.addChild(this.bomb);
 		} else {
@@ -227,8 +254,7 @@ export class BattlePage{
         
         
         if(team.energy >= 2){
-            this.specials = this.displaySpecialsFor(team);
-            //this.specials.forEach((button)=>this.addChild(button));
+            
         }
         this.draw();
     }
