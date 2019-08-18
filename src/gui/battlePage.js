@@ -58,10 +58,30 @@ export class BattlePage{
                 .text(team2.members[i].special.name)
                 .css("background-color", team2.members[i].element.color);
         }
+        $("#nm-button").click(()=>{
+            page.normalMove();
+            console.log("nm");
+        });
+        
         
         this.team1Turn = Math.random() >= 0.5;
         this.turnPart = 1;
         this.update();
+    }
+    
+    normalMove(){
+        if(this.turnPart === 1){
+            //in heart collection phase, so do nothing
+        } else {
+            if(this.team1Turn){
+                this.team1.active.useNormalMove();
+            }else{
+                this.team2.active.useNormalMove();
+            }
+            this.team1Turn = !this.team1Turn;
+            this.turnPart = 1;
+            this.update();
+        }
     }
     
     updateEnergy(){
@@ -74,15 +94,15 @@ export class BattlePage{
             $("#t2-energy-" + (i + 1)).show();
         }
     }
+    
+    //todo remove specials of KOed team members
     updateSpecials(){
-        for(let i = 0; i < 3; i++){
-            if(this.team1Turn){
-                $("#t1-spec-" + (i + 1)).show();
-                $("#t2-spec-" + (i + 1)).hide();
-            } else {
-                $("#t1-spec-" + (i + 1)).hide();
-                $("#t2-spec-" + (i + 1)).show();
-            }
+        $(".t1-spec").hide();
+        $(".t2-spec").hide();
+        if(this.team1Turn && this.team1.energy >= 2){
+            $(".t1-spec").show();
+        } else if(!this.team1Turn && this.team2.energy >= 2){
+            $(".t2-spec").show();
         }
     }
     
@@ -127,19 +147,6 @@ export class BattlePage{
         return ret;
     }
     
-    nmButtonFor(team){
-        let ret = new Button("Normal Move");
-        ret.setPos(45, 70);
-        ret.setSize(10, 10);
-        ret.setColor(team.active.element.color);
-        ret.addOnClick(()=>{
-            team.active.useNormalMove();
-            this.team1Turn = !this.team1Turn;
-            this.turnPart = 1;
-            this.update();
-        });
-        return ret;
-    }
     displaySpecialsFor(team){
         let ret = [];
         let offset = 0;
@@ -162,6 +169,7 @@ export class BattlePage{
     }
     
     purgeTempButtons(){
+        return;
         if(this.heartCol){
             this.removeChild(this.heartCol);
             this.heartCol = null;
@@ -187,9 +195,6 @@ export class BattlePage{
     
     //might want to move some of this back to team later
     turnPart1For(team){
-        return;
-        let c = this.controller.canvas;
-        
         team.check_if_ko();
         if(this.team1.won || this.team2.won){
             return;
@@ -203,8 +208,8 @@ export class BattlePage{
         if (team.active.healableDamage > 0){
 			this.heartCol = this.heartCollectionFor(team);
             this.bomb = this.bombFor(team);
-            this.addChild(this.heartCol);
-            this.addChild(this.bomb);
+            //this.addChild(this.heartCol);
+            //this.addChild(this.bomb);
 		} else {
             this.turnPart2For(team); //recursive. Might not be good
         }
@@ -212,7 +217,6 @@ export class BattlePage{
     }
     
     turnPart2For(team){
-        let c = this.controller.canvas;
         this.turnPart = 2;
         
         this.purgeTempButtons();
@@ -221,11 +225,10 @@ export class BattlePage{
         
         this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
         
-        this.nm = this.nmButtonFor(team);
-        this.addChild(this.nm);
+        
         if(team.energy >= 2){
             this.specials = this.displaySpecialsFor(team);
-            this.specials.forEach((button)=>this.addChild(button));
+            //this.specials.forEach((button)=>this.addChild(button));
         }
         this.draw();
     }
