@@ -1,4 +1,4 @@
-import {Button} from   "./button.js";
+import {Canvas} from "./canvas.js";
 import {WarriorCard} from "./warriorCard.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
@@ -7,13 +7,21 @@ import {Controller} from "../controller.js";
 export class TeamBuilder{
     constructor(user){
         this.user = user;
-        this.options = user.warriors;
-        this.currIdx = this.options.length / 2;
+        this.options = user.warriors.map((arr)=>arr[0]);
+        this.currIdx = Number.parseInt(this.options.length / 2);
+        this.canvases = [
+            new Canvas("left-warrior"),
+            new Canvas("curr-warrior"),
+            new Canvas("right-warrior")
+        ];
         let page = this;
         $("#left").click(()=>page.left());
+        
+        this.draw();
     }
     
     left(){
+        console.log(this);
         if(this.currIdx !== 0){
             this.currIdx--;
             this.draw();
@@ -41,19 +49,16 @@ export class TeamBuilder{
     
     draw(){
         if(this.currIdx !== 0){
-            let leftCard = new WarriorCard(0, 0, 25);
-            leftCard.setWarrior(new Warrior(this.options[this.currIdx - 1]));
-            //this.addChild(leftCard);
+            let leftCard = new WarriorCard(new Warrior(this.options[this.currIdx - 1]));
+            leftCard.draw(this.canvases[0]);
         }
         
-        let midCard = new WarriorCard(25, 0, 50);
-        midCard.setWarrior(new Warrior(this.options[this.currIdx]));
-        //this.addChild(midCard);
+        let midCard = new WarriorCard(new Warrior(this.options[this.currIdx]));
+        midCard.draw(this.canvases[1]);
         
         if(this.currIdx !== this.options.length - 1){
-            let rightCard = new WarriorCard(75, 0, 25);
-            rightCard.setWarrior(new Warrior(this.options[this.currIdx + 1]));
-            //this.addChild(rightCard);
+            let rightCard = new WarriorCard(new Warrior(this.options[this.currIdx + 1]));
+            rightCard.draw(this.canvases[2]);
         }
     }
     

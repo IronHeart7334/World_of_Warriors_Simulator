@@ -1,4 +1,3 @@
-//replace this stuff with react later
 export class Canvas{
     constructor(elementId){
         this.htmlElement = document.getElementById(elementId);
