@@ -110,4 +110,12 @@ export class Team{
 		this.update();
 		this.check_if_ko();
 	}
+    
+    getDesc(){
+        let ret = this.name + ": \n";
+        this.members.forEach((warrior)=>{
+            ret += `* ${warrior.name}\n`;
+        });
+        return ret;
+    }
 }

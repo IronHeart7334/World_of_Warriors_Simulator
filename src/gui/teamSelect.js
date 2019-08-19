@@ -1,11 +1,12 @@
-//import {TeamDisplay} from "./teamDisplay.js";
-
+//not done, still need to pass the selected teams to the new battle
 export class TeamSelect{
     constructor(){
         this.player1 = null;
         this.player2 = null;
         this.team1 = null;
         this.team2 = null;
+        let page = this;
+        $("#fight-button").click(()=>this.fight());
     }
     setPlayer1(user){
         this.player1 = user;
@@ -21,6 +22,8 @@ export class TeamSelect{
             });
             sel.append(newEle);
         });
+        
+        this.setTeam1(user.teams[0]);
     }
     setPlayer2(user){
         this.player2 = user;
@@ -36,55 +39,30 @@ export class TeamSelect{
             });
             sel.append(newEle);
         });
+        this.setTeam2(user.teams[0]);
     }
     
     setTeam1(team){
-        return;
-        this.setState({
-            team1: team
-        });
+        this.team1 = team;
+        $("#team1").text(team.getDesc());
+        if(this.team2 !== null){
+            $("#header").empty().text(`${this.team1.name} VS ${this.team2.name}`);
+        }
     }
     setTeam2(team){
-        return;
-        this.setState({
-            team2: team
-        });
-    }
-    fight(){
-        return;
-        this.props.controller.setView(ReactController.BATTLE);
-        //this.props.controller.state.view.setTeams(this.state.team1, this.state.team2);
+        this.team2 = team;
+        $("#team2").text(team.getDesc());
+        if(this.team1 !== null){
+            $("#header").empty().text(`${this.team1.name} VS ${this.team2.name}`);
+        }
     }
     
-    render(){
-        /*
-        let teams = this.props.controller.state.user.teams;
-        
-        const t1 = teams.map((team)=>
-            <li key={team.name} onClick={()=>this.setTeam1(team)}>
-                <TeamDisplay team={team}/>
-            </li>
-        );
-        const t2 = teams.map((team)=>
-            <li key={team.name} onClick={()=>this.setTeam2(team)}>
-                <TeamDisplay team={team}/>
-            </li>
-        );
-        
-        return (
-            <div className="TeamSelect">
-                <div className="BackButton" onClick={this.back.bind(this)}>Back</div>
-                <table>
-                <tbody>
-                    <tr>
-                        <td><ul>{t1}</ul></td>
-                        <td><ul>{t2}</ul></td>
-                    </tr>
-                </tbody>
-                </table>
-                <h2>{this.state.team1.name} VS {this.state.team2.name}</h2>
-                <div onClick={this.fight.bind(this)}><p>Fight!</p></div>
-            </div>
-        );*/
+    //todo: make the battle use the selected teams
+    fight(){
+        if(this.team1 !== null && this.team2 !== null){
+            window.location.href = "battle.html";
+        } else {
+            alert("both teams must be chosen before fighting");
+        }
     }
 };
