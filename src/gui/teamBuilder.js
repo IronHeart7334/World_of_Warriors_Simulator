@@ -10,9 +10,9 @@ export class TeamBuilder{
         this.options = user.warriors.map((arr)=>arr[0]);
         this.currIdx = Number.parseInt(this.options.length / 2);
         this.canvases = [
-            new Canvas("left-warrior"),
-            new Canvas("curr-warrior"),
-            new Canvas("right-warrior")
+            //new Canvas("left-warrior"),
+            //new Canvas("curr-warrior"),
+            //new Canvas("right-warrior")
         ];
         let page = this;
         $("#left").click(()=>page.left());
@@ -50,15 +50,15 @@ export class TeamBuilder{
     draw(){
         if(this.currIdx !== 0){
             let leftCard = new WarriorCard(new Warrior(this.options[this.currIdx - 1]));
-            leftCard.draw(this.canvases[0]);
+            //leftCard.draw(this.canvases[0]);
         }
         
         let midCard = new WarriorCard(new Warrior(this.options[this.currIdx]));
-        midCard.draw(this.canvases[1]);
+        //midCard.draw(this.canvases[1]);
         
         if(this.currIdx !== this.options.length - 1){
             let rightCard = new WarriorCard(new Warrior(this.options[this.currIdx + 1]));
-            rightCard.draw(this.canvases[2]);
+            //rightCard.draw(this.canvases[2]);
         }
     }
     
