@@ -1,33 +1,37 @@
 import {Canvas} from "./canvas.js";
-import {WarriorCard} from "./warriorCard.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
 import {Controller} from "../controller.js";
+
+import {Stat} from "../warrior/stat.js";
 
 export class TeamBuilder{
     constructor(user){
         this.user = user;
         this.options = user.warriors.map((arr)=>arr[0]);
         this.currIdx = Number.parseInt(this.options.length / 2);
-        this.canvases = [
-            //new Canvas("left-warrior"),
-            //new Canvas("curr-warrior"),
-            //new Canvas("right-warrior")
-        ];
+        
         let page = this;
         $("#left").click(()=>page.left());
-        
-        this.draw();
+        $("#right").click(()=>page.right());
+        this.updateWarriorCard();
     }
     
     left(){
         console.log(this);
         if(this.currIdx !== 0){
             this.currIdx--;
-            this.draw();
+            this.updateWarriorCard();
+        }
+    }
+    right(){
+        if(this.currIdx !== this.options.length - 1){
+            this.currIdx++;
+            this.updateWarriorCard();
         }
     }
     
+    //working here
     selectWarrior(name){
         //todo: skill selection
         this.teamWorkshop.push(name);
@@ -47,37 +51,50 @@ export class TeamBuilder{
         }
     }
     
-    draw(){
+    updateWarriorCard(){
+        //update left
         if(this.currIdx !== 0){
-            let leftCard = new WarriorCard(new Warrior(this.options[this.currIdx - 1]));
-            //leftCard.draw(this.canvases[0]);
+            $("#left-warrior").text(this.options[this.currIdx - 1]);
+        } else {
+            $("#left-warrior").text("");
         }
         
-        let midCard = new WarriorCard(new Warrior(this.options[this.currIdx]));
-        //midCard.draw(this.canvases[1]);
+        //update middle
+        let w = new Warrior(this.options[this.currIdx]);
+        w.calcStats();
+        $("#warrior-card").css("background-color", w.element.color);
         
+        $("#level").text(w.level);
+        $("#name").text(w.name);
+        $("#special").text(w.special.name + " " + w.pip);
+        
+        $("#phys").text(w.getStat(Stat.PHYS));
+        $("#ele").text(w.getStat(Stat.ELE));
+        $("#hp").text(w.getStat(Stat.HP));
+        
+        let arm;
+        switch(w.getStat(Stat.ARM)){
+            case 0:
+                arm = "light";
+                break;
+            case 1:
+                arm = "medium";
+                break;
+            case 2:
+                arm = "heavy";
+                break;
+            default:
+                console.error("Invalid armor value for warrior: " + w.getStat(Stat.ARM));
+                console.error(w.getStat(Stat.ARM));
+                break;
+        }
+        $("#arm").text(arm);
+        
+        //update right
         if(this.currIdx !== this.options.length - 1){
-            let rightCard = new WarriorCard(new Warrior(this.options[this.currIdx + 1]));
-            //rightCard.draw(this.canvases[2]);
+            $("#right-warrior").text(this.options[this.currIdx + 1]);
+        } else {
+            $("#right-warrior").text("");
         }
-    }
-    
-    selectWarrior1(name){
-        this.setState({
-            warrior1: name
-        });
-        console.log(name);
-    }
-    selectWarrior2(name){
-        this.setState({
-            warrior2: name
-        });
-        console.log(name);
-    }
-    selectWarrior3(name){
-        this.setState({
-            warrior3: name
-        });
-        console.log(name);
     }
 }
