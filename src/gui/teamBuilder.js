@@ -1,21 +1,23 @@
-import React, {Component} from "react";
-
 import {Button} from   "./button.js";
 import {WarriorCard} from "./warriorCard.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
 import {Controller} from "../controller.js";
 
-export class TeamBuilder extends Component{
-    constructor(props={}){
-        super(props);
-        
-        this.options = this.props.controller.state.user.warriors.map((data)=>data[0]);
-        this.state = {
-            warrior1: this.options[0],
-            warrior2: this.options[1],
-            warrior3: this.options[2]
-        };
+export class TeamBuilder{
+    constructor(user){
+        this.user = user;
+        this.options = user.warriors;
+        this.currIdx = this.options.length / 2;
+        let page = this;
+        $("#left").click(()=>page.left());
+    }
+    
+    left(){
+        if(this.currIdx !== 0){
+            this.currIdx--;
+            this.draw();
+        }
     }
     
     selectWarrior(name){
@@ -37,28 +39,22 @@ export class TeamBuilder extends Component{
         }
     }
     
-    update(){
-        //clear warrior cards. Better way?
-        let newChildren = this.children.filter((child)=>!(child instanceof WarriorCard));
-        this.children = newChildren;
-        
+    draw(){
         if(this.currIdx !== 0){
             let leftCard = new WarriorCard(0, 0, 25);
             leftCard.setWarrior(new Warrior(this.options[this.currIdx - 1]));
-            this.addChild(leftCard);
+            //this.addChild(leftCard);
         }
         
         let midCard = new WarriorCard(25, 0, 50);
         midCard.setWarrior(new Warrior(this.options[this.currIdx]));
-        this.addChild(midCard);
+        //this.addChild(midCard);
         
         if(this.currIdx !== this.options.length - 1){
             let rightCard = new WarriorCard(75, 0, 25);
             rightCard.setWarrior(new Warrior(this.options[this.currIdx + 1]));
-            this.addChild(rightCard);
+            //this.addChild(rightCard);
         }
-        
-        this.draw();
     }
     
     selectWarrior1(name){
@@ -78,36 +74,5 @@ export class TeamBuilder extends Component{
             warrior3: name
         });
         console.log(name);
-    }
-    
-    render(){
-        //todo warrior cards instead
-        const opt1 = this.options.map((name)=>
-            <td key={name} onClick={()=>this.selectWarrior1(name)}>{name}</td>
-        );
-        const opt2 = this.options.map((name)=>
-            <td key={name} onClick={()=>this.selectWarrior2(name)}>{name}</td>
-        );
-        const opt3 = this.options.map((name)=>
-            <td key={name} onClick={()=>this.selectWarrior3(name)}>{name}</td>
-        );
-        
-        return (
-            <div className="TeamBuilder">
-                <table>
-                    <tbody>
-                        <tr>
-                            {opt1}
-                        </tr>
-                        <tr>
-                            {opt2}
-                        </tr>
-                        <tr>
-                            {opt3}
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        );
     }
 }
