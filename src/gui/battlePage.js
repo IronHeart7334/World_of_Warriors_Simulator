@@ -29,12 +29,19 @@ export class BattlePage{
         for(let i = 0; i < 3; i++){
             //team 1
             id = `t1-member-${i + 1}`;
-            //                         change this
-            hud = new WarriorHud(id, team1.members[i]);
-            this.repaintThese.push(hud);
-            $("#" + id).click(()=>{
-                page.setDataText(team1.members[i]);
-            });
+            if(i !== 0){
+                //testing new version
+                //                         change this
+                hud = new WarriorHud(id, team1.members[i]);
+                this.repaintThese.push(hud);
+                $("#" + id).click(()=>{
+                    page.setDataText(team1.members[i]);
+                });
+            } else {
+                this.linkHud(id, team1.members[i]);
+            }
+            
+            
             
             this.linkSpecialMoveButton("t1-spec-" + (i + 1), team1.members[i]);
             
@@ -101,6 +108,37 @@ export class BattlePage{
             this.currTeam.active.hp_rem = Math.round(this.currTeam.active.hp_rem);
             this.attackPhaseFor();
         }
+    }
+    
+    linkHud(id, warrior){
+        let sel = $("#" + id);
+        
+        let icon = $("<div></div>").addClass("circle").css({
+            "width": "50%",
+            "height": "100%",
+            "background-color": warrior.element.color
+        });
+        sel.append(icon);
+        
+        let hpBar = $("<div></div>").css({
+            "position": "relative",
+            "left": "50%",
+            "top": "-100%",
+            "width": "50%",
+            "height": "50%",
+            "background-color": "red"
+        }).text(warrior.getStat(Stat.HP));
+        sel.append(hpBar); //how to make this to the right of icon?
+        
+        let updateHp = (change)=>{
+            hpBar.css("width", `${warrior.hp_perc() * 50}%`).text(warrior.hp_rem);
+        };
+        warrior.addDamageListener(updateHp);
+        warrior.addHealListener(updateHp);
+        warrior.addKoListener((w)=>{
+            sel.css("background-color", "black");
+            sel.empty();
+        });
     }
     
     linkSpecialMoveButton(id, warrior){

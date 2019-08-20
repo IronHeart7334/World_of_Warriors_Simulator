@@ -42,7 +42,10 @@ export class Warrior{
         this.normalMove.setUser(this);
 	    this.special.setUser(this);
         
+        this.damageListeners = [];
+        this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
+        this.updateListeners = [];
         
         this.id = nextId;
         nextId++;
@@ -223,6 +226,10 @@ export class Warrior{
         if(this.check_if_ko()){
             this.knockOut();
         }
+        
+        this.damageListeners.forEach((f)=>{
+            f(amount);
+        });
     }
     
     useNormalMove(){
@@ -252,6 +259,10 @@ export class Warrior{
 			this.hp_rem = this.getStat(Stat.HP);
 		}
 		this.hp_rem = Math.round(this.hp_rem);
+        
+        this.healListeners.forEach((f)=>{
+            f(hp);
+        });
         /*
 		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() > 0.5){
@@ -269,8 +280,17 @@ export class Warrior{
         this.onUpdateActions.set(action.id, action);
     }
 	
+    addDamageListener(f){
+        this.damageListeners.push(f);
+    }
+    addHealListener(f){
+        this.healListeners.push(f);
+    }
     addKoListener(f){
         this.koListeners.push(f);
+    }
+    addUpdateListener(f){
+        this.updateListeners.push(f);
     }
     
     knockOut(){
@@ -297,6 +317,11 @@ export class Warrior{
 		    }
 		}
 		this.onUpdateActions = new_update;
+        
+        let self = this;
+        this.updateListeners.forEach((f)=>{
+            f(self);
+        });
 	}
 	
 	// make this stuff better
