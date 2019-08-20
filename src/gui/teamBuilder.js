@@ -1,8 +1,5 @@
-import {Canvas} from "./canvas.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
-import {Controller} from "../controller.js";
-
 import {Stat} from "../warrior/stat.js";
 
 export class TeamBuilder{
@@ -10,15 +7,18 @@ export class TeamBuilder{
         this.user = user;
         this.options = user.warriors.map((arr)=>arr[0]);
         this.currIdx = Number.parseInt(this.options.length / 2);
+        this.teamWorkshop = []; //team thus far
         
         let page = this;
         $("#left").click(()=>page.left());
         $("#right").click(()=>page.right());
+        $("#select").click(()=>{
+            page.selectWarrior(page.options[page.currIdx]);
+        });
         this.updateWarriorCard();
     }
     
     left(){
-        console.log(this);
         if(this.currIdx !== 0){
             this.currIdx--;
             this.updateWarriorCard();
@@ -31,12 +31,13 @@ export class TeamBuilder{
         }
     }
     
-    //working here
     selectWarrior(name){
         //todo: skill selection
         this.teamWorkshop.push(name);
         this.options.splice(this.options.indexOf(name), 1);
         this.currIdx--;
+        
+        $("#team").append(`<li>${name}</li>`);
         
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
@@ -45,10 +46,13 @@ export class TeamBuilder{
                 return new Warrior(name);
             })));
             console.log(this.user.teams);
-            this.controller.setView(Controller.MAIN_MENU);
-        } else {
-            this.update();
-        }
+            this.teamWorkshop.forEach((n)=>{
+                this.options.push(n);
+            });
+            this.teamWorkshop.splice(0, 3);
+            $("#team").empty();
+        } 
+        this.updateWarriorCard();
     }
     
     updateWarriorCard(){
