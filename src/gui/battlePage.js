@@ -1,4 +1,3 @@
-import {Canvas} from "./canvas.js";
 import {Stat} from "../warrior/stat.js";
 
 export class BattlePage{
@@ -7,7 +6,6 @@ export class BattlePage{
         this.team2 = null;
         this.currTeam = null; //current team whose turn it is
         this.inAttackPhase = false;
-        this.repaintThese = []; //stuff to redraw
     }
     
     setTeams(team1, team2){
@@ -21,39 +19,19 @@ export class BattlePage{
         let hud;
         let id;
         let page = this;
-        $(window).resize(()=>{
-            page.draw();
-        });
         
         //this is a mess.
         for(let i = 0; i < 3; i++){
             //team 1
             id = `t1-member-${i + 1}`;
-            if(i !== 0){
-                //testing new version
-                //                         change this
-                hud = new WarriorHud(id, team1.members[i]);
-                this.repaintThese.push(hud);
-                $("#" + id).click(()=>{
-                    page.setDataText(team1.members[i]);
-                });
-            } else {
-                this.linkHud(id, team1.members[i]);
-            }
-            
-            
-            
+            //               change this
+            this.linkHud(id, team1.members[i]);
             this.linkSpecialMoveButton("t1-spec-" + (i + 1), team1.members[i]);
             
             //team 2
             id = `t2-member-${i + 1}`;
-            //                       change this
-            hud = new WarriorHud(id, team2.members[i]);
-            this.repaintThese.push(hud);
-            $("#" + id).click(()=>{
-                page.setDataText(team2.members[i]);
-            });
-            
+            //               change this
+            this.linkHud(id, team2.members[i]);
             this.linkSpecialMoveButton("t2-spec-" + (i + 1), team2.members[i]);
         }
         
@@ -111,33 +89,67 @@ export class BattlePage{
     }
     
     linkHud(id, warrior){
+        let page = this;
         let sel = $("#" + id);
+        sel.addClass("container-fluid");
+        sel.click(()=>{
+            page.setDataText(warrior);
+        });
         
-        let icon = $("<div></div>").addClass("circle").css({
+        let row = $("<div></div>");
+        row.addClass("row").addClass("h-100");
+        sel.append(row);
+        
+        let icon = $("<div></div>").addClass("circle").addClass("col").css({
             "width": "50%",
             "height": "100%",
             "background-color": warrior.element.color
         });
-        sel.append(icon);
+        row.append(icon);
+        icon.append(`<p>${warrior.name}</p>`);
         
-        let hpBar = $("<div></div>").css({
-            "position": "relative",
-            "left": "50%",
-            "top": "-100%",
-            "width": "50%",
-            "height": "50%",
-            "background-color": "red"
-        }).text(warrior.getStat(Stat.HP));
-        sel.append(hpBar); //how to make this to the right of icon?
+        let right = $("<div></div>");
+        right.addClass("col");
+        row.append(right);
+        
+        let hpBar = $("<div></div>")
+            .addClass("h-50")
+            .css("background-color", "red")
+            .text(warrior.getStat(Stat.HP));
+        right.append(hpBar);
+        
+        let effectList = $("<ul></ul>");
+        right.append(effectList);
         
         let updateHp = (change)=>{
-            hpBar.css("width", `${warrior.hp_perc() * 50}%`).text(warrior.hp_rem);
+            hpBar.css("width", `${warrior.hp_perc() * 100}%`).text(warrior.hp_rem);
         };
         warrior.addDamageListener(updateHp);
         warrior.addHealListener(updateHp);
         warrior.addKoListener((w)=>{
             sel.css("background-color", "black");
             sel.empty();
+        });
+        warrior.addUpdateListener((w)=>{
+            effectList.empty();
+            if(w.boostIsUp){
+                effectList.append("<li>Elemental Boost</li>");
+            }
+            if(w.shield){
+                effectList.append("<li>Phantom Shield</li>");
+            }
+            if (w.lastPhysDmg !== 0){
+                effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
+            }
+            if (w.lastEleDmg !== 0){
+                effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
+            }
+            if (w.last_healed !== 0){
+                effectList.append(`<li>+${Math.round(w.last_healed)}`);
+            }
+
+            //ew. change this later
+            hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
         });
     }
     
@@ -220,84 +232,5 @@ export class BattlePage{
     
     draw(){
         this.updateEnergy();
-        this.repaintThese.forEach((element)=>{
-            element.draw();
-        });
-    }
-}
-
-
-class WarriorHud{
-    constructor(elementId, warrior){
-        this.warrior = warrior;
-        this.canvas = new Canvas(elementId);
-    }
-    
-    /*
-     * I want to redo this so that text looks better.
-     * Maybe incorperate multiple elements into the hud, 
-     * not just a canvas?
-     */
-    draw(){
-        let canvas = this.canvas;
-        canvas.setColor("black");
-        canvas.rect(0, 0, 100, 100); //clear the canvas
-        
-        if(this.warrior.check_if_ko()){
-            return;
-        }//########################################## STOPS HERE IF KOED
-        
-        //'active' border
-        if(this.warrior.team.active === this.warrior){
-            canvas.setColor("grey");
-            canvas.rect(0, 0, 100, 100);
-        }
-        
-        //boost
-        if(this.warrior.boostIsUp){
-            canvas.setColor(this.warrior.element.color);
-            canvas.rect(0, 0, 100, 100 / 2);
-        }
-        
-        //health bar
-        let color;
-        //I think I've just been poisoned...
-        //ergh this is awful
-        if(this.warrior.poisoned !== false){
-            color = "green";
-        } else {
-            color = "red";
-        }
-        canvas.setColor(color);
-        canvas.rect(50, 0, 50 * this.warrior.hp_perc(), 50);
-        
-        // health value
-        canvas.text(50, 0, this.warrior.name);
-        if (this.warrior.regen){
-            canvas.text(50, 50, this.warrior.hp_rem + "+");
-        } else {
-            canvas.text(50, 50, this.warrior.hp_rem);
-        }
-        
-        if (this.warrior.lastPhysDmg !== 0){
-            canvas.text(50, 50, "-" + String(Math.round(this.warrior.lastPhysDmg)));
-        }
-        if (this.warrior.lastEleDmg !== 0){
-            //make this text colored
-            canvas.text(50, 50, "-" + String(Math.round(this.warrior.lastEleDmg)));
-        }
-        if (this.warrior.last_healed !== 0){
-            canvas.text(50, 50, "+" + String(this.warrior.last_healed));
-        }
-
-        // Phantom Shield overlay
-        if (this.warrior.shield){
-            canvas.setColor("rgba(0, 0, 155, 0.5)");
-            canvas.rect(0, 0, 100, 100 / 2);
-        }
-
-        // icon
-        canvas.setColor(this.warrior.element.color);
-        canvas.circle(0, 0, 50);
     }
 }

@@ -99,16 +99,17 @@ export class Team{
 		Action phase
 		*/
 		
-		for (var member of this.membersRem){
-			member.reset_dmg();
-		}
+		
         
         if (!this.leader.check_if_ko()){
 			this.leader.lead_skill.apply(this);
 		}
         
 		this.update();
-		this.check_if_ko();
+		for (var member of this.membersRem){
+			member.reset_dmg();
+		}
+        this.check_if_ko();
 	}
     
     getDesc(){

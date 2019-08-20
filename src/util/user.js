@@ -27,6 +27,21 @@ const DEFAULT_USER = new User(
             new Warrior("Ironhart"), 
             new Warrior("Erika"), 
             new Warrior("Boris")
+        ]),
+        new Team("Boost", [
+            new Warrior("Kwan"),
+            new Warrior("Joan"),
+            new Warrior("Aka")
+        ]),
+        new Team("Poison", [
+            new Warrior("Ram"),
+            new Warrior("Luuser Tarhu"),
+            new Warrior("Gunnar")
+        ]),
+        new Team("Heal", [
+            new Warrior("Brutus"),
+            new Warrior("Clovis"),
+            new Warrior("Blaine")
         ])
     ]
 );

@@ -1,3 +1,7 @@
+/*
+ * Not going to use this, but I like the idea.
+ * 
+ */
 export class Canvas{
     constructor(elementId){
         this.htmlElement = document.getElementById(elementId);
