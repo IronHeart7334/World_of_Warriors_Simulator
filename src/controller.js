@@ -1,6 +1,7 @@
+import {MainMenu} from    "./gui/mainMenu.js";
 import {TeamBuilder} from "./gui/teamBuilder.js";
-import {TeamSelect} from "./gui/teamSelect.js";
-import {BattlePage} from "./gui/battlePage.js";
+import {TeamSelect} from  "./gui/teamSelect.js";
+import {BattlePage} from  "./gui/battlePage.js";
 
 //todo check if user is logged in
 export class Controller{
@@ -18,6 +19,7 @@ export class Controller{
         let html;
         switch(viewEnum){
             case Controller.MAIN_MENU:
+                obj = new MainMenu();
                 html = "./html/mainMenu.html";
                 break;
             case Controller.TEAM_SELECT:
@@ -29,8 +31,12 @@ export class Controller{
                 }
                 break;
             case Controller.TEAM_BUILDER:
-                //obj = new TeamBuilder();
-                html = "./html/teamBuilder.html";
+                if(this.user === null){
+                    alert("You need to log in before creating a team");
+                } else {
+                    obj = new TeamBuilder(this.user);
+                    html = "./html/teamBuilder.html";
+                }
                 break;
             case Controller.BATTLE:
                 //obj = new BattlePage();
@@ -50,14 +56,19 @@ export class Controller{
                     bodyStart + "<body>".length,
                     bodyEnd
                 );
-                console.log(body);
+                //console.log(body);
                 $("body").empty().append(body);
+                if(obj){
+                    try{
+                        obj.setController(this);
+                        obj.linkToPage();    
+                    } catch(e){
+                        console.error(e);
+                    }
+                }
             }).catch((ex)=>{
                 console.error(ex);
             });
-        }
-        if(obj){
-            //obj.setController(this);
         }
     }
 }

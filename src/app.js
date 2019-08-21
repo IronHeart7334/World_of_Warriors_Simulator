@@ -20,14 +20,9 @@ user.teams = [
         new Warrior("Boris")
     ])
 ];
-user.teams[0].members[0].addSkill(new CriticalHit());
-user.teams[0].members[1].addSkill(new Guard());
+//user.teams[0].members[0].addSkill(new CriticalHit());
+//user.teams[0].members[1].addSkill(new Guard());
 
 let controller = new Controller();
 controller.setUser(user);
 controller.setView(Controller.MAIN_MENU);
-
-for(let i = 0; i < 4; i++){
-    //controller.setView(i);
-}
-//localStorage.setItem("controller", JSON.stringify(controller));

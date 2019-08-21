@@ -1,15 +1,21 @@
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
 import {Stat} from "../warrior/stat.js";
+import {Controller} from "../controller.js";
+import {View} from "./view.js";
 
-export class TeamBuilder{
+export class TeamBuilder extends View{
     constructor(user){
+        super();
         this.user = user;
         this.options = user.warriors.map((arr)=>arr[0]);
         this.currIdx = Number.parseInt(this.options.length / 2);
         this.teamWorkshop = []; //team thus far
-        
+    }
+    
+    linkToPage(){
         let page = this;
+        $("#back-button").click(()=>page.getController().setView(Controller.MAIN_MENU));
         $("#left").click(()=>page.left());
         $("#right").click(()=>page.right());
         $("#select").click(()=>{
