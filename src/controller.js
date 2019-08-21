@@ -23,10 +23,12 @@ export class Controller{
                 html = "./html/mainMenu.html";
                 break;
             case Controller.TEAM_SELECT:
-                if(this.user.teams.length < 2){
+                if(this.user === null){
+                    alert("You need to log in before fighting");
+                } else if(this.user.teams.length < 2){
                     alert("You need at least 2 teams to battle");
                 } else {
-                    //obj = new TeamSelect();
+                    obj = new TeamSelect(this.user, this.user);
                     html = "./html/teamSelect.html";
                 }
                 break;

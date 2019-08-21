@@ -1,45 +1,50 @@
-//not done, still need to pass the selected teams to the new battle
-export class TeamSelect{
-    constructor(){
-        this.player1 = null;
-        this.player2 = null;
+import {Controller} from "../controller.js";
+import {View} from "./view.js";
+
+export class TeamSelect extends View{
+    constructor(user1, user2){
+        super();
+        this.player1 = user1;
+        this.player2 = user2;
         this.team1 = null;
         this.team2 = null;
         let page = this;
-        $("#fight-button").click(()=>this.fight());
+        
     }
-    setPlayer1(user){
-        this.player1 = user;
+    
+    linkToPage(){
         let newEle;
         let sel = $("#player-1-teams");
         let ts = this;
-        sel.empty();
         
-        user.teams.forEach((team)=>{
+        $("#back-button").click(()=>this.getController().setView(Controller.MAIN_MENU));
+        $("#fight-button").click(()=>{
+            this.getController().setView(Controller.BATTLE);
+            //set teams
+        });
+        
+        //player 1
+        sel.empty();
+        this.player1.teams.forEach((team)=>{
             newEle = $(`<button>${team.name}</button>`);
             newEle.click(()=>{
                 ts.setTeam1(team);
             });
             sel.append(newEle);
         });
+        this.setTeam1(this.player1.teams[0]);
         
-        this.setTeam1(user.teams[0]);
-    }
-    setPlayer2(user){
-        this.player2 = user;
-        let newEle;
-        let sel = $("#player-2-teams");
-        let ts = this;
+        //player 2
+        sel = $("#player-2-teams");
         sel.empty();
-        
-        user.teams.forEach((team)=>{
+        this.player2.teams.forEach((team)=>{
             newEle = $(`<button>${team.name}</button>`);
             newEle.click(()=>{
                 ts.setTeam2(team);
             });
             sel.append(newEle);
         });
-        this.setTeam2(user.teams[0]);
+        this.setTeam2(this.player2.teams[1]);
     }
     
     setTeam1(team){

@@ -51,12 +51,8 @@ export class TeamBuilder extends View{
             this.user.teams.push(new Team(teamName, this.teamWorkshop.map((name)=>{
                 return new Warrior(name);
             })));
-            console.log(this.user.teams);
-            this.teamWorkshop.forEach((n)=>{
-                this.options.push(n);
-            });
-            this.teamWorkshop.splice(0, 3);
-            $("#team").empty();
+            
+            this.getController().setView(Controller.MAIN_MENU);
         } 
         this.updateWarriorCard();
     }
