@@ -98,12 +98,13 @@ export class Team{
 		/*
 		Action phase
 		*/
+        this.update(); //this comes first, otherwise leader skill doesn't apply
         if (!this.leader.check_if_ko()){
 			this.leader.lead_skill.apply(this);
 		}
         
-		this.update();
-		for (var member of this.membersRem){
+		
+		for (let member of this.membersRem){
 			member.reset_dmg();
 		}
         this.check_if_ko();

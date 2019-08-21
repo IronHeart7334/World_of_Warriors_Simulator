@@ -21,7 +21,7 @@ export class Lead{
     // need healing effects
 	apply(team){
         let target = (this.amount >= 0) ? team : team.enemyTeam;
-		
+        
 		if (this.type === "p"){
 			target.forEach((member)=>{
 				member.applyBoost(Stat.PHYS, new Stat_boost("Leader Skill", this.amount, 1));

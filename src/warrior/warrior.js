@@ -374,7 +374,7 @@ export class Warrior{
 	    Then push whatever ones are left to a new array
 	    Your boosts become the new array
 	    */
-       
+        
         this.stats.forEach((stat)=>{
             stat.update();
         });

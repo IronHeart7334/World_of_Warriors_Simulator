@@ -105,7 +105,7 @@ export class BattlePage extends View{
         sel.addClass("container-fluid");
         sel.click(()=>{
             page.setDataText(warrior);
-            console.log(warrior);
+            //console.log(warrior);
         });
         
         let row = $("<div></div>");
