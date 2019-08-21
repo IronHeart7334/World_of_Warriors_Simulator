@@ -1,4 +1,4 @@
-import {GlobalObject} from "./globalObject.js";
+import {User} from "./util/user.js";
 import {Controller} from "./controller.js";
 import {warriors} from "./warrior/realWarriors.js";
 import {Team} from "./warrior/team.js";
@@ -6,7 +6,7 @@ import {Warrior} from "./warrior/warrior.js";
 
 import {CriticalHit, Guard} from "./warrior/warriorSkills.js";
 
-let user = new GlobalObject();
+let user = new User();
 user.warriors = warriors;
 user.teams = [
     new Team("Starter Team", [
@@ -25,5 +25,9 @@ user.teams[0].members[1].addSkill(new Guard());
 
 let controller = new Controller();
 controller.setUser(user);
+controller.setView(Controller.MAIN_MENU);
 
-localStorage.setItem("controller", JSON.stringify(controller));
+for(let i = 0; i < 4; i++){
+    //controller.setView(i);
+}
+//localStorage.setItem("controller", JSON.stringify(controller));

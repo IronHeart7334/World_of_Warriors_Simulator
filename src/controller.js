@@ -1,53 +1,67 @@
-/*
 import {TeamBuilder} from "./gui/teamBuilder.js";
 import {TeamSelect} from "./gui/teamSelect.js";
 import {BattlePage} from "./gui/battlePage.js";
-import {Canvas} from "./gui/canvas.js";
-*/
+
 //todo check if user is logged in
 export class Controller{
     constructor(){
         this.user = null;
-        this.view = null;
-        this.canvas = null; 
     }
     
-    setUser(globalObject){
-        this.user = globalObject;
+    setUser(user){
+        this.user = user;
     }
-    
-    setCanvas(elementId){
-        this.canvas = new Canvas(elementId);
-    };
     
     //view is an enum (Controller.MAIN_MENU, for example)
-    setView(view){
-        /*
-        switch(view){
+    setView(viewEnum){
+        let obj;
+        let html;
+        switch(viewEnum){
+            case Controller.MAIN_MENU:
+                html = "./html/mainMenu.html";
+                break;
             case Controller.TEAM_SELECT:
                 if(this.user.teams.length < 2){
                     alert("You need at least 2 teams to battle");
                 } else {
-                    this.view = new TeamSelect();
+                    //obj = new TeamSelect();
+                    html = "./html/teamSelect.html";
                 }
                 break;
             case Controller.TEAM_BUILDER:
-                this.view = new TeamBuilder();
+                //obj = new TeamBuilder();
+                html = "./html/teamBuilder.html";
                 break;
             case Controller.BATTLE:
-                this.view = new BattlePage();
+                //obj = new BattlePage();
+                html = "./html/battle.html";
                 break;
             default:
-                console.log("View not valid: " + view);
+                console.error("View not valid: " + viewEnum);
                 break;
         }
-        if(this.view){
-            this.view.setController(this);
-            this.view.setCanvas(this.canvas);//need this for checking click
-            this.view.draw();
-        }*/
+        if(html){
+            fetch(html).then((response)=>{
+                return response.text();
+            }).then((text)=>{
+                let bodyStart = text.indexOf("<body>");
+                let bodyEnd = text.indexOf("</body>");
+                let body = text.substring(
+                    bodyStart + "<body>".length,
+                    bodyEnd
+                );
+                console.log(body);
+                $("body").empty().append(body);
+            }).catch((ex)=>{
+                console.error(ex);
+            });
+        }
+        if(obj){
+            //obj.setController(this);
+        }
     }
 }
+Controller.MAIN_MENU = 0;
 Controller.TEAM_SELECT = 1;
 Controller.TEAM_BUILDER = 2;
 Controller.BATTLE = 3;

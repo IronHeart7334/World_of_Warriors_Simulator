@@ -1,7 +1,6 @@
 import {warriors} from "../warrior/realWarriors.js";
 import {Team} from     "../warrior/team.js";
 import {Warrior} from  "../warrior/warrior.js";
-//not fully implemented yet
 
 let nextId = 0;
 class User{
