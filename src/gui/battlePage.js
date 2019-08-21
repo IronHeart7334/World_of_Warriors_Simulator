@@ -1,20 +1,21 @@
 import {Stat} from "../warrior/stat.js";
+import {Controller} from "../controller.js";
+import {View} from "./view.js";
 
-export class BattlePage{
-    constructor(){
-        this.team1 = null;
-        this.team2 = null;
+export class BattlePage extends View{
+    constructor(team1, team2){
+        super();
+        this.team1 = team1;
+        this.team2 = team2;
         this.currTeam = null; //current team whose turn it is
         this.inAttackPhase = false;
     }
     
-    setTeams(team1, team2){
-        this.team1 = team1;
-        this.team2 = team2;
-        team1.enemyTeam = team2;
-        team2.enemyTeam = team1;
-        team1.init();
-        team2.init();
+    linkToPage(){
+        this.team1.enemyTeam = this.team2;
+        this.team2.enemyTeam = this.team1;
+        this.team1.init();
+        this.team2.init();
         
         let hud;
         let id;
@@ -25,14 +26,14 @@ export class BattlePage{
             //team 1
             id = `t1-member-${i + 1}`;
             //               change this
-            this.linkHud(id, team1.members[i]);
-            this.linkSpecialMoveButton("t1-spec-" + (i + 1), team1.members[i]);
+            this.linkHud(id, this.team1.members[i]);
+            this.linkSpecialMoveButton("t1-spec-" + (i + 1), this.team1.members[i]);
             
             //team 2
             id = `t2-member-${i + 1}`;
             //               change this
-            this.linkHud(id, team2.members[i]);
-            this.linkSpecialMoveButton("t2-spec-" + (i + 1), team2.members[i]);
+            this.linkHud(id, this.team2.members[i]);
+            this.linkSpecialMoveButton("t2-spec-" + (i + 1), this.team2.members[i]);
         }
         
         $("#heart-coll").click(()=>{

@@ -19,8 +19,10 @@ export class TeamSelect extends View{
         
         $("#back-button").click(()=>this.getController().setView(Controller.MAIN_MENU));
         $("#fight-button").click(()=>{
-            this.getController().setView(Controller.BATTLE);
-            //set teams
+            this.getController().setView(Controller.BATTLE, {
+                team1 : ts.team1,
+                team2 : ts.team2
+            });
         });
         
         //player 1
@@ -59,15 +61,6 @@ export class TeamSelect extends View{
         $("#team2").text(team.getDesc());
         if(this.team1 !== null){
             $("#header").empty().text(`${this.team1.name} VS ${this.team2.name}`);
-        }
-    }
-    
-    //todo: make the battle use the selected teams
-    fight(){
-        if(this.team1 !== null && this.team2 !== null){
-            window.location.href = "battle.html";
-        } else {
-            alert("both teams must be chosen before fighting");
         }
     }
 };

@@ -14,7 +14,8 @@ export class Controller{
     }
     
     //view is an enum (Controller.MAIN_MENU, for example)
-    setView(viewEnum){
+    //opt is only used by teamSelect as of now
+    setView(viewEnum, opt={}){
         let obj;
         let html;
         switch(viewEnum){
@@ -41,7 +42,7 @@ export class Controller{
                 }
                 break;
             case Controller.BATTLE:
-                //obj = new BattlePage();
+                obj = new BattlePage(opt.team1, opt.team2);
                 html = "./html/battle.html";
                 break;
             default:
@@ -61,12 +62,8 @@ export class Controller{
                 //console.log(body);
                 $("body").empty().append(body);
                 if(obj){
-                    try{
-                        obj.setController(this);
-                        obj.linkToPage();    
-                    } catch(e){
-                        console.error(e);
-                    }
+                    obj.setController(this);
+                    obj.linkToPage();
                 }
             }).catch((ex)=>{
                 console.error(ex);
