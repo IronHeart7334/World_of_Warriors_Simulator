@@ -42,7 +42,7 @@ export class Controller{
                 }
                 break;
             case Controller.BATTLE:
-                obj = new BattlePage(opt.team1, opt.team2);
+                obj = new BattlePage(opt.team1.copy(), opt.team2.copy());
                 html = "./html/battle.html";
                 break;
             default:

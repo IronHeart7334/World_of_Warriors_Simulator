@@ -7,6 +7,14 @@ export class BattlePage extends View{
         super();
         this.team1 = team1;
         this.team2 = team2;
+        
+        let alertLoss = (team)=>{
+            alert(team.enemyTeam.name + " wins!");
+            this.getController().setView(Controller.MAIN_MENU);
+        };
+        team1.addKoListener(alertLoss);
+        team2.addKoListener(alertLoss);
+        
         this.currTeam = null; //current team whose turn it is
         this.inAttackPhase = false;
     }
@@ -21,7 +29,6 @@ export class BattlePage extends View{
         let id;
         let page = this;
         
-        //this is a mess.
         for(let i = 0; i < 3; i++){
             //team 1
             id = `t1-member-${i + 1}`;
@@ -36,6 +43,9 @@ export class BattlePage extends View{
             this.linkSpecialMoveButton("t2-spec-" + (i + 1), this.team2.members[i]);
         }
         
+        $("#back-button").click(()=>{
+            this.getController().setView(Controller.MAIN_MENU);
+        });
         $("#heart-coll").click(()=>{
             page.heartColl();
         });
@@ -95,6 +105,7 @@ export class BattlePage extends View{
         sel.addClass("container-fluid");
         sel.click(()=>{
             page.setDataText(warrior);
+            console.log(warrior);
         });
         
         let row = $("<div></div>");

@@ -405,6 +405,10 @@ export class Warrior{
             }, 3
         ));
     }
+    
+    copy(){
+        return new Warrior(this.name);
+    }
 }
 
 export class Stat_boost{

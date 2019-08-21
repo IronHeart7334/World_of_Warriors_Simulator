@@ -2,6 +2,7 @@ export class Team{
     constructor(name, members=[]){
 	    this.name = name;
         this.members = members;
+        this.koListeners = [];
     }
     //use this instead of this.membersRem
     forEach(func){
@@ -72,6 +73,10 @@ export class Team{
 		this.check_if_ko();
 	}
     
+    addKoListener(f){
+        this.koListeners.push(f);
+    }
+    
 	check_if_ko(){
 		/*
          * Removes KOed warriors from the members remaining
@@ -79,7 +84,7 @@ export class Team{
         let index = this.membersRem.indexOf(this.active);
         this.membersRem = this.membersRem.filter((member)=>!member.check_if_ko());
 		if (this.membersRem.length === 0){
-			this.enemyTeam.win();
+            this.koListeners.forEach((f)=>f(this));
 		} else if (this.active.check_if_ko()){
             if(index >= this.membersRem.length){
 				index = 0;
@@ -87,20 +92,12 @@ export class Team{
 			this.switchin(this.membersRem[index]);
 		}
 	}
-	win(){
-		alert(this.name + " wins!");
-		this.won = true;
-		//disp_menu();
-	}
 	
     //Don't delete me yet!
 	turn_part2(){
 		/*
 		Action phase
 		*/
-		
-		
-        
         if (!this.leader.check_if_ko()){
 			this.leader.lead_skill.apply(this);
 		}
@@ -118,5 +115,9 @@ export class Team{
             ret += `* ${warrior.name}\n`;
         });
         return ret;
+    }
+    
+    copy(){
+        return new Team(this.name, this.members.map((warrior)=>warrior.copy()));
     }
 }
