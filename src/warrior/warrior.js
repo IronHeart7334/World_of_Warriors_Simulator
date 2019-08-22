@@ -407,7 +407,11 @@ export class Warrior{
     }
     
     copy(){
-        return new Warrior(this.name);
+        let ret = new Warrior(this.name);
+        this.warriorSkills.forEach((skill)=>{
+            ret.addSkill(skill.copy());
+        });
+        return ret;
     }
 }
 
