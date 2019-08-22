@@ -1,232 +1,248 @@
-import {GamePane} from "./gamePane.js";
-import {WarriorHud} from "./warriorHud.js";
-import {Button} from "./button.js";
-import {EnergyIcon} from "./energyIcon.js";
 import {Stat} from "../warrior/stat.js";
+import {Controller} from "../controller.js";
+import {View} from "./view.js";
 
-export class BattlePage extends GamePane{
-    constructor(){
+export class BattlePage extends View{
+    constructor(team1, team2){
         super();
-        this.team1 = null;
-        this.team2 = null;
-        this.team1Turn = true;
-        this.vsText = ""; //display actives
-        this.dataText = ""; //displays warrior data
-        this.turnPart = 0;
-        this.energyIcons = [
-            this.energyIconForTeamNum(1),
-            this.energyIconForTeamNum(2)
-        ];
-        this.energyIcons.forEach((icon)=>this.addChild(icon));
-    }
-    
-    setTeams(team1, team2){
         this.team1 = team1;
         this.team2 = team2;
-        team1.enemyTeam = team2;
-        team2.enemyTeam = team1;
-        team1.init();
-        team2.init();
         
-        let y = 0;
+        let alertLoss = (team)=>{
+            alert(team.enemyTeam.name + " wins!");
+            this.getController().setView(Controller.MAIN_MENU);
+        };
+        team1.addKoListener(alertLoss);
+        team2.addKoListener(alertLoss);
+        
+        this.currTeam = null; //current team whose turn it is
+        this.inAttackPhase = false;
+    }
+    
+    linkToPage(){
+        this.team1.enemyTeam = this.team2;
+        this.team2.enemyTeam = this.team1;
+        this.team1.init();
+        this.team2.init();
+        
         let hud;
-        team1.forEach((member)=>{
-            hud = this.hpButtonFor(member);
-            hud.setPos(0, y);
-            this.addChild(hud);
-            y += 20;
-        });
+        let id;
+        let page = this;
         
-        y = 0;
-        team2.forEach((member)=>{
-            hud = this.hpButtonFor(member);
-            hud.setPos(80, y);
-            this.addChild(hud);
-            y += 20;
-        });
-        
-        
-        this.team1Turn = Math.random() >= 0.5;
-        this.turnPart = 1;
-        this.energyIcons[0].setTeam(team1);
-        this.energyIcons[1].setTeam(team2);
-        this.update();
-    }
-    
-    energyIconForTeamNum(oneOrTwo){
-        let ret = new EnergyIcon();
-        ret.setColor((oneOrTwo) ? "blue" : "red");
-        ret.setPos(50 * (oneOrTwo - 1), 90);
-        ret.setSize(50, 10);
-        return ret;
-    }
-    
-    hpButtonFor(warrior){
-        let ret = new WarriorHud(warrior);
-        ret.addOnClick(()=>{
-            this.dataText = warrior.name + ":\n";
-            this.dataText += "\tSpecial Move: " + warrior.special.name + " " + warrior.pip + "\n";
-            this.dataText += "\tElement: " + warrior.element.name + "\n";
-            this.dataText += "\tPhysical: " + warrior.getStat(Stat.PHYS) + "\n";
-            this.dataText += "\tElemental: " + warrior.getStat(Stat.ELE) + "\n";
-            this.dataText += "\tMax HP: " + warrior.getStat(Stat.HP) + "\n";
-            this.dataText += "\tArmor: " + warrior.getStat(Stat.ARM) + "\n";
-            this.update();
-        });
-        return ret;
-    }
-    
-    heartCollectionFor(team){
-        let ret = new Button("Heart Collection");
-        ret.setColor("red");
-        ret.setPos(40, 90);
-        ret.setSize(10, 10);
-        ret.addOnClick(()=>{
-            team.active.nat_regen();
-            this.turnPart2For(team);
-        });
-        return ret;
-    }
-    
-    bombFor(team){
-        let ret = new Button("Bomb");
-        ret.setColor("black");
-        ret.setPos(50, 90);
-        ret.setSize(10, 10);
-        ret.addOnClick(()=>{
-            let d = team.active.perc_hp(0.15);
-            team.active.hp_rem -= d;
-            if(team.active.hp_rem <= 1){
-                team.active.hp_rem = 1;
-            }
-            team.active.hp_rem = Math.round(team.active.hp_rem);
+        for(let i = 0; i < 3; i++){
+            //team 1
+            id = `t1-member-${i + 1}`;
+            //               change this
+            this.linkHud(id, this.team1.members[i]);
+            this.linkSpecialMoveButton("t1-spec-" + (i + 1), this.team1.members[i]);
             
-            this.turnPart2For(team);
+            //team 2
+            id = `t2-member-${i + 1}`;
+            //               change this
+            this.linkHud(id, this.team2.members[i]);
+            this.linkSpecialMoveButton("t2-spec-" + (i + 1), this.team2.members[i]);
+        }
+        
+        $("#back-button").click(()=>{
+            this.getController().setView(Controller.MAIN_MENU);
         });
-        return ret;
+        $("#heart-coll").click(()=>{
+            page.heartColl();
+        });
+        $("#bomb").click(()=>{
+            page.bomb();
+        });
+        $("#nm-button").click(()=>{
+            page.normalMove();
+        });
+        
+        
+        this.currTeam = (Math.random() >= 0.5) ? this.team1 : this.team2;
+        this.attackPhaseFor(this.currTeam);
     }
     
-    nmButtonFor(team){
-        let ret = new Button("Normal Move");
-        ret.setPos(45, 70);
-        ret.setSize(10, 10);
-        ret.setColor(team.active.element.color);
-        ret.addOnClick(()=>{
-            team.active.useNormalMove();
-            this.team1Turn = !this.team1Turn;
-            this.turnPart = 1;
-            this.update();
-        });
-        return ret;
-    }
-    displaySpecialsFor(team){
-        let ret = [];
-        let offset = 0;
-        let b;
-        team.forEach((member)=>{
-            b = new Button(member.special.name);
-            b.setPos((team === this.team1) ? offset : 90 - offset, 70);
-            b.setSize(10, 10);
-            b.setColor(member.element.color);
-            b.addOnClick(()=>{
-                member.useSpecial();
-                this.team1Turn = !this.team1Turn;
-                this.turnPart = 1;
-                this.update();
-            });
-            offset += 10;
-            ret.push(b);
-        });
-        return ret;
-    }
-    
-    purgeTempButtons(){
-        if(this.heartCol){
-            this.removeChild(this.heartCol);
-            this.heartCol = null;
-        }
-        
-        if(this.bomb){
-            this.removeChild(this.bomb);
-            this.bomb = null;
-        }
-        
-        if(this.nm){
-            this.removeChild(this.nm);
-            this.nm = null;
-        }
-        
-        if(this.specials){
-            this.specials.forEach((button)=>{
-                this.removeChild(button);
-            });
-            this.specials = null;
+    normalMove(){
+        if(this.inAttackPhase){
+            this.currTeam.active.useNormalMove();
+            this.currTeam = this.currTeam.enemyTeam;
+            this.recoverPhaseFor();
         }
     }
     
-    //might want to move some of this back to team later
-    turnPart1For(team){
-        let c = this.controller.canvas;
+    specialMove(warrior){
+        if(this.inAttackPhase){
+            if(this.currTeam === warrior.team){
+                warrior.useSpecial();
+                this.currTeam = this.currTeam.enemyTeam;
+                this.recoverPhaseFor();
+            }
+        }
+    }
+    
+    heartColl(){
+        if(!this.inAttackPhase){
+            this.currTeam.active.nat_regen();
+            this.attackPhaseFor();
+        }
+    }
+    
+    //move some of this to warrior
+    bomb(){
+        if(!this.inAttackPhase){
+            let d = this.currTeam.active.perc_hp(0.15);
+            this.currTeam.active.hp_rem -= d;
+            if(this.currTeam.active.hp_rem <= 1){
+                this.currTeam.active.hp_rem = 1;
+            }
+            this.currTeam.active.hp_rem = Math.round(this.currTeam.active.hp_rem);
+            this.attackPhaseFor();
+        }
+    }
+    
+    linkHud(id, warrior){
+        let page = this;
+        let sel = $("#" + id);
+        sel.addClass("container-fluid");
+        sel.click(()=>{
+            page.setDataText(warrior);
+            //console.log(warrior);
+        });
         
-        team.check_if_ko();
+        let row = $("<div></div>");
+        row.addClass("row").addClass("h-100");
+        sel.append(row);
+        
+        let icon = $("<div></div>").addClass("circle").addClass("col").css({
+            "width": "50%",
+            "height": "100%",
+            "background-color": warrior.element.color
+        });
+        row.append(icon);
+        icon.append(`<p>${warrior.name}</p>`);
+        
+        let right = $("<div></div>");
+        right.addClass("col");
+        row.append(right);
+        
+        let hpBar = $("<div></div>")
+            .addClass("h-50")
+            .css("background-color", "red")
+            .text(warrior.getStat(Stat.HP));
+        right.append(hpBar);
+        
+        let effectList = $("<ul></ul>");
+        right.append(effectList);
+        
+        let updateHp = (change)=>{
+            hpBar.css("width", `${warrior.hp_perc() * 100}%`).text(warrior.hp_rem);
+        };
+        warrior.addDamageListener(updateHp);
+        warrior.addHealListener(updateHp);
+        warrior.addKoListener((w)=>{
+            sel.css("background-color", "black");
+            sel.empty();
+        });
+        warrior.addUpdateListener((w)=>{
+            effectList.empty();
+            if(w.boostIsUp){
+                effectList.append("<li>Elemental Boost</li>");
+            }
+            if(w.shield){
+                effectList.append("<li>Phantom Shield</li>");
+            }
+            if (w.lastPhysDmg !== 0){
+                effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
+            }
+            if (w.lastEleDmg !== 0){
+                effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
+            }
+            if (w.last_healed !== 0){
+                effectList.append(`<li>+${Math.round(w.last_healed)}`);
+            }
+
+            //ew. change this later
+            hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
+        });
+    }
+    
+    linkSpecialMoveButton(id, warrior){
+        let page = this;
+        $("#" + id)
+            .addClass("owner-" + warrior.id)
+            .text(warrior.special.name)
+            .css("background-color", warrior.element.color)
+            .click(()=>page.specialMove(warrior));
+        warrior.addKoListener((w)=>{
+            $(".owner-" + w.id).remove();
+        });
+    }
+    
+    updateEnergy(){
+        $(".team-1-energy").hide();
+        $(".team-2-energy").hide();
+        for(let i = 0; i < this.team1.energy; i++){
+            $("#t1-energy-" + (i + 1)).show();
+        }
+        for(let i = 0; i < this.team2.energy; i++){
+            $("#t2-energy-" + (i + 1)).show();
+        }
+    }
+    
+    updateSpecials(){
+        $(".t1-spec").hide();
+        $(".t2-spec").hide();
+        if(!this.inAttackPhase){
+            return;
+        }
+        
+        if(this.currTeam === this.team1 && this.team1.energy >= 2){
+            $(".t1-spec").show();
+        } else if(this.currTeam === this.team2 && this.team2.energy >= 2){
+            $(".t2-spec").show();
+        }
+    }
+    
+    setDataText(warrior){
+        $("#data-text").empty().html(`${warrior.name}:\n
+        * Special Move: ${warrior.special.name} ${warrior.pip}\n
+        * Element: ${warrior.element.name}\n
+        * Physical: ${warrior.getStat(Stat.PHYS)}\n
+        * Elemental: ${warrior.getStat(Stat.ELE)}\n
+        * Max HP: ${warrior.getStat(Stat.HP)}\n
+        * Armor: ${warrior.getStat(Stat.ARM)}\n`);
+    }
+    
+    recoverPhaseFor(){
+        this.inAttackPhase = false;
+        this.currTeam.check_if_ko();
         if(this.team1.won || this.team2.won){
             return;
         } //#################################STOPS HERE IF A TEAM WON
-        team.forEach((member)=>member.reset_heal());
         
-        this.purgeTempButtons();
+        $("#vs-text").text(`${this.currTeam.active.name} VS ${this.currTeam.enemyTeam.active.name}`);
+        this.currTeam.forEach((member)=>member.reset_heal());
         
-        this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
-        
-        if (team.active.healableDamage > 0){
-			this.heartCol = this.heartCollectionFor(team);
-            this.bomb = this.bombFor(team);
-            this.addChild(this.heartCol);
-            this.addChild(this.bomb);
-		} else {
-            this.turnPart2For(team); //recursive. Might not be good
+        $(".recover").show();
+        $(".attack").hide();
+        if (this.currTeam.active.healableDamage <= 0){
+            //no damage to heal, so skip this phase
+            this.attackPhaseFor();
         }
         this.draw();
     }
     
-    turnPart2For(team){
-        let c = this.controller.canvas;
-        this.turnPart = 2;
+    attackPhaseFor(){
+        this.inAttackPhase = true;
         
-        this.purgeTempButtons();
+        this.currTeam.turn_part2(); //lots of non-GUI stuff done here
+        $(".attack").show();
+        $(".recover").hide();
+        this.updateSpecials();
         
-        team.turn_part2(); //lots of non-GUI stuff done here
-        
-        this.vsText = team.active.name + " VS " + team.enemyTeam.active.name;
-        
-        this.nm = this.nmButtonFor(team);
-        this.addChild(this.nm);
-        if(team.energy >= 2){
-            this.specials = this.displaySpecialsFor(team);
-            this.specials.forEach((button)=>this.addChild(button));
-        }
-        this.draw();
-    }
-    
-    update(){
-        //more stuffs here
-        if(this.team1Turn !== null && this.turnPart === 1){
-            if(this.team1Turn){
-                this.turnPart1For(this.team1);
-            } else {
-                this.turnPart1For(this.team2);
-            }
-        }
         this.draw();
     }
     
     draw(){
-        super.draw();
-        this.controller.canvas.text(20, 0, this.vsText);
-        let i = 20;
-        this.dataText.split("\n").forEach((line)=>{
-            this.controller.canvas.text(20, i, line);
-            i += 5;
-        });
+        this.updateEnergy();
     }
 }

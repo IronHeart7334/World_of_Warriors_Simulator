@@ -1,0 +1,19 @@
+.energy{
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    width: 25px;
+    height: 25px;
+}
+
+.team-1-energy{
+    background-color: blue;
+}
+
+.team-2-energy{
+    background-color: red;
+}
+
+.warriorHUD{
+    height: 30%;
+}

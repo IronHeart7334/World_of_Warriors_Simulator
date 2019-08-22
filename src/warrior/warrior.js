@@ -11,6 +11,7 @@ import {HitEvent} from "../actions/hitEvent.js";
 const OFFENSE = 33.73;
 const HP = 107.0149;
 
+let nextId = 0;
 export class Warrior{
     //better way to do this?
     constructor(name){
@@ -40,6 +41,14 @@ export class Warrior{
         this.normalMove = new NormalMove();
         this.normalMove.setUser(this);
 	    this.special.setUser(this);
+        
+        this.damageListeners = [];
+        this.healListeners = [];
+        this.koListeners = []; //fired when this is KOed
+        this.updateListeners = [];
+        
+        this.id = nextId;
+        nextId++;
     }
     
     //change this to look in the player's warriors
@@ -213,6 +222,14 @@ export class Warrior{
         this.lastEleDmg += ele;
         this.hp_rem -= amount;
         this.hp_rem = Math.round(this.hp_rem);
+        
+        if(this.check_if_ko()){
+            this.knockOut();
+        }
+        
+        this.damageListeners.forEach((f)=>{
+            f(amount);
+        });
     }
     
     useNormalMove(){
@@ -242,6 +259,10 @@ export class Warrior{
 			this.hp_rem = this.getStat(Stat.HP);
 		}
 		this.hp_rem = Math.round(this.hp_rem);
+        
+        this.healListeners.forEach((f)=>{
+            f(hp);
+        });
         /*
 		if(this.skills[0] === "shell"){
 		    if(this.hp_perc() > 0.5){
@@ -259,6 +280,26 @@ export class Warrior{
         this.onUpdateActions.set(action.id, action);
     }
 	
+    addDamageListener(f){
+        this.damageListeners.push(f);
+    }
+    addHealListener(f){
+        this.healListeners.push(f);
+    }
+    addKoListener(f){
+        this.koListeners.push(f);
+    }
+    addUpdateListener(f){
+        this.updateListeners.push(f);
+    }
+    
+    knockOut(){
+        let warrior = this;
+        this.koListeners.forEach((f)=>{
+            f(warrior);
+        });
+    }
+    
 	update(){
         this.check_durations();
 		this.poisoned = false;
@@ -276,6 +317,11 @@ export class Warrior{
 		    }
 		}
 		this.onUpdateActions = new_update;
+        
+        let self = this;
+        this.updateListeners.forEach((f)=>{
+            f(self);
+        });
 	}
 	
 	// make this stuff better
@@ -328,7 +374,7 @@ export class Warrior{
 	    Then push whatever ones are left to a new array
 	    Your boosts become the new array
 	    */
-       
+        
         this.stats.forEach((stat)=>{
             stat.update();
         });
@@ -358,6 +404,14 @@ export class Warrior{
                 this.takeDamage(amount);
             }, 3
         ));
+    }
+    
+    copy(){
+        let ret = new Warrior(this.name);
+        this.warriorSkills.forEach((skill)=>{
+            ret.addSkill(skill.copy());
+        });
+        return ret;
     }
 }
 

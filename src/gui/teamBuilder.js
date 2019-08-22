@@ -1,68 +1,40 @@
-import {GamePane} from "./gamePane.js";
-import {Button} from   "./button.js";
-import {WarriorCard} from "./warriorCard.js";
 import {Warrior} from "../warrior/warrior.js";
 import {Team} from "../warrior/team.js";
+import {Stat} from "../warrior/stat.js";
 import {Controller} from "../controller.js";
+import {View} from "./view.js";
 
-export class TeamBuilder extends GamePane{
-    constructor(){
+export class TeamBuilder extends View{
+    constructor(user){
         super();
-        this.user = null;
-        //cannot add warriors initially; need to wait until user is set
-        this.teamWorkshop = [];
-        this.currIdx = 0;
-        this.options = ["Toki"];
-        this.addChild(this.leftButton());
-        this.addChild(this.rightButton());
-        this.addChild(this.selectButton());
+        this.user = user;
+        this.options = user.warriors.map((arr)=>arr[0]);
+        this.currIdx = Number.parseInt(this.options.length / 2);
+        this.teamWorkshop = []; //team thus far
     }
     
-    setController(controller){
-        super.setController(controller);
-        this.user = controller.user;
-        this.currIdx = Math.round(this.user.warriors.length / 2);
-        this.options = this.user.warriors.map((data)=>data[0]);
-        this.update();
-    }
-    
-    leftButton(){
-        let ret = new Button("Previous warrior");
-        ret.setPos(0, 75);
-        ret.setSize(25, 25);
-        ret.setColor("blue");
-        ret.addOnClick(()=>{
-            if(this.currIdx > 0){
-                this.currIdx--;
-                this.update();
-            }
+    linkToPage(){
+        let page = this;
+        $("#back-button").click(()=>page.getController().setView(Controller.MAIN_MENU));
+        $("#left").click(()=>page.left());
+        $("#right").click(()=>page.right());
+        $("#select").click(()=>{
+            page.selectWarrior(page.options[page.currIdx]);
         });
-        return ret;
+        this.updateWarriorCard();
     }
     
-    rightButton(){
-        let ret = new Button("Next warrior");
-        ret.setPos(75, 75);
-        ret.setSize(25, 25);
-        ret.setColor("green");
-        ret.addOnClick(()=>{
-            if(this.currIdx < this.options.length - 1){
-                this.currIdx++;
-                this.update();
-            }
-        });
-        return ret;
+    left(){
+        if(this.currIdx !== 0){
+            this.currIdx--;
+            this.updateWarriorCard();
+        }
     }
-    
-    selectButton(){
-        let ret = new Button("Choose this warrior");
-        ret.setPos(25, 75);
-        ret.setSize(50, 25);
-        ret.setColor("yellow");
-        ret.addOnClick(()=>{
-            this.selectWarrior(this.options[this.currIdx]);
-        });
-        return ret;
+    right(){
+        if(this.currIdx !== this.options.length - 1){
+            this.currIdx++;
+            this.updateWarriorCard();
+        }
     }
     
     selectWarrior(name){
@@ -71,40 +43,64 @@ export class TeamBuilder extends GamePane{
         this.options.splice(this.options.indexOf(name), 1);
         this.currIdx--;
         
+        $("#team").append(`<li>${name}</li>`);
+        
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
             //save the team
             this.user.teams.push(new Team(teamName, this.teamWorkshop.map((name)=>{
                 return new Warrior(name);
             })));
-            console.log(this.user.teams);
-            this.controller.setView(Controller.MAIN_MENU);
-        } else {
-            this.update();
-        }
+            
+            this.getController().setView(Controller.MAIN_MENU);
+        } 
+        this.updateWarriorCard();
     }
     
-    update(){
-        //clear warrior cards. Better way?
-        let newChildren = this.children.filter((child)=>!(child instanceof WarriorCard));
-        this.children = newChildren;
-        
+    updateWarriorCard(){
+        //update left
         if(this.currIdx !== 0){
-            let leftCard = new WarriorCard(0, 0, 25);
-            leftCard.setWarrior(new Warrior(this.options[this.currIdx - 1]));
-            this.addChild(leftCard);
+            $("#left-warrior").text(this.options[this.currIdx - 1]);
+        } else {
+            $("#left-warrior").text("");
         }
         
-        let midCard = new WarriorCard(25, 0, 50);
-        midCard.setWarrior(new Warrior(this.options[this.currIdx]));
-        this.addChild(midCard);
+        //update middle
+        let w = new Warrior(this.options[this.currIdx]);
+        w.calcStats();
+        $("#warrior-card").css("background-color", w.element.color);
         
+        $("#level").text(w.level);
+        $("#name").text(w.name);
+        $("#special").text(w.special.name + " " + w.pip);
+        
+        $("#phys").text(w.getStat(Stat.PHYS));
+        $("#ele").text(w.getStat(Stat.ELE));
+        $("#hp").text(w.getStat(Stat.HP));
+        
+        let arm;
+        switch(w.getStat(Stat.ARM)){
+            case 0:
+                arm = "light";
+                break;
+            case 1:
+                arm = "medium";
+                break;
+            case 2:
+                arm = "heavy";
+                break;
+            default:
+                console.error("Invalid armor value for warrior: " + w.getStat(Stat.ARM));
+                console.error(w.getStat(Stat.ARM));
+                break;
+        }
+        $("#arm").text(arm);
+        
+        //update right
         if(this.currIdx !== this.options.length - 1){
-            let rightCard = new WarriorCard(75, 0, 25);
-            rightCard.setWarrior(new Warrior(this.options[this.currIdx + 1]));
-            this.addChild(rightCard);
+            $("#right-warrior").text(this.options[this.currIdx + 1]);
+        } else {
+            $("#right-warrior").text("");
         }
-        
-        this.draw();
     }
 }

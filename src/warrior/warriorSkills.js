@@ -13,15 +13,19 @@ class WarriorSkill{
     }
     
     apply(){
-        throw new Error("Method apply not set for " + name);
+        throw new Error("Method apply not set for " + this.name);
     }
     
     checkForTrigger(){
-        throw new Error("Method checkForTrigger not set for " + name);
+        throw new Error("Method checkForTrigger not set for " + this.name);
     }
     
     run(){
-        throw new Error("Method run not set for " + name);
+        throw new Error("Method run not set for " + this.name);
+    }
+    
+    copy(){
+        throw new Error("Method copy not set for " + this.name);
     }
 }
 
@@ -50,6 +54,10 @@ export class CriticalHit extends WarriorSkill{
         hitEvent.physDmg *= 1.24;
         hitEvent.eleDmg *= 1.24;
     }
+    
+    copy(){
+        return new CriticalHit(this.pip);
+    }
 }
 
 export class Guard extends WarriorSkill{
@@ -76,6 +84,10 @@ export class Guard extends WarriorSkill{
         console.log("Guard!");
         hitEvent.physDmg /= 1.24;
         hitEvent.eleDmg /= 1.24;
+    }
+    
+    copy(){
+        return new Guard(this.pip);
     }
 }
 

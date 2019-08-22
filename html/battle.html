@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <title>Battle</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="../css/style.css">
+        <link rel="stylesheet" href="../css/battle.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="body" class="container-fluid h-100">
+            <div class="row h-5">
+                <button id="back-button" class="col-1">Quit</button>
+            </div>
+            <div class="row h-75">
+                <div id="leftTeamDisplay" class="col-4 h-100 text-center" style="display: flex; flex-direction: column">
+                    <div id="t1-member-1" class="warriorHUD"></div>
+                    <div id="t1-member-2" class="warriorHUD"></div>
+                    <div id="t1-member-3" class="warriorHUD"></div>
+                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                        <div id="t1-energy-1" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-2" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-3" class="energy team-1-energy">&nbsp;</div>
+                        <div id="t1-energy-4" class="energy team-1-energy">&nbsp;</div>
+                    </div>
+                </div>
+                <div id="middle" class="col-4 h-100">
+                    <h1 id="vs-text">Fight!</h1>
+                    <pre>
+                        <p id="data-text"></p>
+                    </pre>
+                    <button id="heart-coll" class="recover">Heart Collection</button>
+                    <button id="bomb" class="recover">Bomb</button>
+                </div>
+                <div id="rightTeamDisplay" class="col-4 h-100 text-center">
+                    <div id="t2-member-1" class="warriorHUD"></div>
+                    <div id="t2-member-2" class="warriorHUD"></div>
+                    <div id="t2-member-3" class="warriorHUD"></div>
+                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                        <div id="t2-energy-4" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-3" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-2" class="energy team-2-energy">&nbsp;</div>
+                        <div id="t2-energy-1" class="energy team-2-energy">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row h-20" style="justify-content: space-around">
+                <button id="t1-spec-1" class="attack t1-spec"></button>
+                <button id="t1-spec-2" class="attack t1-spec"></button>
+                <button id="t1-spec-3" class="attack t1-spec"></button>
+                <button id="nm-button" class="attack">Normal Move</button>
+                <button id="t2-spec-1" class="attack t2-spec"></button>
+                <button id="t2-spec-2" class="attack t2-spec"></button>
+                <button id="t2-spec-3" class="attack t2-spec"></button>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <!--<script type="module">
+            import {BattlePage} from "../src/gui/battlePage.js";
+            import {DEFAULT_USER as user} from "../src/util/user.js";
+            
+            let bp = new BattlePage();
+            bp.setTeams(
+                user.teams[0],
+                user.teams[1]
+            );
+        </script>-->
+    </body>
+</html>
