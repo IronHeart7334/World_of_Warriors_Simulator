@@ -1,0 +1,2 @@
+defaultWarriors.csv
+#todo separate module per user

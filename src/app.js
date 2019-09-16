@@ -20,6 +20,7 @@ user.teams = [
         new Warrior("Boris")
     ])
 ];
+user.loadModules();
 //user.teams[0].members[0].addSkill(new CriticalHit());
 //user.teams[0].members[1].addSkill(new Guard());
 
