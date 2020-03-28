@@ -12,27 +12,20 @@ const HP = 107.0149;
 
 let nextId = 0;
 export class Warrior{
-    //better way to do this?
-    constructor(name){
-	    /*
-	    The warrior Class takes data from an array:
-	    new Warrior([name, [off, ele, hp, arm, pip], element, special, leader_skill]);
-	    */
-	    let data = this.find_warrior(name);
-	    this.name = data[0];
+    constructor(name="Warrior", element="null", basePhys=25, baseEle=8, baseHp=107, armor=1, leaderSkill="+10% Physical", special="Berserk 2", skills=["Shell", "Autopotion"]){
+	    this.name = name;
         this.stats = new Map();
+        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, basePhys, true));
+        this.stats.set(Stat.ELE, new Stat(Stat.ELE, baseEle, true));
+        this.stats.set(Stat.ARM, new Stat(Stat.ARM, armor));
+        this.stats.set(Stat.HP, new Stat(Stat.HP, baseHp, true));
 
-	    let baseOff = OFFENSE * data[1][0];
-
-        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, baseOff * (1 - data[1][1]), true));
-        this.stats.set(Stat.ELE, new Stat(Stat.ELE, baseOff * data[1][1], true));
-        this.stats.set(Stat.ARM, new Stat(Stat.ARM, data[1][3]));
-        this.stats.set(Stat.HP, new Stat(Stat.HP, HP * data[1][2], true));
-
-	    this.pip = data[1][4];
-	    this.element = getElement(data[2]);
-	    this.special = findSpecial(data[3]);
-	    this.lead_skill = new Lead(data[4][0], data[4][1]);
+	    this.pip = special[special.length - 1]; //last character is pip
+	    this.element = getElement(element);
+	    this.special = findSpecial(special.substr(0, special.length - 2)); //last two characters are a space and the pip
+        let lsAmount = parseInt(leaderSkill.substr(0, leaderSkill.indexOf("%")));
+        let lsStat = leaderSkill.substr(leaderSkill.indexOf(" ") + 1); //start at the first character after the space
+        this.lead_skill = new Lead(lsAmount, lsStat);
 	    this.level = 34;
 
         this.warriorSkills = [];

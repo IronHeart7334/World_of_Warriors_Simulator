@@ -23,6 +23,7 @@ async function loadModule(moduleName){
     //this is the format warriors are stored in in wowdata.csv,
     //but I'm not sure if I want to save it in a different way,
     //probably not though.
+    //oh wait, wowdata.csv doesn't contain their element, so it's pretty useless
     /*
     let columns = [
         "Warrior",
