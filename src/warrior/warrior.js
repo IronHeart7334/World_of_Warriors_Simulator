@@ -12,20 +12,17 @@ const HP = 107.0149;
 
 let nextId = 0;
 export class Warrior{
-    constructor(name="Warrior", element="null", basePhys=25, baseEle=8, baseHp=107, armor=1, leaderSkill="+10% Physical", special="Berserk 2", skills=["Shell", "Autopotion"]){
+    constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Shell", "Autopotion"]){
 	    this.name = name;
         this.stats = new Map();
-        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, basePhys, true));
-        this.stats.set(Stat.ELE, new Stat(Stat.ELE, baseEle, true));
+        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, OFFENSE * offMult * (1.0 - eleRatio), true));
+        this.stats.set(Stat.ELE, new Stat(Stat.ELE, OFFENSE * offMult * eleRatio, true));
         this.stats.set(Stat.ARM, new Stat(Stat.ARM, armor));
-        this.stats.set(Stat.HP, new Stat(Stat.HP, baseHp, true));
-
-	    this.pip = special[special.length - 1]; //last character is pip
+        this.stats.set(Stat.HP, new Stat(Stat.HP, HP * hpMult, true));
+	    this.pip = pip;
 	    this.element = getElement(element);
-	    this.special = findSpecial(special.substr(0, special.length - 2)); //last two characters are a space and the pip
-        let lsAmount = parseInt(leaderSkill.substr(0, leaderSkill.indexOf("%")));
-        let lsStat = leaderSkill.substr(leaderSkill.indexOf(" ") + 1); //start at the first character after the space
-        this.lead_skill = new Lead(lsAmount, lsStat);
+	    this.special = findSpecial(special);
+        this.lead_skill = new Lead(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
 
         this.warriorSkills = [];
@@ -41,17 +38,6 @@ export class Warrior{
 
         this.id = nextId;
         nextId++;
-    }
-
-    //change this to look in the player's warriors
-    find_warrior(name){
-        /*
-    	for(let warrior of warriors){
-    		if(warrior[0] === name){
-    			return warrior;
-    		}
-    	}*/
-    	return ["ERROR", [1, 0.5, 1, 1, 2], "none", "ERROR", [5, "p"]];
     }
 
     addSkill(warriorSkill){
@@ -405,6 +391,20 @@ export class Warrior{
             ret.addSkill(skill.copy());
         });
         return ret;
+    }
+
+    toString(){
+        return `Warrior:
+            Name: ${this.name}
+            Level: ${this.level}
+            Element: ${this.element.name}
+            Physical attack: ${this.getStat(Stat.PHYS)}
+            Elemental attack: ${this.getStat(Stat.ELE)}
+            Armor: ${this.getStat(Stat.ARM)}
+            Max HP: ${this.getStat(Stat.HP)}
+            Leader Skill: ${this.lead_skill.toString()}
+            Special move: ${this.special.toString()}
+            Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;
     }
 }
 
