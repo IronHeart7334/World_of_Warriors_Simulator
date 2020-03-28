@@ -4,8 +4,6 @@ const MODULE_PATH_BASE = "./data";
 const MODULE_LIST_PATH = MODULE_PATH_BASE + "/installedModules.txt";
 const NEWLINE = /\r?\n|\r/;
 
-//next, work on explicitly defining the standards for WoW modules.
-
 async function getModuleList(){
     let req = await fetch(MODULE_LIST_PATH);
     let text = await req.text();

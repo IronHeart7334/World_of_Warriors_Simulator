@@ -1,7 +1,5 @@
 import {NormalMove, findSpecial} from "./specials.js";
-import {getElement, NO_ELE} from "./elements.js";
 import {Stat} from "./stat.js";
-import {Lead} from "./leaderSkill.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
@@ -11,7 +9,7 @@ const OFFENSE = 33.73;
 const HP = 107.0149;
 
 let nextId = 0;
-export class Warrior{
+class Warrior{
     constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Shell", "Autopotion"]){
 	    this.name = name;
         this.stats = new Map();
@@ -408,7 +406,85 @@ export class Warrior{
     }
 }
 
-export class Stat_boost{
+class Element{
+    constructor(name, color, weakness){
+	    this.name = name;
+	    this.color = color;
+	    this.weakness = weakness;
+	}
+}
+
+function getElement(name){
+    let ret = NO_ELE;
+    switch(name[0].toLowerCase()){
+        case 'w':
+            ret = WATER;
+            break
+        case 'f':
+            ret = FIRE;
+            break;
+        case 'e':
+            ret = EARTH;
+            break;
+        case 'a':
+            ret = AIR;
+            break;
+        default:
+            ret = NO_ELE;
+            break;
+    }
+    return ret;
+}
+
+const FIRE = new Element("Fire", "rgb(255, 0, 0)", "Water");
+const EARTH = new Element("Earth", "rgb(0, 255, 0)", "Fire");
+const AIR = new Element("Air", "rgb(255, 255, 0)", "Earth");
+const WATER = new Element("Water", "rgb(0, 0, 255)", "Air");
+const NO_ELE = new Element("Null", "rgb(100, 100, 100)", undefined);
+
+let ELEMENTS = [
+    FIRE,
+    EARTH,
+    AIR,
+    WATER,
+    NO_ELE
+];
+
+class Lead{
+    constructor(amount, type){
+	    this.amount = amount / 100;
+        switch(type){
+            case "p":
+                this.type = "p";
+                break;
+            case "h":
+                this.type = "h";
+                break;
+            default:
+                this.type = getElement(type);
+                break;
+        }
+    }
+
+    // need healing effects
+	apply(team){
+        let target = (this.amount >= 0) ? team : team.enemyTeam;
+
+		if (this.type === "p"){
+			target.forEach((member)=>{
+				member.applyBoost(Stat.PHYS, new Stat_boost("Leader Skill", this.amount, 1));
+			});
+		}else{
+		    target.forEach((member)=>{
+		        if(member.element === this.type){
+		            member.applyBoost(Stat.ELE, new Stat_boost("Leader Skill", this.amount, 1));
+		        }
+		    });
+		}
+	}
+}
+
+class Stat_boost{
     constructor(id, amount, dur){
         this.id = id;
         this.amount = amount;
@@ -422,4 +498,9 @@ export class Stat_boost{
             this.should_terminate = true;
         }
     }
+}
+
+export {
+    Warrior,
+    Stat_boost
 }
