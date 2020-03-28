@@ -1,4 +1,3 @@
-import {warriors} from "../warrior/realWarriors.js";
 import {Team} from     "../warrior/team.js";
 import {Warrior} from  "../warrior/warrior.js";
 
@@ -8,12 +7,25 @@ export const NEWLINE = /\r?\n|\r/;
 class User{
     constructor(userName="User", warriors=[], teams=[]){
         this.name = userName;
-        this.warriors = warriors;
+        this.warriors = new Map();
+        warriors.forEach((warrior)=>{
+            this.addWarrior(warrior.copy());
+        });
         this.teams = teams;
         this.id = nextId;
         nextId++;
     }
-    
+
+    addWarrior(warrior){
+        this.warriors.set(warrior.name, warrior);
+    }
+
+    getWarrior(warriorName){
+        if(!this.warriors.has(warriorName)){
+            throw new Error(`Warrior not found with name '${warriorName}'`);
+        }
+    }
+
     async loadModules(){
         let response = await fetch("./data/installedModules.txt").then((response)=>response.text());
         //console.log(response);
@@ -23,7 +35,7 @@ class User{
             }
         });
     }
-    
+
     async loadWarriorModule(name){
         let response = await fetch(`./data/${name}`).then((response)=>response.text());
         //todo more complex modules, installedModules says what type it is (warriors, teams, other)
@@ -43,7 +55,7 @@ class User{
         let specCol;
         let lsAmountCol;
         let lsTypeCol;
-        
+
         //console.log(lines);
         let currHeader;
         for(let i = 0; i < lines[0].length; i++){
@@ -72,7 +84,7 @@ class User{
                 console.error("Invalid column header: " + currHeader);
             }
         }
-        
+
         let newWarrior;
         for(let i = 1; i < lines.length; i++){
             //oh wait, still need warrior constructor
@@ -82,16 +94,16 @@ class User{
 
 const DEFAULT_USER = new User(
     "User",
-    warriors,
+    [],
     [
         new Team("Starter Team", [
-            new Warrior("Abu"), 
-            new Warrior("Toki"), 
+            new Warrior("Abu"),
+            new Warrior("Toki"),
             new Warrior("Zenghis")
         ]),
         new Team("Arena Favorites", [
-            new Warrior("Ironhart"), 
-            new Warrior("Erika"), 
+            new Warrior("Ironhart"),
+            new Warrior("Erika"),
             new Warrior("Boris")
         ]),
         new Team("Boost", [
