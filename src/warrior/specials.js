@@ -11,15 +11,15 @@ class Attack{
         this.name = name;
         this.user = null;
     }
-    
+
     setUser(warrior){
         this.user = warrior;
     }
-    
+
     getPhysicalDamage(){
         throw new Error("getPhysicalDamage not overridden for " + this.name);
     }
-    
+
     getElementalDamage(){
         throw new Error("getPhysicalDamage not overridden for " + this.name);
     }
@@ -31,11 +31,11 @@ export class NormalMove extends Attack{
     constructor(){
         super("Normal Move");
     }
-    
+
     getPhysicalDamage(){
         return this.user.getStat(Stat.PHYS);
     }
-    
+
     getElementalDamage(){
         return this.user.getStat(Stat.ELE);
     }
@@ -50,11 +50,11 @@ class SpecialMove extends Attack{
         this.multipliesEle = mult_ele;
         this.ignoresEle = false;
     }
-    
+
     setUser(user){
         this.user = user;
         user.calcStats();
-        
+
         //calculate pip modifier
         /*
          * Each special move has a base damage value,
@@ -77,11 +77,11 @@ class SpecialMove extends Attack{
             }
         }
     }
-    
+
     getPhysicalDamage(){
         return this.user.getStat(Stat.PHYS) * this.mod;
     }
-    
+
     getElementalDamage(){
         let ret = this.user.getStat(Stat.ELE);
         if(this.ignoresEle){
@@ -91,7 +91,7 @@ class SpecialMove extends Attack{
         }
         return ret;
     }
-    
+
     attack(){
 		this.user.strike(this);
     }
@@ -100,6 +100,10 @@ class SpecialMove extends Attack{
         this.user.enemyTeam.forEach((member)=>{
             this.user.strike(this, member);
         });
+    }
+
+    toString(){
+        return `${this.name} ${(this.user == null) ? "" : this.user.pip}`;
     }
 }
 
@@ -110,7 +114,7 @@ class Beat extends SpecialMove {
     }
     setUser(user){
         super.setUser(user);
-        
+
         if(this.shouldCheckEle){
             switch(user.element.name){
             case "Fire":
@@ -126,7 +130,7 @@ class Beat extends SpecialMove {
 			    this.name = "Frozen Crunch";
 			    break;
 		    default:
-			    this.name = "Thunder Strike";    
+			    this.name = "Thunder Strike";
             }
         }
     }
@@ -152,8 +156,8 @@ class AOE extends SpecialMove{
 			this.name = "Ice Storm";
 			break;
 		default:
-			this.name = "null";    
-        }    
+			this.name = "null";
+        }
     }
     attack(){
         this.attackAll();
@@ -175,7 +179,7 @@ class Boost extends SpecialMove{
 				member.boostIsUp = true;
                 member.applyBoost(Stat.ELE, new Stat_boost(this.name, 1.35, 3));
 			}
-		});   
+		});
     };
 }
 
@@ -195,27 +199,27 @@ class RollingThunder extends SpecialMove{
     constructor(){
         super("Rolling Thunder", 7, true);
     }
-    
+
     //strikes 3 random targets on the enemy team. May hit the same person multiple times
     attack(){
         let gainedEnergy = false; //keep track of if the active has been hit,
-        //since teams gain energy every time the active is hit, 
+        //since teams gain energy every time the active is hit,
         ////I need to prevent them from gaining more than one energy per use of this special
-		
+
         let targetTeam = this.user.enemyTeam;
         let numTargets; //need to constantly recalculate
         let target;
-        
+
 	    for(let i = 0; i < 3; i++){
 		    numTargets = targetTeam.membersRem.length;
-		    
+
 		    if(numTargets === 0){
 			    return;
 		    }
-            
+
             //choose a random target
 			target = targetTeam.membersRem[Math.floor(Math.random() * numTargets)];
-		    
+
 		    if (targetTeam.active === target){
 			    // this part
 			    if (gainedEnergy){
@@ -230,7 +234,7 @@ class RollingThunder extends SpecialMove{
     }
 }
 
-// User switches in, attacks, 
+// User switches in, attacks,
 // then switches back to whoever was active before them
 class StealthStrike extends SpecialMove{
     constructor(){
@@ -238,7 +242,7 @@ class StealthStrike extends SpecialMove{
     }
     attack(){
         super.attack();
-		this.user.team.switchin(this.user.team.switchback);        
+		this.user.team.switchin(this.user.team.switchback);
     }
 }
 
@@ -271,7 +275,7 @@ class Healing extends SpecialMove{
 			}
 		});
 		let totalHeal = this.getPhysicalDamage();
-		
+
 		this.user.heal(totalHeal * 0.2);
 		if (toHeal !== undefined){
 			toHeal.heal(totalHeal * 0.8);
@@ -280,7 +284,7 @@ class Healing extends SpecialMove{
 }
 
 /*
- * Attacks the active enemy, healing 
+ * Attacks the active enemy, healing
  * the user by 30% of the damage dealt
  */
 class SoulSteal extends SpecialMove{
@@ -289,7 +293,7 @@ class SoulSteal extends SpecialMove{
         this.ignoresEle = true;
     }
     attack(){
-        this.user.heal(this.user.strike(this) * 0.3);        
+        this.user.heal(this.user.strike(this) * 0.3);
     }
 }
 
@@ -325,7 +329,7 @@ class Regeneration extends SpecialMove{
     }
     attack(){
 		let healing = this.getPhysicalDamage();
-		
+
 		this.user.team.forEach((member)=>{
 		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
                 member.regen = true;
@@ -343,7 +347,7 @@ class Vengeance extends SpecialMove{
 	    let mod = (1.5 - this.user.hp_perc());
 	    let p = this.getPhysicalDamage() * mod;
 	    let e = this.getElementalDamage() * mod;
-	    this.user.strike(this, this.user.enemyTeam.active, p, e);        
+	    this.user.strike(this, this.user.enemyTeam.active, p, e);
     }
 }
 
@@ -370,7 +374,7 @@ class StealthAssault extends SpecialMove{
     }
     attack(){
 	    this.attackAll();
-	    this.user.team.switchin(this.user.team.switchback);        
+	    this.user.team.switchin(this.user.team.switchback);
     }
 }
 
@@ -384,15 +388,15 @@ class TeamStrike extends SpecialMove{
 		let mod = Math.pow(1.2, pow);
 		let p = this.getPhysicalDamage() * mod;
 		let e = this.getElementalDamage() * mod;
-		
-		let dmg = this.user.strike(this, this.user.enemyTeam.active, p, e); 
+
+		let dmg = this.user.strike(this, this.user.enemyTeam.active, p, e);
 		this.user.team.forEach((member)=>{
 			member.takeDamage(dmg / 6, 0);
 			member.hp_rem = Math.round(member.hp_rem);
 		});
 		if (this.user.hp_rem <= 1){
 			this.user.hp_rem = 1;
-		}	
+		}
 	}
 }
 
@@ -404,30 +408,30 @@ class PhantomStrike extends SpecialMove{
 		let basePhys = this.getPhysicalDamage();
 		let baseEle = this.getElementalDamage();
 		let targetTeam = this.user.enemyTeam;
-		
+
 		//first hit
         this.user.strike(
-            this, 
-            targetTeam.active, 
-            basePhys * 1.33, 
+            this,
+            targetTeam.active,
+            basePhys * 1.33,
             baseEle * 1.33
         );
 		if (targetTeam.membersRem.length < 2){return;}
-		
+
 		//second hit
         this.user.strike(
-            this, 
-            targetTeam.next(), 
-            basePhys, 
+            this,
+            targetTeam.next(),
+            basePhys,
             baseEle
         );
 		if (targetTeam.membersRem.length < 3){return;}
-		
+
 		//third hit
         this.user.strike(
-            this, 
-            targetTeam.prev(), 
-            basePhys * 0.67, 
+            this,
+            targetTeam.prev(),
+            basePhys * 0.67,
             baseEle * 0.67
         );
 	}
@@ -452,15 +456,39 @@ class PhantomShield extends SpecialMove{
 }
 
 export function findSpecial(name){
-    switch(name){
+    switch(name.toLowerCase()){
         case "thunder strike":
             return new Beat(false);
 		case "beat":
 			return new Beat(true);
+        case "inferno":
+            return new Beat(true);
+        case "claw crush":
+            return new Beat(true);
+        case "tornado strike":
+            return new Beat(true);
+        case "frozen crunch":
+            return new Beat(true);
 		case "aoe":
 			return new AOE();
+        case "fire storm":
+            return new AOE();
+        case "boulder bash":
+            return new AOE();
+        case "tempest":
+            return new AOE();
+        case "ice storm":
+            return new AOE();
 		case "boost":
 			return new Boost();
+        case "fire boost":
+            return new Boost();
+        case "earth boost":
+            return new Boost();
+        case "air boost":
+            return new Boost();
+        case "water boost":
+            return new Boost();
 		case "poison":
 			return new Poison();
 		case "rolling thunder":

@@ -4,7 +4,7 @@ import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
 
-// The base values for both stats, might change them later
+// The base values for both stats
 const OFFENSE = 33.73;
 const HP = 107.0149;
 
@@ -412,6 +412,10 @@ class Element{
 	    this.color = color;
 	    this.weakness = weakness;
 	}
+
+    toString(){
+        return this.name;
+    }
 }
 
 function getElement(name){
@@ -482,6 +486,10 @@ class Lead{
 		    });
 		}
 	}
+
+    toString(){
+        return `${(this.amount < 0) ? "" : "+"}${parseInt(this.amount * 100)}% ${this.type}`;
+    }
 }
 
 class Stat_boost{
