@@ -1,6 +1,6 @@
 //store as a spreadsheet
 //not currently used
-
+//being moved to defaultWarriors.csv
 throw new Error("Do not use this file: it is outdated!");
 
 // need: Lance, Kadam, Pacorus, Gaja Mada, Gwen, zuu, balash, alboin
@@ -10,38 +10,31 @@ export let warriors = [
 	["Le Roc", [1.05, 0.25, 0.7, 2, 3], "a", "thunder strike", [15, "a"]],
  	["Yada", [0.7, 0.25, 1.1, 2, 1], "w", "thunder strike", [10, "h"]],
 
- 	["Abu", [0.9334, 0.4, 1.05, 1, 1], "f", "beat", [15, "f"]],
-    //["Kadam", []],
+ 	//["Kadam", []],
  	["Volten", [1.2665, 0.4, 0.58, 2, 3], "f", "beat", [30, "f"]],
  	["Anil", [0.9, 0.4, 0.85, 0, 4], "f", "beat", [-30, "w"]],
 
     //["Pacorus", [], "e", "beat", [15, "e"]],
- 	["Aka", [1.0165, 0.4, 0.9, 0, 2], "e", "beat", [5, "p"]],
  	["Doongara", [1.0334, 0.5, 0.96, 0, 3], "e", "beat", [-30, "e"]],
  	["Seni", [0.9665, 0.45, 0.84, 0, 4], "e", "beat", [-30, "f"]],
 
     //Mind Candy never implemented a 1 pip Tornado Strike
- 	["Toki", [1, 0.4, 1, 0, 2], "a", "beat", [-15, "e"]],
  	["Maximus", [0.9334, 0.4, 0.74, 1, 3], "a", "beat", [30, "a"]],
  	["Viriathus", [1.0668, 0.4, 0.73, 1, 4], "a", "beat", [10, "p"]],
 
- 	["Zenghis", [1.05, 0.4, 0.95, 1, 1], "w", "beat", [-15, "a"]],
  	["Kasim", [0.95, 0.4, 0.88, 1, 2], "w", "beat", [-30, "w"]],
  	["Alkan", [0.9332, 0.5, 0.7, 1, 3], "w", "beat", [15, "w"]],
     //["Gajah Mada", [], "w", "beat", []],
 
     //Mind Candy never implemented a 1 pip Fire Storm
- 	["Boris", [1.15, 0.45, 0.75, 2, 2], "f", "aoe", [15, "f"]],
  	["Hector", [0.9165, 0.45, 0.8, 2, 3], "f", "aoe", [10, "p"]],
     //["Gwen", [], "f", "aoe", []],
 
  	["Osgood", [0.7334, 0.4, 1.15, 1, 1], "e", "aoe", [-15, "e"]],
- 	["Ironhart", [1.1, 0.45, 0.86, 1, 2], "e", "aoe", [30, "e"]],
-    //["Zuu", [], "e", "aoe", []],
+ 	//["Zuu", [], "e", "aoe", []],
  	["Khutulun", [1.3, 0.4, 0.65, 1, 4], "e", "aoe", [30, "e"]],
 
     //["Balash", [], "a", "aoe", []],
- 	["Erika", [1.0665, 0.4, 0.88, 1, 2], "a", "aoe", [30, "a"]],
  	["Ping", [0.8, 0.55, 0.95, 1, 3], "a", "aoe", [-30, "e"]],
  	["Grim", [0.7, 0.45, 0.67, 1, 4], "a", "aoe", [10, "h"]],
 

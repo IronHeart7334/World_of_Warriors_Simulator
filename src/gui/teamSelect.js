@@ -51,14 +51,14 @@ export class TeamSelect extends View{
 
     setTeam1(team){
         this.team1 = team;
-        $("#team1").text(team.getDesc());
+        $("#team1").text(team.toString());
         if(this.team2 !== null){
             $("#header").empty().text(`${this.team1.name} VS ${this.team2.name}`);
         }
     }
     setTeam2(team){
         this.team2 = team;
-        $("#team2").text(team.getDesc());
+        $("#team2").text(team.toString());
         if(this.team1 !== null){
             $("#header").empty().text(`${this.team1.name} VS ${this.team2.name}`);
         }

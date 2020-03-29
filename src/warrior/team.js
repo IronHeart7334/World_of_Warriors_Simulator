@@ -132,7 +132,7 @@ export class Team{
         this.check_if_ko();
 	}
 
-    getDesc(){
+    toString(){
         let ret = this.name + ": \n";
         this.members.forEach((warrior)=>{
             ret += `* ${warrior.name}\n`;

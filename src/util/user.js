@@ -52,7 +52,7 @@ class User{
     */
     createTeam(teamName, warriorNames){
         let user = this;
-        addTeam(new Team(teamName, warriorNames.map((warriorName)=>{
+        this.addTeam(new Team(teamName, warriorNames.map((warriorName)=>{
             return user.getWarrior(warriorName);
         })));
     }
@@ -74,16 +74,8 @@ const DEFAULT_USER = new User(
     [],
     [
         /*
-        new Team("Starter Team", [
-            new Warrior("Abu"),
-            new Warrior("Toki"),
-            new Warrior("Zenghis")
-        ]),
-        new Team("Arena Favorites", [
-            new Warrior("Ironhart"),
-            new Warrior("Erika"),
-            new Warrior("Boris")
-        ]),
+        Create these in defaultTeams.csv
+        once these warriors are moved to defaultWarriors.csv
         new Team("Boost", [
             new Warrior("Kwan"),
             new Warrior("Joan"),

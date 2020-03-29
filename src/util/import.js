@@ -1,27 +1,35 @@
 import {Warrior} from "../warrior/Warrior.js";
 
-const MODULE_PATH_BASE = "./data";
-const MODULE_LIST_PATH = MODULE_PATH_BASE + "/installedModules.txt";
+const DATA_PATH_BASE = "./data";
+const WARRIOR_FILE_LIST_PATH = DATA_PATH_BASE + "/installedWarriorFiles.txt";
+const TEAM_FILE_LIST_PATH = DATA_PATH_BASE + "/installedTeamFiles.txt";
 const NEWLINE = /\r?\n|\r/;
 
-async function getModuleList(){
-    let req = await fetch(MODULE_LIST_PATH);
+async function fetchFileList(path){
+    let req = await fetch(path);
     let text = await req.text();
-    let moduleList = [];
+    let fileList = [];
     text.split(NEWLINE).forEach((line)=>{
         if(line.trim().length > 0 && line[0] !== "#"){
-            moduleList.push(line.trim());
+            fileList.push(line.trim());
         }
     });
-    return moduleList;
+    return fileList;
+}
+async function getWarriorFileList(){
+    return fetchFileList(WARRIOR_FILE_LIST_PATH);
+}
+async function getTeamFileList(){
+    return fetchFileList(TEAM_FILE_LIST_PATH);
 }
 
-async function loadModule(moduleName, intoUser){
-    let req = await fetch(MODULE_PATH_BASE + "/" + moduleName);
+//these next two contain shared functionality, so I will want to pull some of them out into another function later
+async function loadWarriorFile(fileName, intoUser){
+    let req = await fetch(DATA_PATH_BASE + "/" + fileName);
     let text = await req.text();
 
     //this is the format warriors are stored in in defaultWarriors.csv
-    //oh wait, wowdata.csv doesn't contain their element, so it's pretty useless
+    //wowdata.csv doesn't contain their element, so it's pretty useless
     let columns = [
         "name",
         "offense",
@@ -38,7 +46,6 @@ async function loadModule(moduleName, intoUser){
     let colToIdx = new Map();
     let rows = text.split(NEWLINE);
     let headers = rows.shift().split(",").map((cell)=>cell.trim().toUpperCase()); // returns rows[0] and pops it from rows
-    //console.log(headers);
     for(let i = 0; i < headers.length; i++){
         for(let j = 0; j < columns.length; j++){
             if(headers[i] === columns[j].toUpperCase()){
@@ -47,7 +54,7 @@ async function loadModule(moduleName, intoUser){
         }
     }
 
-    rows.filter((row)=>row.trim() !== "").forEach((row)=>{
+    rows.filter((row)=>row.trim() !== "" && row[0] !== "#").forEach((row)=>{
         let split = row.split(",").map((cell)=>cell.trim());
         let newWarrior = new Warrior(
             split[colToIdx.get("name")],
@@ -65,18 +72,60 @@ async function loadModule(moduleName, intoUser){
         intoUser.addWarrior(newWarrior);
     });
 }
+async function loadTeamFile(fileName, intoUser){
+    let req = await fetch(DATA_PATH_BASE + "/" + fileName);
+    let text = await req.text();
 
-async function loadAllModules(intoUser){
-    let moduleList = await getModuleList();
-    moduleList.forEach(async (moduleName)=>{
-        await loadModule(moduleName, intoUser);
+    let columns = [
+        "team name",
+        "warrior 1 name",
+        "warrior 2 name",
+        "warrior 3 name"
+    ];
+
+    let colToIdx = new Map();
+    let rows = text.split(NEWLINE);
+    let headers = rows.shift().split(",").map((cell)=>cell.trim().toUpperCase()); // returns rows[0] and pops it from rows
+    for(let i = 0; i < headers.length; i++){
+        for(let j = 0; j < columns.length; j++){
+            if(headers[i] === columns[j].toUpperCase()){
+                colToIdx.set(columns[j], i);
+            }
+        }
+    }
+
+    rows.filter((row)=>row.trim() !== "" && row[0] !== "#").forEach((row)=>{
+        let split = row.split(",").map((cell)=>cell.trim());
+        let warriorNames = [];
+        let warriorName;
+        for(let i = 1; i <= 3; i++){
+            warriorName = split[colToIdx.get(`warrior ${i} name`)];
+            if(warriorName === ""){
+                //team has less than 3 warriors
+            } else {
+                warriorNames.push(warriorName)
+            }
+        }
+        intoUser.createTeam(split[colToIdx.get("team name")], warriorNames);
     });
-    let allPromises = moduleList.map((moduleName)=>{
-        return loadModule(moduleName, intoUser);
+}
+
+async function loadAllDataInto(intoUser){
+    let warriorList = await getWarriorFileList();
+    let teamList = await getTeamFileList();
+
+    let allWarriorPromises = warriorList.map((fileName)=>{
+        return loadWarriorFile(fileName, intoUser);
     });
-    await Promise.all(allPromises);
+    await Promise.all(allWarriorPromises);
+
+    //need to wait until after loading Warriors into the User to load teams
+    let allTeamPromises = teamList.map((fileName)=>{
+        return loadTeamFile(fileName, intoUser);
+    });
+    await Promise.all(allTeamPromises);
 }
 
 export {
-    loadAllModules
+    loadAllDataInto
 };

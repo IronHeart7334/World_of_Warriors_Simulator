@@ -1,0 +1,5 @@
+# once you add a team file to this folder,
+# you can add the file's name to this file
+# to automatically import the teams contained
+# therein.
+defaultTeams.csv
