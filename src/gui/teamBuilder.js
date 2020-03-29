@@ -8,18 +8,21 @@ export class TeamBuilder extends View{
     constructor(user){
         super();
         this.user = user;
-        this.options = Array.from(user.warriors.keys()); //get warrior names
-        this.currIdx = Number.parseInt(this.options.length / 2);
+        this.warriorChoices = user.getAllWarriors();
+        this.currIdx = Number.parseInt(this.warriorChoices.length / 2);
         this.teamWorkshop = []; //team thus far
     }
 
     linkToPage(){
         let page = this;
-        $("#back-button").click(()=>page.getController().setView(Controller.MAIN_MENU));
+        $("#back-button").click(()=>{
+            page.teamWorkshop = [];
+            page.getController().setView(Controller.MAIN_MENU);
+        });
         $("#left").click(()=>page.left());
         $("#right").click(()=>page.right());
         $("#select").click(()=>{
-            page.selectWarrior(page.options[page.currIdx]);
+            page.selectWarrior(page.warriorChoices[page.currIdx]);
         });
         this.updateWarriorCard();
     }
@@ -31,30 +34,29 @@ export class TeamBuilder extends View{
         }
     }
     right(){
-        if(this.currIdx !== this.options.length - 1){
+        if(this.currIdx !== this.warriorChoices.length - 1){
             this.currIdx++;
             this.updateWarriorCard();
         }
     }
 
-    selectWarrior(name){
+    selectWarrior(warrior){
         //todo: skill selection
-        this.teamWorkshop.push(name);
-        this.options.splice(this.options.indexOf(name), 1);
+        this.teamWorkshop.push(warrior);
+        this.warriorChoices.splice(this.warriorChoices.indexOf(warrior), 1);
         this.currIdx--;
         if(this.currIdx < 0){
             this.currIdx = 0;
         }
 
-        $("#team").append(`<li>${name}</li>`);
+        $("#team").append(`<li>${warrior.name}</li>`);
 
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
             //save the team
-            this.user.teams.push(new Team(teamName, this.teamWorkshop.map((name)=>{
-                return this.user.getWarrior(name);
-            })));
-
+            let newTeam = new Team(teamName, this.teamWorkshop.map((warrior)=>warrior.copy()));
+            this.user.addTeam(newTeam);
+            this.teamWorkshop = [];
             this.getController().setView(Controller.MAIN_MENU);
         }
         this.updateWarriorCard();
@@ -63,13 +65,13 @@ export class TeamBuilder extends View{
     updateWarriorCard(){
         //update left
         if(this.currIdx !== 0){
-            $("#left-warrior").text(this.options[this.currIdx - 1]);
+            $("#left-warrior").text(this.warriorChoices[this.currIdx - 1].name);
         } else {
             $("#left-warrior").text("");
         }
 
         //update middle
-        let w = this.user.getWarrior(this.options[this.currIdx]);
+        let w = this.warriorChoices[this.currIdx];
         w.calcStats();
         $("#warrior-card").css("background-color", w.element.color);
 
@@ -100,8 +102,8 @@ export class TeamBuilder extends View{
         $("#arm").text(arm);
 
         //update right
-        if(this.currIdx !== this.options.length - 1){
-            $("#right-warrior").text(this.options[this.currIdx + 1]);
+        if(this.currIdx !== this.warriorChoices.length - 1){
+            $("#right-warrior").text(this.warriorChoices[this.currIdx + 1].name);
         } else {
             $("#right-warrior").text("");
         }

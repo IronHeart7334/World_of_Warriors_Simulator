@@ -11,7 +11,10 @@ class User{
         warriors.forEach((warrior)=>{
             this.addWarrior(warrior.copy());
         });
-        this.teams = teams;
+        this.teams = new Map();
+        teams.forEach((team)=>{
+            this.addTeam(team.copy());
+        });
         this.id = nextId;
         nextId++;
     }
@@ -25,6 +28,28 @@ class User{
             throw new Error(`Warrior not found with name '${warriorName}'`);
         }
         return this.warriors.get(warriorName);
+    }
+
+    /*
+    Returns an array of all of this User's Warriors
+    */
+    getAllWarriors(){
+        return Array.from(this.warriors.values());
+    }
+
+    addTeam(team){
+        this.teams.set(team.name, team);
+    }
+
+    getTeam(teamName){
+        if(!this.teams.has(teamName)){
+            throw new Error(`Team not found with name '${teamName}'`);
+        }
+        return this.teams.get(teamName);
+    }
+
+    getAllTeams(){
+        return Array.from(this.teams.values());
     }
 }
 

@@ -8,11 +8,11 @@ export class Controller{
     constructor(){
         this.user = null;
     }
-    
+
     setUser(user){
         this.user = user;
     }
-    
+
     //view is an enum (Controller.MAIN_MENU, for example)
     //opt is only used by teamSelect as of now
     setView(viewEnum, opt={}){
@@ -26,7 +26,7 @@ export class Controller{
             case Controller.TEAM_SELECT:
                 if(this.user === null){
                     alert("You need to log in before fighting");
-                } else if(this.user.teams.length < 2){
+                } else if(this.user.teams.size < 2){
                     alert("You need at least 2 teams to battle");
                 } else {
                     obj = new TeamSelect(this.user, this.user);

@@ -1,4 +1,4 @@
-import {Warrior} from "./warrior.js";
+//import {Warrior} from "./warrior.js";
 
 export class Team{
     constructor(name, members){
@@ -14,11 +14,14 @@ export class Team{
         if(members.length <= 0 || members.length > 3){
             throw new Error("Team must contain between 1 and 3 members");
         }
+        /*
+        Instanceof appears not to work with ES6 classes
+
         members.forEach((member)=>{
             if(!(member instanceof Warrior)){
-                throw new Error("members argument must be an array of Warriors");
+                throw new Error(`members argument must be an array of Warriors, but it contains ${member}`);
             }
-        });
+        });*/
         this.name = name;
         this.members = members;
         this.koListeners = [];

@@ -5,10 +5,10 @@ import {loadAllModules} from "./util/import.js";
 
 let user = DEFAULT_USER;
 loadAllModules(user).then(()=>{
-
+    /*
     user.warriors.forEach((w)=>{
         console.log(w.toString());
-    });
+    });*/
 
     //need to use then, as 'await' doesn't work, given that this isn't wrapped in an async function
 
