@@ -1,6 +1,25 @@
+import {Warrior} from "./warrior.js";
+
 export class Team{
-    constructor(name, members=[]){
-	    this.name = name;
+    constructor(name, members){
+        if(name == null){
+            throw new Error("Cannot create Team with no name");
+        }
+        if(members == null){
+            throw new Error("Cannot create Team with no members");
+        }
+        if(!Array.isArray(members)){
+            throw new Error("members argument must be an array");
+        }
+        if(members.length <= 0 || members.length > 3){
+            throw new Error("Team must contain between 1 and 3 members");
+        }
+        members.forEach((member)=>{
+            if(!(member instanceof Warrior)){
+                throw new Error("members argument must be an array of Warriors");
+            }
+        });
+        this.name = name;
         this.members = members;
         this.koListeners = [];
     }
@@ -8,7 +27,7 @@ export class Team{
     forEach(func){
         this.membersRem.forEach((member)=>func(member));
     }
-    
+
 	init(){
 		this.membersRem = [];
 		for (let member of this.members){
@@ -30,7 +49,7 @@ export class Team{
 			this.energy += 1;
 		}
 	}
-	
+
 	prev(){
 		/*
 		Returns the member of this' members
@@ -72,11 +91,11 @@ export class Team{
 		}
 		this.check_if_ko();
 	}
-    
+
     addKoListener(f){
         this.koListeners.push(f);
     }
-    
+
 	check_if_ko(){
 		/*
          * Removes KOed warriors from the members remaining
@@ -92,7 +111,7 @@ export class Team{
 			this.switchin(this.membersRem[index]);
 		}
 	}
-	
+
     //Don't delete me yet!
 	turn_part2(){
 		/*
@@ -102,14 +121,14 @@ export class Team{
         if (!this.leader.check_if_ko()){
 			this.leader.lead_skill.apply(this);
 		}
-        
-		
+
+
 		for (let member of this.membersRem){
 			member.reset_dmg();
 		}
         this.check_if_ko();
 	}
-    
+
     getDesc(){
         let ret = this.name + ": \n";
         this.members.forEach((warrior)=>{
@@ -117,7 +136,7 @@ export class Team{
         });
         return ret;
     }
-    
+
     copy(){
         return new Team(this.name, this.members.map((warrior)=>warrior.copy()));
     }
