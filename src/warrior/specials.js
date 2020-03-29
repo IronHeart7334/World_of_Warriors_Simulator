@@ -27,7 +27,7 @@ class Attack{
 
 
 
-export class NormalMove extends Attack{
+class NormalMove extends Attack{
     constructor(){
         super("Normal Move");
     }
@@ -455,7 +455,8 @@ class PhantomShield extends SpecialMove{
 	}
 }
 
-export function findSpecial(name){
+//might want to change this to not use a huge switch statement
+function findSpecial(name){
     switch(name.toLowerCase()){
         case "thunder strike":
             return new Beat(false);
@@ -520,7 +521,11 @@ export function findSpecial(name){
 		case "phantom shield":
 			return new PhantomShield();
 		default:
-			console.log("The Special move by the name of " + name + " does not exist. Defaulting to Thunder Strike");
-			return new Beat(false);
+			throw new Error("The Special move by the name of " + name + " does not exist.");
 	}
 }
+
+export {
+    NormalMove,
+    findSpecial
+};

@@ -29,7 +29,7 @@ class WarriorSkill{
     }
 }
 
-export class CriticalHit extends WarriorSkill{
+class CriticalHit extends WarriorSkill{
     constructor(pip=1){
         super("Critical Hit", pip);
     }
@@ -60,7 +60,7 @@ export class CriticalHit extends WarriorSkill{
     }
 }
 
-export class Guard extends WarriorSkill{
+class Guard extends WarriorSkill{
     constructor(pip=1){
         super("Guard", pip);
     }
@@ -89,4 +89,25 @@ export class Guard extends WarriorSkill{
     copy(){
         return new Guard(this.pip);
     }
+
+    toString(){
+        return `Guard (${this.pip} pip)`;
+    }
 }
+
+function getWarriorSkill(name, pip=1){
+    let ret = null;
+    switch(name.toLowerCase()){
+        case "critical hit":
+            ret = new CriticalHit(pip);
+            break;
+        case "guard":
+            ret = new Guard(pip);
+            break;
+    }
+    return ret;
+}
+
+export {
+    getWarriorSkill
+};

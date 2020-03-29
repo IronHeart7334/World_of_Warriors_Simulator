@@ -1,5 +1,6 @@
 import {NormalMove, findSpecial} from "./specials.js";
 import {Stat} from "./stat.js";
+import {getWarriorSkill} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
@@ -10,7 +11,7 @@ const HP = 107.0149;
 
 let nextId = 0;
 class Warrior{
-    constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Shell", "Autopotion"]){
+    constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Critical Hit"]){
         this.ctorArgs = Array.from(arguments);
         this.name = name;
         this.stats = new Map();
@@ -25,7 +26,7 @@ class Warrior{
 	    this.level = 34;
 
         this.warriorSkills = [];
-        //skills.forEach((skill)=>addSkill(getSkillByName(skill)));
+        skills.forEach((skill)=>addSkill(getWarriorSkill(skill)));
 
         this.normalMove = new NormalMove();
         this.normalMove.setUser(this);
