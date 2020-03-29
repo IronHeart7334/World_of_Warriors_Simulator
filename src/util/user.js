@@ -24,6 +24,7 @@ class User{
         if(!this.warriors.has(warriorName)){
             throw new Error(`Warrior not found with name '${warriorName}'`);
         }
+        return this.warriors.get(warriorName);
     }
 
     async loadModules(){
@@ -96,6 +97,7 @@ const DEFAULT_USER = new User(
     "User",
     [],
     [
+        /*
         new Team("Starter Team", [
             new Warrior("Abu"),
             new Warrior("Toki"),
@@ -121,6 +123,7 @@ const DEFAULT_USER = new User(
             new Warrior("Clovis"),
             new Warrior("Blaine")
         ])
+        */
     ]
 );
 

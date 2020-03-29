@@ -11,7 +11,8 @@ const HP = 107.0149;
 let nextId = 0;
 class Warrior{
     constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Shell", "Autopotion"]){
-	    this.name = name;
+        this.ctorArgs = Array.from(arguments);
+        this.name = name;
         this.stats = new Map();
         this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, OFFENSE * offMult * (1.0 - eleRatio), true));
         this.stats.set(Stat.ELE, new Stat(Stat.ELE, OFFENSE * offMult * eleRatio, true));
@@ -24,6 +25,7 @@ class Warrior{
 	    this.level = 34;
 
         this.warriorSkills = [];
+        //skills.forEach((skill)=>addSkill(getSkillByName(skill)));
 
         this.normalMove = new NormalMove();
         this.normalMove.setUser(this);
@@ -384,7 +386,8 @@ class Warrior{
     }
 
     copy(){
-        let ret = new Warrior(this.name);
+        let ret = new Warrior(...(this.ctorArgs));
+        //currenly need this, as constructor doesn't yet add warrior skills
         this.warriorSkills.forEach((skill)=>{
             ret.addSkill(skill.copy());
         });

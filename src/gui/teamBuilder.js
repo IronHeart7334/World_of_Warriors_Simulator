@@ -8,11 +8,11 @@ export class TeamBuilder extends View{
     constructor(user){
         super();
         this.user = user;
-        this.options = user.warriors.map((arr)=>arr[0]);
+        this.options = Array.from(user.warriors.keys()); //get warrior names
         this.currIdx = Number.parseInt(this.options.length / 2);
         this.teamWorkshop = []; //team thus far
     }
-    
+
     linkToPage(){
         let page = this;
         $("#back-button").click(()=>page.getController().setView(Controller.MAIN_MENU));
@@ -23,7 +23,7 @@ export class TeamBuilder extends View{
         });
         this.updateWarriorCard();
     }
-    
+
     left(){
         if(this.currIdx !== 0){
             this.currIdx--;
@@ -36,27 +36,30 @@ export class TeamBuilder extends View{
             this.updateWarriorCard();
         }
     }
-    
+
     selectWarrior(name){
         //todo: skill selection
         this.teamWorkshop.push(name);
         this.options.splice(this.options.indexOf(name), 1);
         this.currIdx--;
-        
+        if(this.currIdx < 0){
+            this.currIdx = 0;
+        }
+
         $("#team").append(`<li>${name}</li>`);
-        
+
         if(this.teamWorkshop.length === 3){
             let teamName = prompt("What do you want to call this team?");
             //save the team
             this.user.teams.push(new Team(teamName, this.teamWorkshop.map((name)=>{
-                return new Warrior(name);
+                return this.user.getWarrior(name);
             })));
-            
+
             this.getController().setView(Controller.MAIN_MENU);
-        } 
+        }
         this.updateWarriorCard();
     }
-    
+
     updateWarriorCard(){
         //update left
         if(this.currIdx !== 0){
@@ -64,20 +67,20 @@ export class TeamBuilder extends View{
         } else {
             $("#left-warrior").text("");
         }
-        
+
         //update middle
-        let w = new Warrior(this.options[this.currIdx]);
+        let w = this.user.getWarrior(this.options[this.currIdx]);
         w.calcStats();
         $("#warrior-card").css("background-color", w.element.color);
-        
+
         $("#level").text(w.level);
         $("#name").text(w.name);
         $("#special").text(w.special.name + " " + w.pip);
-        
+
         $("#phys").text(w.getStat(Stat.PHYS));
         $("#ele").text(w.getStat(Stat.ELE));
         $("#hp").text(w.getStat(Stat.HP));
-        
+
         let arm;
         switch(w.getStat(Stat.ARM)){
             case 0:
@@ -95,7 +98,7 @@ export class TeamBuilder extends View{
                 break;
         }
         $("#arm").text(arm);
-        
+
         //update right
         if(this.currIdx !== this.options.length - 1){
             $("#right-warrior").text(this.options[this.currIdx + 1]);
