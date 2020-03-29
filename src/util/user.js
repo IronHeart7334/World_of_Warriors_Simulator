@@ -41,6 +41,22 @@ class User{
         this.teams.set(team.name, team);
     }
 
+    /*
+    Creates a Team with the given name,
+    and adds it to this User's list of teams.
+    WarriorNames is an array of strings,
+    the names of warriors to put on the Team.
+    Note that this User must have a warrior
+    with each name in warriorNames for this
+    to work.
+    */
+    createTeam(teamName, warriorNames){
+        let user = this;
+        addTeam(new Team(teamName, warriorNames.map((warriorName)=>{
+            return user.getWarrior(warriorName);
+        })));
+    }
+
     getTeam(teamName){
         if(!this.teams.has(teamName)){
             throw new Error(`Team not found with name '${teamName}'`);
