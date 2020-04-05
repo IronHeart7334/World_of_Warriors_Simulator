@@ -4,6 +4,17 @@ import {getWarriorSkill} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
+import {TYPES, notNull, verifyType} from "../util/verifyType.js";
+
+/*
+The warrior.js module contains most of the classes and functions relevant to player characters (Warriors) in battle.
+The exceptions are Special Moves (active abilities), which are stored in specials.js,
+and Warrior Skills (passive abilities), which are stored in warriorSkills.js.
+In the future, Talismans (items), will have their own file.
+
+This module contains the following exports:
+- Warrior: the class representing player characters.
+*/
 
 // The base values for both stats
 const OFFENSE = 33.73;
@@ -20,7 +31,7 @@ class Warrior{
         this.stats.set(Stat.ARM, new Stat(Stat.ARM, armor));
         this.stats.set(Stat.HP, new Stat(Stat.HP, HP * hpMult, true));
 	    this.pip = pip;
-	    this.element = getElement(element);
+	    this.element = getElementByName(element);
 	    this.special = findSpecial(special);
         this.lead_skill = new Lead(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
@@ -102,13 +113,10 @@ class Warrior{
     calcPhysDmg(phys, attack){
         return phys * (1 - this.getStat(Stat.ARM) * 0.12);
     }
+
+    //against this
     calcEleDmg(ele, attack){
-        if (this.element.weakness === attack.user.element.name){
-			ele *= 1.7;
-		} else if (this.element.name === attack.user.element.weakness){
-			ele *= 0.3;
-		}
-        return ele;
+        return ele * attack.user.element.getMultiplierAgainst(this.element);
     }
     calcDamage(phys, ele, attack){
         return this.calcPhysDmg(phys, attack) + this.calcEleDmg(ele, attack);
@@ -410,53 +418,81 @@ class Warrior{
     }
 }
 
+
+
+/*
+The Element class is used only by this file.
+It is used to calculate how much elemental
+damage warrior's deal to each other, based
+on their elemental matchup.
+*/
 class Element{
     constructor(name, color, weakness){
-	    this.name = name;
+        verifyType(name, TYPES.string);
+        verifyType(color, TYPES.string);
+        verifyType(weakness, TYPES.string);
+        this.name = name;
 	    this.color = color;
 	    this.weakness = weakness;
 	}
+
+    getMultiplierAgainst(target){
+        notNull(target);
+        let ele = null;
+        let ret = 0;
+        if(target instanceof Element){
+            ele = target;
+        } else if(target instanceof Warrior){
+            ele = target.element;
+        } else {
+            throw new Error("parameter must be either an Element or a Warrior");
+        }
+
+        if(this.weakness === ele.name){
+            ret = 0.7;
+        } else if(ele.weakness === this.name){
+            ret = 1.7;
+        } else {
+            ret = 1.0;
+        }
+
+        return ret;
+    }
 
     toString(){
         return this.name;
     }
 }
 
-function getElement(name){
-    let ret = NO_ELE;
-    switch(name[0].toLowerCase()){
-        case 'w':
-            ret = WATER;
-            break
-        case 'f':
-            ret = FIRE;
-            break;
-        case 'e':
-            ret = EARTH;
-            break;
-        case 'a':
-            ret = AIR;
-            break;
-        default:
-            ret = NO_ELE;
-            break;
+const ELEMENTS = new Map();
+ELEMENTS.set("f", new Element("Fire", "rgb(255, 0, 0)", "Water"));
+ELEMENTS.set("e", new Element("Earth", "rgb(0, 255, 0)", "Fire"));
+ELEMENTS.set("a", new Element("Air", "rgb(255, 255, 0)", "Earth"));
+ELEMENTS.set("w", new Element("Water", "rgb(0, 0, 255)", "Air"));
+ELEMENTS.set("n", new Element("Null", "rgb(100, 100, 100)", ""));
+
+/*
+Returns the element whose first letter
+is the same of that of the given parameter.
+*/
+function getElementByName(name){
+    verifyType(name, TYPES.string);
+    let ret = null;
+    let letter = name[0].toLowerCase();
+
+    if(ELEMENTS.has(letter)){
+        ret = ELEMENTS.get(letter);
+    } else {
+        let options = "";
+        ELEMENTS.forEach((value, key)=>{
+            options += `\'${key}\' (${value.name})\n`;
+        });
+        throw new Error(`There is no element starting with \'${letter}\'. Options are\n${options} Note that this is case insensitive`);
     }
     return ret;
 }
 
-const FIRE = new Element("Fire", "rgb(255, 0, 0)", "Water");
-const EARTH = new Element("Earth", "rgb(0, 255, 0)", "Fire");
-const AIR = new Element("Air", "rgb(255, 255, 0)", "Earth");
-const WATER = new Element("Water", "rgb(0, 0, 255)", "Air");
-const NO_ELE = new Element("Null", "rgb(100, 100, 100)", undefined);
 
-let ELEMENTS = [
-    FIRE,
-    EARTH,
-    AIR,
-    WATER,
-    NO_ELE
-];
 
 class Lead{
     constructor(amount, type){
@@ -469,7 +505,7 @@ class Lead{
                 this.type = "h";
                 break;
             default:
-                this.type = getElement(type);
+                this.type = getElementByName(type);
                 break;
         }
     }
