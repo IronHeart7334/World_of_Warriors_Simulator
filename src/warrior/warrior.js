@@ -49,7 +49,7 @@ class Warrior{
 	    this.pip = pip;
 	    this.element = getElementByName(element);
 	    this.special = findSpecial(special);
-        this.lead_skill = new Lead(leaderSkillAmount, leaderSkillType);
+        this.lead_skill = new LeaderSkill(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
 
         this.warriorSkills = [];
@@ -510,7 +510,13 @@ function getElementByName(name){
 
 
 
-class Lead{
+/*
+LeaderSkills are special bonuses
+a team receives from the first member
+on the team... so long as they aren't
+KOed
+*/
+class LeaderSkill{
     constructor(amount, type){
 	    this.amount = amount / 100;
         switch(type){
@@ -547,6 +553,9 @@ class Lead{
         return `${(this.amount < 0) ? "" : "+"}${parseInt(this.amount * 100)}% ${this.type}`;
     }
 }
+
+
+
 
 class Stat_boost{
     constructor(id, amount, dur){
