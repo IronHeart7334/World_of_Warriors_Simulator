@@ -1,19 +1,21 @@
 /*
- * This module is used to verify the types of parameters passed to functions.
- *
- * All of these functions check to see if the given input meets a certain condition,
- * if the condition is not met, throws an Error.
- *
- * All of these functions should be invoked on each parameter passed into functions.
- *
- * Module summary:
- * -TYPES: object
- * -notNull(val)
- * -verifyType(val, type)*
- * -verifyClass(val, className)*
- *
- * (*see individual function documentation)
- */
+This module is used to verify the types of parameters passed to functions.
+All of these functions check to see if the given input meets a certain condition,
+if the condition is not met, throws an Error.
+
+All of these functions should be invoked on each parameter passed into functions.
+
+Module summary:
+-TYPES: object
+-notNull(val)
+-verifyType(val, type)*
+-inRange(min, num, max)
+-notNegative(num)
+-positive(num)
+-verifyClass(val, className)*
+
+(*see individual function documentation)
+*/
 
 /*
  * Used by verifyType.
@@ -63,6 +65,37 @@ function verifyType(val, type){
         throw new Error(val + " must be of type " + type + ", not " + typeof val);
     }
     return true;
+}
+
+/*
+verifies that num is between min and max
+(inclusive of both endpoints)
+*/
+function inRange(min, num, max){
+    [min, num, max].forEach((n)=>verifyType(n, TYPES.number));
+    if(min > max){
+        throw new Error("min must be less than max");
+    }
+    if(min > num){
+        throw new Error("num must be more than or equal to min");
+    }
+    if(num > max){
+        throw new Error("num must be less than or equal to max")
+    }
+}
+
+function notNegative(num){
+    verifyType(num, TYPES.number);
+    if(num < 0){
+        throw new Error("num must not be negative");
+    }
+}
+
+function positive(num){
+    verifyType(num, TYPES.number);
+    if(num <= 0){
+        throw new Error("num must be positive");
+    }
 }
 
 /*
@@ -117,6 +150,9 @@ export {
     TYPES,
     notNull,
     verifyType,
+    inRange,
+    notNegative,
+    positive,
     verifyClass,
     toArray
 };

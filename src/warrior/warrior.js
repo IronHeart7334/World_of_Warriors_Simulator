@@ -4,7 +4,7 @@ import {getWarriorSkill} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
-import {TYPES, notNull, verifyType} from "../util/verifyType.js";
+import {TYPES, notNull, verifyType, inRange, notNegative, positive} from "../util/verifyType.js";
 
 /*
 The warrior.js module contains most of the classes and functions relevant to player characters (Warriors) in battle.
@@ -22,7 +22,23 @@ const HP = 107.0149;
 
 let nextId = 0;
 class Warrior{
-    constructor(name="Warrior", element="null", offMult=1.0, eleRatio=0.4, armor=1, hpMult=1.0, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Critical Hit"]){
+    /*
+    Arguments:
+    - name: a string, the name of this warrior.
+    - element: the name of this warrior's element.
+    - offMult: a floating point number around 1.0. How high this warrior's offensive stats are relative to the base.
+    - eleRatio: a number between 0 and 1.0, showing what percentage of this warrior's offensive stats are in elemental attack. The rest go into physical attack.
+    - armor: either 0, 1, or 2; representing Light, Medium, or Heavy armor respectively.
+    - hpMult: a floating point number around 1.0. How high this warrior's HP is relative to the base.
+    */
+    constructor(name, element, offMult, eleRatio, armor, hpMult, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Critical Hit"]){
+        verifyType(name, TYPES.string);
+        verifyType(element, TYPES.string);
+        positive(offMult);
+        inRange(0, eleRatio, 1.0);
+        inRange(0, armor, 2);
+        positive(hpMult);
+
         this.ctorArgs = Array.from(arguments);
         this.name = name;
         this.stats = new Map();
@@ -114,7 +130,7 @@ class Warrior{
         return phys * (1 - this.getStat(Stat.ARM) * 0.12);
     }
 
-    //against this
+    //...against this
     calcEleDmg(ele, attack){
         return ele * attack.user.element.getMultiplierAgainst(this.element);
     }
