@@ -21,8 +21,8 @@ class Terminable {
         this.shouldTerminate = false;
     }
 
-    run(onWarrior){
-        this.func(onWarrior);
+    run(target){
+        this.func(target);
         if(this.maxDur !== INTERMINABLE){
             this.timeRemaining--;
             if(this.timeRemaining === 0){

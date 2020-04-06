@@ -1,3 +1,5 @@
+import {Terminable} from "../util/terminable.js";
+
 class Stat{
     // type is a Stat enum
     constructor(type, base, levelsUp=false){
@@ -64,8 +66,11 @@ Stat.ELE = 1;
 Stat.ARM = 2;
 Stat.HP = 3;
 
-class StatBoost{
+class StatBoost extends Terminable{
     constructor(id, amount, dur){
+        super(id, (stat)=>{
+            //not implemented yet
+        }, dur);
         this.id = id;
         this.amount = amount;
         this.max_dur = dur;
