@@ -1,4 +1,4 @@
-import {TYPES, verifyType} from "./verifyType.js";
+import {TYPES, verifyType, verifyClass, notNull} from "./verifyType.js";
 /*
 This module contains functionality pretaining to
 temporary effects that are applied to warriors.
@@ -25,7 +25,7 @@ class Terminable {
         this.func(target);
         if(this.maxDur !== INTERMINABLE){
             this.timeRemaining--;
-            if(this.timeRemaining === 0){
+            if(this.timeRemaining <= 0){
                 this.shouldTerminate = true;
             }
         }
@@ -34,7 +34,87 @@ class Terminable {
 
 const INTERMINABLE = "forever";
 
+class TerminalNode {
+    constructor(terminable){
+        verifyClass(terminable, Terminable);
+        this.terminable = terminable;
+        this.prev = null;
+        this.next = null;
+    }
+}
+
+class TerminableList {
+    constructor(target){
+        notNull(target);
+        this.target = target;
+        this.head = null;
+        this.tail = null;
+    }
+
+    add(terminable){
+        verifyClass(terminable, Terminable);
+        let newNode = new TerminalNode(terminable);
+        if(this.tail === null){
+            //has no nodes yet
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+            this.tail.next = newNode;
+            newNode.prev = this.tail;
+            this.tail = newNode;
+        }
+    }
+
+    runAll(){
+        let currNode = this.head;
+        let currTerm;
+        while(currNode !== null){
+            currTerm = currNode.terminable;
+            currTerm.run(this.target);
+            if(currTerm.shouldTerminate){
+                //delete current node
+                if(currNode.prev === null){
+                    //delete head
+                    this.head = currNode.next;
+                } else {
+                    currNode.prev.next = currNode.next;
+                }
+                if(currNode.next === null){
+                    //delete tail
+                    this.tail = currNode.prev;
+                } else {
+                    currNode.next.prev = currNode.prev;
+                }
+            }
+            currNode = currNode.next;
+        }
+    }
+}
+
+//quick test of terminables
+function test(){
+    let list = new TerminableList({});
+
+    for(let i = 0; i < 10; i++){
+        let str = "#" + i;
+        list.add(new Terminable(str, (obj)=>{
+            console.log("running " + str);
+        }, i % 3));
+    }
+
+    for(let j = 0; j < 20; j++){
+        console.log("run number " + j);
+        list.runAll();
+    }
+}
+
+test();
+
+
+
+
 export {
     Terminable,
+    TerminableList,
     INTERMINABLE
 };

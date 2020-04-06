@@ -27,14 +27,18 @@ class Warrior{
     - eleRatio: a number between 0 and 1.0, showing what percentage of this warrior's offensive stats are in elemental attack. The rest go into physical attack.
     - armor: either 0, 1, or 2; representing Light, Medium, or Heavy armor respectively.
     - hpMult: a floating point number around 1.0. How high this warrior's HP is relative to the base.
+    - leaderSkillAmount: the boost provided by this Warrior's leader skill. See leaderSkill.js for more details.
+    - leaderSkillType: the stat boosted by this Warrior's leader skill. Must start with either f, e, a, w, p, or h. See leaderSkill.js for more details.
     */
-    constructor(name, element, offMult, eleRatio, armor, hpMult, leaderSkillAmount=10, leaderSkillType="p", special="Berserk", pip=2, skills=["Critical Hit"]){
+    constructor(name, element, offMult, eleRatio, armor, hpMult, leaderSkillAmount, leaderSkillType, special="Berserk", pip=2, skills=["Critical Hit"]){
         verifyType(name, TYPES.string);
         verifyType(element, TYPES.string);
         positive(offMult);
         inRange(0, eleRatio, 1.0);
         inRange(0, armor, 2);
         positive(hpMult);
+        verifyType(leaderSkillAmount, TYPES.number);
+        verifyType(leaderSkillType, TYPES.string);
 
         this.ctorArgs = Array.from(arguments);
         this.name = name;
@@ -46,7 +50,7 @@ class Warrior{
 	    this.pip = pip;
 	    this.element = getElementByName(element);
 	    this.special = findSpecial(special);
-        this.lead_skill = new LeaderSkill(leaderSkillAmount, leaderSkillType);
+        this.leaderSkill = new LeaderSkill(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
 
         this.warriorSkills = [];
@@ -425,7 +429,7 @@ class Warrior{
             Elemental attack: ${this.getStat(Stat.ELE)}
             Armor: ${this.getStat(Stat.ARM)}
             Max HP: ${this.getStat(Stat.HP)}
-            Leader Skill: ${this.lead_skill.toString()}
+            Leader Skill: ${this.leaderSkill.toString()}
             Special move: ${this.special.toString()}
             Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;
     }

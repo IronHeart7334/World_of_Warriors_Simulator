@@ -122,7 +122,7 @@ export class Team{
 		*/
         this.update(); //this comes first, otherwise leader skill doesn't apply
         if (!this.leader.check_if_ko()){
-			this.leader.lead_skill.apply(this);
+			this.leader.leaderSkill.apply(this);
 		}
 
 
