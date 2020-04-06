@@ -1,17 +1,63 @@
-import {Terminable} from "../util/terminable.js";
+import {verifyType, TYPES, positive} from "../util/verifyType.js";
+import {Terminable, TerminableList} from "../util/terminable.js";
 
+/*
+The Stat class represents one of a Warrior's
+4 stats:
+(1) Physical attack
+(2) Elemental attack
+(3) Armor
+(4) Hit points
+*/
 class Stat{
-    // type is a Stat enum
+    /*
+    type: an integer between 0 and 3 (inclusive).
+        use one of the following:
+            - Stat.PHYS
+            - Stat.ELE
+            - Stat.ARM
+            - Stat.HP
+    base: the base value for the stat.
+    levelsUp: if set to false, the level of
+        the warrior this stat belongs to does
+        not affect the calculated value of this
+        stat. If set to true, the calculated value
+        of this stat is base * 1.07^LV
+    */
     constructor(type, base, levelsUp=false){
-        this.type = type;
+        verifyType(type, TYPES.number);
+        positive(base);
+        verifyType(levelsUp, TYPES.boolean);
+        type = parseInt(type);
+        switch(type){
+            case Stat.PHYS:
+                this.type = type;
+                break;
+            case Stat.ELE:
+                this.type = type;
+                break;
+            case Stat.ARM:
+                this.type = type;
+                break;
+            case Stat.HP:
+                this.type = type;
+                break;
+            default:
+                throw new Error(`type cannot be ${type}, it must be either Stat.PHYS, Stat.ELE, Stat.ARM, or Stat.HP`);
+                break;
+        }
+
         this.base = base;
         this.levelsUp = levelsUp;
         this.value = this.base;
         this.boosts = new Map();
     }
 
-    copy(){
-        let ret = new Stat(this.type, this.base, this.levelsUp);
+    copy(newBase=null){
+        if(newBase===null){
+            newBase = this.base;
+        }
+        let ret = new Stat(this.type, newBase, this.levelsUp);
         ret.value = this.value;
         ret.boosts = this.boosts;
         //need to do deep copy here
@@ -65,6 +111,24 @@ Stat.PHYS = 0;
 Stat.ELE = 1;
 Stat.ARM = 2;
 Stat.HP = 3;
+
+const STATS = new Map();
+STATS.set("p", new Stat(0, 1, true));
+STATS.set("e", new Stat(1, 1, true));
+STATS.set("a", new Stat(2, 1, false));
+STATS.set("h", new Stat(3, 1, true));
+
+function getStatByName(name, base){
+    verifyType(name, TYPES.string);
+    verifyType(base, TYPES.number);
+    let ret = null;
+    let letter = name[0].toLowerCase();
+
+    if(STATS.has(letter)){
+        ret = STATS.get(letter).copy(base);
+    }
+    return ret;
+}
 
 class StatBoost extends Terminable{
     constructor(id, amount, dur){
