@@ -91,27 +91,6 @@ class TerminableList {
     }
 }
 
-//quick test of terminables
-function test(){
-    let list = new TerminableList({});
-
-    for(let i = 0; i < 10; i++){
-        let str = "#" + i;
-        list.add(new Terminable(str, (obj)=>{
-            console.log("running " + str);
-        }, i % 3));
-    }
-
-    for(let j = 0; j < 20; j++){
-        console.log("run number " + j);
-        list.runAll();
-    }
-}
-
-test();
-
-
-
 
 export {
     Terminable,

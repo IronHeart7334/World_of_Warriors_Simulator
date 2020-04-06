@@ -1,4 +1,4 @@
-import {verifyType, TYPES, positive} from "../util/verifyType.js";
+import {verifyType, TYPES, notNegative} from "../util/verifyType.js";
 import {Terminable, TerminableList} from "../util/terminable.js";
 
 /*
@@ -26,7 +26,7 @@ class Stat{
     */
     constructor(type, base, levelsUp=false){
         verifyType(type, TYPES.number);
-        positive(base);
+        notNegative(base);
         verifyType(levelsUp, TYPES.boolean);
         type = parseInt(type);
         switch(type){

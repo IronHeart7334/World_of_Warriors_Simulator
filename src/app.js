@@ -2,6 +2,7 @@ import {DEFAULT_USER} from "./util/user.js";
 import {Controller} from "./controller.js";
 import {Team} from "./warrior/team.js";
 import {loadAllDataInto} from "./util/import.js";
+import {Repository} from "./util/repository.js";
 
 let user = DEFAULT_USER;
 
