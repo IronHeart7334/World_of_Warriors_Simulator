@@ -1,10 +1,12 @@
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
-import {Stat} from "./stat.js";
-import {Stat_boost} from "./warrior.js";
+import {Stat, StatBoost} from "./stat.js";
+import {Terminable} from "../util/terminable.js";
+
 /*
 These are Special Moves, powerful attacks that warriors can use.
 Each warrior comes with a preselected Special Move, which is determined in their data.
 */
+
 
 class Attack{
     constructor(name){
@@ -177,7 +179,7 @@ class Boost extends SpecialMove{
 		this.user.team.forEach((member)=>{
 			if (member.element === this.user.element){
 				member.boostIsUp = true;
-                member.applyBoost(Stat.ELE, new Stat_boost(this.name, 1.35, 3));
+                member.applyBoost(Stat.ELE, new StatBoost(this.name, 1.35, 3));
 			}
 		});
     };
@@ -254,7 +256,7 @@ class ArmorBreak extends SpecialMove{
     }
     attack(){
         super.attack();
-        this.user.enemyTeam.active.applyBoost(Stat.ARM, new Stat_boost("Armor Break", -2, 3));
+        this.user.enemyTeam.active.applyBoost(Stat.ARM, new StatBoost("Armor Break", -2, 3));
     }
 }
 
@@ -449,7 +451,7 @@ class PhantomShield extends SpecialMove{
 	}
 	attack(){
 		this.user.team.forEach((member)=>{
-            member.applyBoost(Stat.ARM, new Stat_boost("Phantom Shield", 3, 3));
+            member.applyBoost(Stat.ARM, new StatBoost("Phantom Shield", 3, 3));
             member.shield = true;
     	});
 	}

@@ -1,5 +1,5 @@
 import {NormalMove, findSpecial} from "./specials.js";
-import {Stat} from "./stat.js";
+import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkill} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
@@ -310,7 +310,7 @@ class Warrior{
 		this.regen = false;
 
 		if(this.in_shell){
-            this.applyBoost(Stat.ARM, new Stat_boost("shell", 3, 1));
+            this.applyBoost(Stat.ARM, new StatBoost("shell", 3, 1));
 		}
 
 		let new_update = new Map();
@@ -572,7 +572,7 @@ class LeaderSkill{
 
         if(this.type === PHYS){
             target.forEach((member)=>{
-				member.applyBoost(Stat.PHYS, new Stat_boost("Leader Skill", this.amount, 1));
+				member.applyBoost(Stat.PHYS, new StatBoost("Leader Skill", this.amount, 1));
 			});
         } else if(this.type === HEALING){
             throw new Error("Healing leader skill not implemented yet");
@@ -580,7 +580,7 @@ class LeaderSkill{
             //is an element
 		    target.forEach((member)=>{
 		        if(member.element === this.type){
-		            member.applyBoost(Stat.ELE, new Stat_boost("Leader Skill", this.amount, 1));
+		            member.applyBoost(Stat.ELE, new StatBoost("Leader Skill", this.amount, 1));
 		        }
 		    });
 		}
@@ -614,23 +614,6 @@ LEADER_SKILL_TYPES.set("h", HEALING);
 
 
 
-class Stat_boost{
-    constructor(id, amount, dur){
-        this.id = id;
-        this.amount = amount;
-        this.max_dur = dur;
-        this.dur_rem = dur;
-        this.should_terminate = false;
-    }
-    update(){
-        this.dur_rem -= 1;
-        if(this.dur_rem <= 0){
-            this.should_terminate = true;
-        }
-    }
-}
-
 export {
-    Warrior,
-    Stat_boost
-}
+    Warrior
+};
