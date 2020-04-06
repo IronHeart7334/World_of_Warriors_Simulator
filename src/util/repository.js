@@ -19,22 +19,19 @@ class Repository{
         verifyType(key, TYPES.string);
         //verifyClass(value, AbstractBaseClass);
         key = key.toLowerCase();
-        this.keys.push(key);
-        this.values.push(value);
 
-        let index = this.keys.length - 1; //the index of the new key
-        let temp;
-        while(this.keys[index - 1] > this.keys[index] && index > 0){
-            //swap keys...
-            temp = this.keys[index];
-            this.keys[index] = this.keys[index - 1];
-            this.keys[index - 1] = temp;
-            //...and values
-            temp = this.values[index];
-            this.values[index] = this.values[index - 1];
-            this.values[index - 1] = temp;
-            index--;
-        }
+        let index = this.findIndex(key, true);
+        if(this.keys[index] === key){
+            this.values[index] = value;
+            return;
+        } //############################### RETURNS HERE IF KEY IS ALREADY IN THE KEY ARRAY
+
+        //               start at index...
+        this.keys.splice(index, 0, key);
+        //                      delete 0 items...
+
+        this.values.splice(index, 0, value);
+        //                           and insert something there, shoving everything after it up one index
 
         //figure out how many letters we need to compare at minimum
         /*
@@ -49,32 +46,23 @@ class Repository{
         this.minLettersToCompare = Math.max(this.minLettersToCompare, leftMatches, rightMatches);
     }
 
-    contains(key){
+    containsKey(key){
         verifyType(key, TYPES.string);
         key = key.toLowerCase();
         let ret = false;
-        let min = 0;
-        let max = this.keys.length;
-        let mid = parseInt((min + max) / 2);
-        let curr;
-        let possibleMatch;
-        while(min > max && !ret){
-            curr = this.keys[mid];
-            possibleMatch = true;
-            for(let i = 0; i < this.minLettersToCompare && possibleMatch; i++){
-                possibleMatch = curr[i] === key[i];
-            }
-            if(possibleMatch){
+        let idx = this.findIndex(key, false);
+        console.log(this.toString());
+        console.log(key, idx);
+        if(idx >= this.keys.length){
+            ret = false;
+            //key would be inserted at the end of the key array
+        } else {
+            let closest = this.keys[idx];
+            if(true || key.substring(0, this.minLettersToCompare) === closest.substring(0, this.minLettersToCompare)){
                 ret = true;
-            } else {
-                if(curr > key){
-                    max = mid;
-                } else {
-                    min = mid;
-                }
-                mid = parseInt((min + max) / 2);
             }
         }
+
         return ret;
     }
 
@@ -93,10 +81,22 @@ class Repository{
     key array, this will return
     the index where it would be
     inserted into.
+
+    If entireKey is set to true, searches for the entire key,
+    otherwise, this checks for an approximate match, based on
+    how many letters this needs to compare to quarantee two strings are different.
+    For example, given a key set of: [a, ab, cde],
+    it needs to compare 2 letters, because the first two keys share a first letter.
+    calling findIndex("abc", false) would return 1 in this example, because the first 2 letters match,
+    but findIndex("abc", true) would return 2, because that's where it belongs in the array.
     */
-    findIndex(key, entireKey=false){
+    findIndex(key, entireKey){
         verifyType(key, TYPES.string);
+        verifyType(entireKey, TYPES.boolean);
         key = key.toLowerCase();
+        if(!entireKey){
+            key = key.substring(0, this.minLettersToCompare);
+        }
         let min = 0;
         let max = this.keys.length;
         let mid = parseInt((min + max) / 2);
@@ -104,6 +104,9 @@ class Repository{
         let found;
         while(min < max && !found){
             compareTo = this.keys[mid];
+            if(!entireKey){
+                compareTo = compareTo.substring(0, this.minLettersToCompare);
+            }
             if(compareTo === key){
                 found = true;
             } else if(key < compareTo){
@@ -151,9 +154,12 @@ repo.set("bacon", 3);
 console.log(repo.toString());
 repo.set("bacon's rebellion", 4);
 console.log(repo.toString());
-console.log(repo.findIndex("alpha"));
-console.log(repo.findIndex("al capone"));
-console.log(repo.findIndex("charlie"));
+repo.set("bacon", 5);
+console.log(repo.toString());
+console.log(repo.containsKey("alpha"));
+console.log(repo.containsKey("pneumonoultramicroscopicsilicovolcanoconiosis"));
+console.log(repo.containsKey("alpha team"));
+console.log(repo.containsKey("bacon's rebellion wasn't delicious"));
 
 export {
     Repository
