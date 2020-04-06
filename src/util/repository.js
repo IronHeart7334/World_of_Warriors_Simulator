@@ -12,7 +12,7 @@ class Repository{
     constructor(){
         this.keys = [];
         this.values = [];
-        this.minLettersToCompare = 0;
+        this.minLettersToCompare = 1;
     }
 
     set(key, value){
@@ -36,8 +36,17 @@ class Repository{
             index--;
         }
 
-        //TODO: figure out how many letters we need to compare at minimum
-        this.minLettersToCompare = 1;
+        //figure out how many letters we need to compare at minimum
+        /*
+        The two closest matches to this new key are to
+        its immediate left and right.
+        Lets count how many of the letters we would have
+        to see in order to tell the two words apart.
+        */
+        let leftMatches = (index >= 1) ? countMatchingLetters(this.keys[index - 1], key) + 1 : 0;
+        let rightMatches = (index + 1 < this.keys.length) ? countMatchingLetters(this.keys[index + 1], key) + 1 : 0;
+
+        this.minLettersToCompare = Math.max(this.minLettersToCompare, leftMatches, rightMatches);
     }
 
     contains(key){
@@ -70,24 +79,81 @@ class Repository{
     }
 
     get(key){
+        throw new Error("not implemented yet!");
+    }
 
+    /*
+    Finds the index where
+    the given key would be
+    in the key array.
+    If the key is already in
+    the key array, this will
+    return its index.
+    If the key is not in the
+    key array, this will return
+    the index where it would be
+    inserted into.
+    */
+    findIndex(key, entireKey=false){
+        verifyType(key, TYPES.string);
+        key = key.toLowerCase();
+        let min = 0;
+        let max = this.keys.length;
+        let mid = parseInt((min + max) / 2);
+        let compareTo;
+        let found;
+        while(min < max && !found){
+            compareTo = this.keys[mid];
+            if(compareTo === key){
+                found = true;
+            } else if(key < compareTo){
+                max = mid;
+                mid = parseInt((min + max) / 2);
+            } else {
+                min = mid + 1;
+                mid = parseInt((min + max) / 2);
+            }
+        }
+        return mid;
     }
 
     toString(){
         let ret = "REPOSITORY:"
         for(let i = 0; i < this.keys.length; i++){                                        //.toString()
-            ret += `\n* ${this.keys[i].substring(0, this.minLettersToCompare + 1)}: ${this.values[i]}`;
+            ret += `\n* ${this.keys[i].substring(0, this.minLettersToCompare)}: ${this.values[i]}`;
         }
         return ret;
     }
 }
 
+function countMatchingLetters(str1, str2){
+    verifyType(str1, TYPES.string);
+    verifyType(str2, TYPES.string);
+    let matches = 0;
+    let done = false;
+    for(let i = 0; i < str1.length && i < str2.length && !done; i++){
+        if(str1[i] === str2[i]){
+            matches++;
+        } else {
+            done = true;
+        }
+    }
+    return matches;
+}
+
 let repo = new Repository();
-repo.set("b", 1);
-repo.set("bb", 2);
-repo.set("a", 3);
-repo.set("ab", 4);
 console.log(repo.toString());
+repo.set("alpha", 1);
+console.log(repo.toString());
+repo.set("bravo", 2);
+console.log(repo.toString());
+repo.set("bacon", 3);
+console.log(repo.toString());
+repo.set("bacon's rebellion", 4);
+console.log(repo.toString());
+console.log(repo.findIndex("alpha"));
+console.log(repo.findIndex("al capone"));
+console.log(repo.findIndex("charlie"));
 
 export {
     Repository
