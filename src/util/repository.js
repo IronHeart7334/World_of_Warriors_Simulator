@@ -96,7 +96,27 @@ class Repository{
             //key would be inserted at the end of the key array
         } else {
             let closest = this.keys[idx];
-            if(key.substring(0, this.minDiffChars) === closest.substring(0, this.minDiffChars)){
+            if(key.length < this.minDiffChars){
+                /*
+                Key is too short to match keys.
+                Therefore, see how many keys it
+                could potentially match.
+                idx is the lowest index that could
+                possibly match, so see if the next
+                one matches as well.
+                */
+                if(idx + 1 >= this.keys.length){
+                    //next index is out of bounds,
+                    //so idx is the closest match.
+                    ret = true;
+                } else if(closest.substring(0, key.length) === this.keys[idx + 1].substring(0, key.length)){
+                    // both (idx) and (idx + 1) match key, so cannot find a distinct match
+                    ret = false;
+                } else {
+                    // can tell the difference between (idx) and (idx + 1), so idx matches
+                    ret = true;
+                }
+            } else if(key.substring(0, this.minDiffChars) === closest.substring(0, this.minDiffChars)){
                 ret = true;
             }
         }
@@ -212,7 +232,7 @@ repo.set("bacon", 5);
 console.log(repo.toString());
 console.log(repo.get("a"));
 console.log(repo.get("bacon's rebellion wasn't delicious"));
-console.log(repo.get("pneumonoultramicroscopicsilicovolcanoconiosis"));
+console.log(repo.get("bacon"));
 
 
 export {
