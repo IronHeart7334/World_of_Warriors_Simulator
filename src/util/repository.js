@@ -75,16 +75,16 @@ class Repository{
             Lets count how many of the letters we would have
             to see in order to tell the two words apart.
             */
-            let leftMatches = (index >= 1) ? countMatchingLetters(this.keys[index - 1], key) + 1 : 0;
-            let rightMatches = (index + 1 < this.keys.length) ? countMatchingLetters(this.keys[index + 1], key) + 1 : 0;
+            let leftMatches = (index >= 1) ? countMatchingChars(this.keys[index - 1], key) + 1 : 0;
+            let rightMatches = (index + 1 < this.keys.length) ? countMatchingChars(this.keys[index + 1], key) + 1 : 0;
 
             this.minDiffChars = Math.max(this.minDiffChars, leftMatches, rightMatches);
         }
     }
 
     /*
-    Checks if PKM can find a match
-    for the given key.
+    Checks if PKM can find exactly
+    one match for the given key.
     */
     containsPartialKey(key){
         verifyType(key, TYPES.string);
@@ -104,8 +104,15 @@ class Repository{
         return ret;
     }
 
-    get(key){
-        throw new Error("not implemented yet!");
+    get(key, copyOptions={}){
+        verifyType(key, TYPES.string);
+        verifyType(copyOptions, TYPES.object);
+        key = key.toLowerCase();
+        if(!this.containsPartialKey(key)){
+            throw new Error(`No partial match for key \"${key}\". This contains the following options: \n ${this.toString()}`);
+        }
+        let idx = this.findIndex(key, true);
+        return this.values[idx];//.copy(copyOptions);
     }
 
     /*
@@ -166,7 +173,17 @@ class Repository{
     }
 }
 
-function countMatchingLetters(str1, str2){
+/*
+Counts how many characters the two strings
+share, starting from the beginning of the
+string, until it finds a character that differs.
+
+For example,
+    countMatchingChars("bacon", "background") === 3
+    countMatchingChars("cattle", "battle") === 0
+    countMatchingChars("p", "pneumonoultramicroscopicsilicovolcanoconiosis") === 1
+*/
+function countMatchingChars(str1, str2){
     verifyType(str1, TYPES.string);
     verifyType(str2, TYPES.string);
     let matches = 0;
@@ -193,10 +210,10 @@ repo.set("bacon's rebellion", 4);
 console.log(repo.toString());
 repo.set("bacon", 5);
 console.log(repo.toString());
-console.log(repo.containsPartialKey("alpha"));
-console.log(repo.containsPartialKey("pneumonoultramicroscopicsilicovolcanoconiosis"));
-console.log(repo.containsPartialKey("alpha team"));
-console.log(repo.containsPartialKey("bacon's rebellion wasn't delicious"));
+console.log(repo.get("a"));
+console.log(repo.get("bacon's rebellion wasn't delicious"));
+console.log(repo.get("pneumonoultramicroscopicsilicovolcanoconiosis"));
+
 
 export {
     Repository
