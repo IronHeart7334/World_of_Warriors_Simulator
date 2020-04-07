@@ -227,6 +227,10 @@ function countMatchingChars(str1, str2){
 }
 
 
+/*
+Runs an interactive test of the
+PartialMatchingMap
+*/
 function testPartialMatchingMap(){
     class Dummy extends AbstractBaseClass{
         constructor(name){
@@ -249,9 +253,11 @@ function testPartialMatchingMap(){
                 "Choose an option:\n"
                 + "0: Print the PartialMatchingMap\n"
                 + "1: Insert into the map\n"
+                + "2: Check if there is a partial match for a key\n"
+                + "3: Get the value associated with a key\n"
+                + "4: Find the index for a key\n"
                 + "-1: Quit"
             );
-            console.log("IP is " + ip);
             if(!isNaN(ip)){
                 ip = parseInt(ip, 10);
                 switch(ip){
@@ -263,35 +269,35 @@ function testPartialMatchingMap(){
                         value = prompt("Enter value:");
                         map.set(key, new Dummy(value));
                         break;
+                    case 2:
+                        key = prompt("Enter key:");
+                        if(map.containsPartialKey(key)){
+                            alert("does contain match for key " + key);
+                        } else {
+                            alert("no matching key found for " + key);
+                        }
+                        break;
+                    case 3:
+                        key = prompt("Enter key:");
+                        value = map.get(key);
+                        alert("Value is " + value.toString());
+                        break;
+                    case 4:
+                        key = prompt("Enter key:");
+                        alert(`Indexes for ${key}:\n(*) With PKM: ${map.findIndex(key, true)}\n(*) Without: ${map.findIndex(key, false)}`);
+                        break;
                     case -1:
                         alert("Goodbye");
                         break;
                 }
             }
         } catch(e){
-            console.error(e.message);
-            console.error(e.stack);
+            alert(e.message);
+            alert(e.stack);
         }
     }
-    /*
-    console.log(repo.toString());
-    repo.set("alpha", 1);
-    console.log(repo.toString());
-    repo.set("bravo", 2);
-    console.log(repo.toString());
-    repo.set("bacon", 3);
-    console.log(repo.toString());
-    repo.set("bacon's rebellion", 4);
-    console.log(repo.toString());
-    repo.set("bacon", 5);
-    console.log(repo.toString());
-    console.log(repo.get("a"));
-    console.log(repo.get("bacon's rebellion wasn't delicious"));
-    console.log(repo.get("bacon"));
-    */
 }
 testPartialMatchingMap();
-
 
 export {
     PartialMatchingMap,
