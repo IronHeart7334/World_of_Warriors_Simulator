@@ -1,16 +1,17 @@
 import {verifyType, TYPES, notNull} from "../util/verifyType.js";
+import {AbstractBaseClass} from "../util/baseClass.js";
+import {PartialMatchingMap} from "../util/partialMap.js";
 
 /*
 The Element class is used to calculate how
 much elemental damage warriors deal to each
 other, based on their elemental matchup.
 */
-class Element{
+class Element extends AbstractBaseClass{
     constructor(name, color, weakness){
-        verifyType(name, TYPES.string);
+        super(name);
         verifyType(color, TYPES.string);
         verifyType(weakness, TYPES.string);
-        this.name = name;
 	    this.color = color;
 	    this.weakness = weakness;
 	}
@@ -38,12 +39,16 @@ class Element{
         return ret;
     }
 
+    copy(args={}){
+        return new Element(this.name, this.color, this.weakness);
+    }
+
     toString(){
         return this.name;
     }
 }
 
-const ELEMENTS = new Map();
+const ELEMENTS = new PartialMatchingMap();
 ELEMENTS.set("f", new Element("Fire", "rgb(255, 0, 0)", "Water"));
 ELEMENTS.set("e", new Element("Earth", "rgb(0, 255, 0)", "Fire"));
 ELEMENTS.set("a", new Element("Air", "rgb(255, 255, 0)", "Earth"));
@@ -56,19 +61,7 @@ is the same of that of the given parameter.
 */
 function getElementByName(name){
     verifyType(name, TYPES.string);
-    let ret = null;
-    let letter = name[0].toLowerCase();
-
-    if(ELEMENTS.has(letter)){
-        ret = ELEMENTS.get(letter);
-    } else {
-        let options = "";
-        ELEMENTS.forEach((value, key)=>{
-            options += `\'${key}\' (${value.name})\n`;
-        });
-        throw new Error(`There is no element starting with \'${letter}\'. Options are\n${options} Note that this is case insensitive`);
-    }
-    return ret;
+    return ELEMENTS.getPartialMatch(name);
 }
 
 export {

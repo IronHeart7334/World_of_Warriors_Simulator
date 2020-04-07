@@ -25,12 +25,12 @@ PKM:
     so it needs at least 2 characters to compare.
 
     Using PKM, the PartialMatchingMap will return the closest matching
-    value when using the get(key) method.
+    value when using the getPartialMatch(key) method.
     For example, given a list of keys:
         [air, earth, fire, water]
-    get("a") === get("air"), as it needs only one character to
+    getPartialMatch("a") === getPartialMatch("air"), as it needs only one character to
     verify that "a" is the start of one specific key.
-    However, get("z") would throw an error, as no key starts with 'z'.
+    However, getPartialMatch("z") would throw an error, as no key starts with 'z'.
 */
 class PartialMatchingMap{
     constructor(){
@@ -132,7 +132,7 @@ class PartialMatchingMap{
     options passed to the value's
     copy method.
     */
-    get(key, copyOptions={}){
+    getPartialMatch(key, copyOptions={}){
         verifyType(key, TYPES.string);
         verifyType(copyOptions, TYPES.object);
         key = key.toLowerCase();
@@ -279,7 +279,7 @@ function testPartialMatchingMap(){
                         break;
                     case 3:
                         key = prompt("Enter key:");
-                        value = map.get(key);
+                        value = map.getPartialMatch(key);
                         alert("Value is " + value.toString());
                         break;
                     case 4:
@@ -297,7 +297,6 @@ function testPartialMatchingMap(){
         }
     }
 }
-testPartialMatchingMap();
 
 export {
     PartialMatchingMap,
