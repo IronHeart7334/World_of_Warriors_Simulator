@@ -2,13 +2,13 @@ import {notNull, TYPES, verifyType, verifyClass} from "./verifyType.js";
 import {AbstractBaseClass} from "./baseClass.js";
 
 /*
-The Repository class is used to store
+The PartialMatchingMap class is used to store
 instances of classes inheriting from AbstractBaseClass
 which have a limited range of options
 (Element, SpecialMove, Stat, WarriorSkill),
 essentially acting as a private constructor.
 
-The Repository essentially acts as a map,
+The PartialMatchingMap essentially acts as a map,
 connecting string keys to AbstractBaseClass values.
 The unique feature this class supports is
 Partial Key Matching (PKM).
@@ -24,7 +24,7 @@ PKM:
     The value n would be 2, as keys share a common first letter,
     so it needs at least 2 characters to compare.
 
-    Using PKM, the Repository will return the closest matching
+    Using PKM, the PartialMatchingMap will return the closest matching
     value when using the get(key) method.
     For example, given a list of keys:
         [air, earth, fire, water]
@@ -32,7 +32,7 @@ PKM:
     verify that "a" is the start of one specific key.
     However, get("z") would throw an error, as no key starts with 'z'.
 */
-class Repository{
+class PartialMatchingMap{
     constructor(){
         this.keys = [];
         this.values = [];
@@ -40,12 +40,12 @@ class Repository{
     }
 
     /*
-    Inserts the given key into the Repository,
+    Inserts the given key into the PartialMatchingMap,
     with the given value associated with it.
     The key must be a string, while the value
     must inherit from AbstractBaseClass.
 
-    If the given key is already in the Repository,
+    If the given key is already in the PartialMatchingMap,
     replaces the old value associated with the key
     with the value passed as a parameter.
 
@@ -55,7 +55,7 @@ class Repository{
     */
     set(key, value){
         verifyType(key, TYPES.string);
-        //verifyClass(value, AbstractBaseClass);
+        verifyClass(value, AbstractBaseClass);
         key = key.toLowerCase();
 
         let index = this.findIndex(key, false);
@@ -124,6 +124,14 @@ class Repository{
         return ret;
     }
 
+    /*
+    Finds a partial match for
+    the given key, and returns
+    a copy of the associated
+    value, with the given copy
+    options passed to the value's
+    copy method.
+    */
     get(key, copyOptions={}){
         verifyType(key, TYPES.string);
         verifyType(copyOptions, TYPES.object);
@@ -132,7 +140,7 @@ class Repository{
             throw new Error(`No partial match for key \"${key}\". This contains the following options: \n ${this.toString()}`);
         }
         let idx = this.findIndex(key, true);
-        return this.values[idx];//.copy(copyOptions);
+        return this.values[idx].copy(copyOptions);
     }
 
     /*
@@ -185,7 +193,7 @@ class Repository{
     }
 
     toString(){
-        let ret = "REPOSITORY:"
+        let ret = "PARTIAL MATCHING MAP:"
         for(let i = 0; i < this.keys.length; i++){                                        //.toString()
             ret += `\n* ${this.keys[i].substring(0, this.minDiffChars)}: ${this.values[i]}`;
         }
@@ -218,23 +226,74 @@ function countMatchingChars(str1, str2){
     return matches;
 }
 
-let repo = new Repository();
-console.log(repo.toString());
-repo.set("alpha", 1);
-console.log(repo.toString());
-repo.set("bravo", 2);
-console.log(repo.toString());
-repo.set("bacon", 3);
-console.log(repo.toString());
-repo.set("bacon's rebellion", 4);
-console.log(repo.toString());
-repo.set("bacon", 5);
-console.log(repo.toString());
-console.log(repo.get("a"));
-console.log(repo.get("bacon's rebellion wasn't delicious"));
-console.log(repo.get("bacon"));
+
+function testPartialMatchingMap(){
+    class Dummy extends AbstractBaseClass{
+        constructor(name){
+            super(name);
+        }
+        copy(options={}){
+            return new Dummy(this.name);
+        }
+        toString(){
+            return this.name;
+        }
+    }
+    let map = new PartialMatchingMap();
+    let ip = null;
+    let key = null;
+    let value = null;
+    while(ip !== -1){
+        try{
+            ip = prompt(
+                "Choose an option:\n"
+                + "0: Print the PartialMatchingMap\n"
+                + "1: Insert into the map\n"
+                + "-1: Quit"
+            );
+            console.log("IP is " + ip);
+            if(!isNaN(ip)){
+                ip = parseInt(ip, 10);
+                switch(ip){
+                    case 0:
+                        alert(map.toString());
+                        break;
+                    case 1:
+                        key = prompt("Enter key:");
+                        value = prompt("Enter value:");
+                        map.set(key, new Dummy(value));
+                        break;
+                    case -1:
+                        alert("Goodbye");
+                        break;
+                }
+            }
+        } catch(e){
+            console.error(e.message);
+            console.error(e.stack);
+        }
+    }
+    /*
+    console.log(repo.toString());
+    repo.set("alpha", 1);
+    console.log(repo.toString());
+    repo.set("bravo", 2);
+    console.log(repo.toString());
+    repo.set("bacon", 3);
+    console.log(repo.toString());
+    repo.set("bacon's rebellion", 4);
+    console.log(repo.toString());
+    repo.set("bacon", 5);
+    console.log(repo.toString());
+    console.log(repo.get("a"));
+    console.log(repo.get("bacon's rebellion wasn't delicious"));
+    console.log(repo.get("bacon"));
+    */
+}
+testPartialMatchingMap();
 
 
 export {
-    Repository
+    PartialMatchingMap,
+    testPartialMatchingMap
 };
