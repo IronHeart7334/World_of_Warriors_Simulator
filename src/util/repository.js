@@ -7,58 +7,96 @@ instances of classes inheriting from AbstractBaseClass
 which have a limited range of options
 (Element, SpecialMove, Stat, WarriorSkill),
 essentially acting as a private constructor.
+
+The Repository essentially acts as a map,
+connecting string keys to AbstractBaseClass values.
+The unique feature this class supports is
+Partial Key Matching (PKM).
+
+PKM:
+    Given a list of string keys in alphabetical order,
+    there exists a minimum number of characters, n, required
+    to identify a single key in the list. This value, n, is
+    stored in this class as this.minDiffChars.
+
+    For example, given a list of keys:
+        [a, ab, b]
+    The value n would be 2, as keys share a common first letter,
+    so it needs at least 2 characters to compare.
+
+    Using PKM, the Repository will return the closest matching
+    value when using the get(key) method.
+    For example, given a list of keys:
+        [air, earth, fire, water]
+    get("a") === get("air"), as it needs only one character to
+    verify that "a" is the start of one specific key.
+    However, get("z") would throw an error, as no key starts with 'z'.
 */
 class Repository{
     constructor(){
         this.keys = [];
         this.values = [];
-        this.minLettersToCompare = 1;
+        this.minDiffChars = 1;
     }
 
+    /*
+    Inserts the given key into the Repository,
+    with the given value associated with it.
+    The key must be a string, while the value
+    must inherit from AbstractBaseClass.
+
+    If the given key is already in the Repository,
+    replaces the old value associated with the key
+    with the value passed as a parameter.
+
+    This method also updates the minimum number of
+    characters needed to verify adjacent keys are
+    different.
+    */
     set(key, value){
         verifyType(key, TYPES.string);
         //verifyClass(value, AbstractBaseClass);
         key = key.toLowerCase();
 
-        let index = this.findIndex(key, true);
+        let index = this.findIndex(key, false);
         if(this.keys[index] === key){
             this.values[index] = value;
-            return;
-        } //############################### RETURNS HERE IF KEY IS ALREADY IN THE KEY ARRAY
+        } else {
+            //               start at index...
+            this.keys.splice(index, 0, key);
+            //                      delete 0 items...
 
-        //               start at index...
-        this.keys.splice(index, 0, key);
-        //                      delete 0 items...
+            this.values.splice(index, 0, value);
+            //                           and insert something there, shoving everything after it up one index
 
-        this.values.splice(index, 0, value);
-        //                           and insert something there, shoving everything after it up one index
+            /*
+            The two closest matches to this new key are to
+            its immediate left and right.
+            Lets count how many of the letters we would have
+            to see in order to tell the two words apart.
+            */
+            let leftMatches = (index >= 1) ? countMatchingLetters(this.keys[index - 1], key) + 1 : 0;
+            let rightMatches = (index + 1 < this.keys.length) ? countMatchingLetters(this.keys[index + 1], key) + 1 : 0;
 
-        //figure out how many letters we need to compare at minimum
-        /*
-        The two closest matches to this new key are to
-        its immediate left and right.
-        Lets count how many of the letters we would have
-        to see in order to tell the two words apart.
-        */
-        let leftMatches = (index >= 1) ? countMatchingLetters(this.keys[index - 1], key) + 1 : 0;
-        let rightMatches = (index + 1 < this.keys.length) ? countMatchingLetters(this.keys[index + 1], key) + 1 : 0;
-
-        this.minLettersToCompare = Math.max(this.minLettersToCompare, leftMatches, rightMatches);
+            this.minDiffChars = Math.max(this.minDiffChars, leftMatches, rightMatches);
+        }
     }
 
-    containsKey(key){
+    /*
+    Checks if PKM can find a match
+    for the given key.
+    */
+    containsPartialKey(key){
         verifyType(key, TYPES.string);
         key = key.toLowerCase();
         let ret = false;
-        let idx = this.findIndex(key, false);
-        console.log(this.toString());
-        console.log(key, idx);
+        let idx = this.findIndex(key, true);
         if(idx >= this.keys.length){
             ret = false;
             //key would be inserted at the end of the key array
         } else {
             let closest = this.keys[idx];
-            if(true || key.substring(0, this.minLettersToCompare) === closest.substring(0, this.minLettersToCompare)){
+            if(key.substring(0, this.minDiffChars) === closest.substring(0, this.minDiffChars)){
                 ret = true;
             }
         }
@@ -82,20 +120,19 @@ class Repository{
     the index where it would be
     inserted into.
 
-    If entireKey is set to true, searches for the entire key,
-    otherwise, this checks for an approximate match, based on
-    how many letters this needs to compare to quarantee two strings are different.
+    If usePKM is set to false, searches for the entire key,
+    otherwise, it uses PKM to search.
     For example, given a key set of: [a, ab, cde],
     it needs to compare 2 letters, because the first two keys share a first letter.
-    calling findIndex("abc", false) would return 1 in this example, because the first 2 letters match,
-    but findIndex("abc", true) would return 2, because that's where it belongs in the array.
+    calling findIndex("abc", true) would return 1 in this example, because the first 2 letters match,
+    but findIndex("abc", false) would return 2, because that's where it belongs in the array.
     */
-    findIndex(key, entireKey){
+    findIndex(key, usePKM){
         verifyType(key, TYPES.string);
-        verifyType(entireKey, TYPES.boolean);
+        verifyType(usePKM, TYPES.boolean);
         key = key.toLowerCase();
-        if(!entireKey){
-            key = key.substring(0, this.minLettersToCompare);
+        if(usePKM){
+            key = key.substring(0, this.minDiffChars);
         }
         let min = 0;
         let max = this.keys.length;
@@ -104,8 +141,8 @@ class Repository{
         let found;
         while(min < max && !found){
             compareTo = this.keys[mid];
-            if(!entireKey){
-                compareTo = compareTo.substring(0, this.minLettersToCompare);
+            if(usePKM){
+                compareTo = compareTo.substring(0, this.minDiffChars);
             }
             if(compareTo === key){
                 found = true;
@@ -123,7 +160,7 @@ class Repository{
     toString(){
         let ret = "REPOSITORY:"
         for(let i = 0; i < this.keys.length; i++){                                        //.toString()
-            ret += `\n* ${this.keys[i].substring(0, this.minLettersToCompare)}: ${this.values[i]}`;
+            ret += `\n* ${this.keys[i].substring(0, this.minDiffChars)}: ${this.values[i]}`;
         }
         return ret;
     }
@@ -156,10 +193,10 @@ repo.set("bacon's rebellion", 4);
 console.log(repo.toString());
 repo.set("bacon", 5);
 console.log(repo.toString());
-console.log(repo.containsKey("alpha"));
-console.log(repo.containsKey("pneumonoultramicroscopicsilicovolcanoconiosis"));
-console.log(repo.containsKey("alpha team"));
-console.log(repo.containsKey("bacon's rebellion wasn't delicious"));
+console.log(repo.containsPartialKey("alpha"));
+console.log(repo.containsPartialKey("pneumonoultramicroscopicsilicovolcanoconiosis"));
+console.log(repo.containsPartialKey("alpha team"));
+console.log(repo.containsPartialKey("bacon's rebellion wasn't delicious"));
 
 export {
     Repository
