@@ -1,5 +1,6 @@
 import {verifyType, TYPES, notNegative} from "../util/verifyType.js";
 import {Terminable, TerminableList} from "../util/terminable.js";
+import {PartialMatchingMap} from "../util/partialMap.js";
 
 /*
 The Stat class represents one of a Warrior's
@@ -112,22 +113,19 @@ Stat.ELE = 1;
 Stat.ARM = 2;
 Stat.HP = 3;
 
-const STATS = new Map();
-STATS.set("p", new Stat(0, 1, true));
-STATS.set("e", new Stat(1, 1, true));
-STATS.set("a", new Stat(2, 1, false));
-STATS.set("h", new Stat(3, 1, true));
+const STATS = new PartialMatchingMap();
+STATS.set("physical attack", new Stat(0, 1, true));
+STATS.set("elemental attack", new Stat(1, 1, true));
+STATS.set("armor", new Stat(2, 1, false));
+STATS.set("hp", new Stat(3, 1, true));
+
+
 
 function getStatByName(name, base){
     verifyType(name, TYPES.string);
     verifyType(base, TYPES.number);
-    let ret = null;
-    let letter = name[0].toLowerCase();
 
-    if(STATS.has(letter)){
-        ret = STATS.get(letter).copy(base);
-    }
-    return ret;
+    return STATS.getPartialMatch(name).copy(base);
 }
 
 class StatBoost extends Terminable{
