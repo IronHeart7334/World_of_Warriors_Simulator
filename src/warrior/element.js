@@ -1,5 +1,4 @@
 import {verifyType, TYPES, notNull} from "../util/verifyType.js";
-import {AbstractBaseClass} from "../util/baseClass.js";
 import {PartialMatchingMap} from "../util/partialMap.js";
 
 /*
@@ -7,11 +6,12 @@ The Element class is used to calculate how
 much elemental damage warriors deal to each
 other, based on their elemental matchup.
 */
-class Element extends AbstractBaseClass{
+class Element {
     constructor(name, color, weakness){
-        super(name);
+        verifyType(name, TYPES.string);
         verifyType(color, TYPES.string);
         verifyType(weakness, TYPES.string);
+        this.name = name;
 	    this.color = color;
 	    this.weakness = weakness;
 	}
@@ -39,21 +39,17 @@ class Element extends AbstractBaseClass{
         return ret;
     }
 
-    copy(args={}){
-        return new Element(this.name, this.color, this.weakness);
-    }
-
     toString(){
         return this.name;
     }
 }
 
 const ELEMENTS = new PartialMatchingMap();
-ELEMENTS.set("f", new Element("Fire", "rgb(255, 0, 0)", "Water"));
-ELEMENTS.set("e", new Element("Earth", "rgb(0, 255, 0)", "Fire"));
-ELEMENTS.set("a", new Element("Air", "rgb(255, 255, 0)", "Earth"));
-ELEMENTS.set("w", new Element("Water", "rgb(0, 0, 255)", "Air"));
-ELEMENTS.set("n", new Element("Null", "rgb(100, 100, 100)", ""));
+ELEMENTS.set("fire", new Element("Fire", "rgb(255, 0, 0)", "Water"));
+ELEMENTS.set("earth", new Element("Earth", "rgb(0, 255, 0)", "Fire"));
+ELEMENTS.set("air", new Element("Air", "rgb(255, 255, 0)", "Earth"));
+ELEMENTS.set("water", new Element("Water", "rgb(0, 0, 255)", "Air"));
+ELEMENTS.set("no element", new Element("Null", "rgb(100, 100, 100)", ""));
 
 /*
 Returns the element whose first letter

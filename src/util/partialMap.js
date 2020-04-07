@@ -1,15 +1,15 @@
-import {notNull, TYPES, verifyType, verifyClass} from "./verifyType.js";
+import {notNull, TYPES, verifyType} from "./verifyType.js";
 import {AbstractBaseClass} from "./baseClass.js";
 
 /*
 The PartialMatchingMap class is used to store
-instances of classes inheriting from AbstractBaseClass
-which have a limited range of options
+instances of classes which have a limited
+range of options
 (Element, SpecialMove, Stat, WarriorSkill),
 essentially acting as a private constructor.
 
-The PartialMatchingMap essentially acts as a map,
-connecting string keys to AbstractBaseClass values.
+The PartialMatchingMap acts as a map,
+connecting string keys to values.
 The unique feature this class supports is
 Partial Key Matching (PKM).
 
@@ -43,7 +43,7 @@ class PartialMatchingMap{
     Inserts the given key into the PartialMatchingMap,
     with the given value associated with it.
     The key must be a string, while the value
-    must inherit from AbstractBaseClass.
+    can be anything.
 
     If the given key is already in the PartialMatchingMap,
     replaces the old value associated with the key
@@ -55,7 +55,7 @@ class PartialMatchingMap{
     */
     set(key, value){
         verifyType(key, TYPES.string);
-        verifyClass(value, AbstractBaseClass);
+        notNull(value);
         key = key.toLowerCase();
 
         let index = this.findIndex(key, false);
@@ -127,20 +127,16 @@ class PartialMatchingMap{
     /*
     Finds a partial match for
     the given key, and returns
-    a copy of the associated
-    value, with the given copy
-    options passed to the value's
-    copy method.
+    the associated value.
     */
-    getPartialMatch(key, copyOptions={}){
+    getPartialMatch(key){
         verifyType(key, TYPES.string);
-        verifyType(copyOptions, TYPES.object);
         key = key.toLowerCase();
         if(!this.containsPartialKey(key)){
             throw new Error(`No partial match for key \"${key}\". This contains the following options: \n ${this.toString()}`);
         }
         let idx = this.findIndex(key, true);
-        return this.values[idx].copy(copyOptions);
+        return this.values[idx];
     }
 
     /*
@@ -226,23 +222,11 @@ function countMatchingChars(str1, str2){
     return matches;
 }
 
-
 /*
 Runs an interactive test of the
 PartialMatchingMap
 */
 function testPartialMatchingMap(){
-    class Dummy extends AbstractBaseClass{
-        constructor(name){
-            super(name);
-        }
-        copy(options={}){
-            return new Dummy(this.name);
-        }
-        toString(){
-            return this.name;
-        }
-    }
     let map = new PartialMatchingMap();
     let ip = null;
     let key = null;
@@ -267,7 +251,7 @@ function testPartialMatchingMap(){
                     case 1:
                         key = prompt("Enter key:");
                         value = prompt("Enter value:");
-                        map.set(key, new Dummy(value));
+                        map.set(key, value);
                         break;
                     case 2:
                         key = prompt("Enter key:");

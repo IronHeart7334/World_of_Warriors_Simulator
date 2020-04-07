@@ -1,6 +1,7 @@
 import {verifyType, TYPES} from "../util/verifyType.js";
 import {StatBoost, Stat} from "./stat.js";
 import {getElementByName} from "./element.js";
+import {PartialMatchingMap} from "../util/partialMap.js";
 
 /*
 LeaderSkills are special bonuses
@@ -40,16 +41,7 @@ class LeaderSkill{
             this.amount = amount;
         }
 
-        let letter = type[0].toLowerCase();
-        if(LEADER_SKILL_TYPES.has(letter)){
-            this.type = LEADER_SKILL_TYPES.get(letter);
-        } else {
-            let options = "";
-            LEADER_SKILL_TYPES.forEach((value, key)=>{
-                options += `\'${key}\' (${value})\n`;
-            });
-            throw new Error(`There is no leader skill type starting with \'${letter}\'. Options are\n${options} Note that this is case insensitive`);
-        }
+        this.type = LEADER_SKILL_TYPES.getPartialMatch(type);
 
         if(this.type === PHYS && this.amount <= 0){
             throw new Error("Physical boost leader skills cannot be negative");
@@ -95,12 +87,12 @@ class LeaderSkill{
     }
 }
 
-const LEADER_SKILL_TYPES = new Map();
+const LEADER_SKILL_TYPES = new PartialMatchingMap();
 const PHYS = "physical attack";
 const HEALING = "healing";
-LEADER_SKILL_TYPES.set("p", PHYS);
-LEADER_SKILL_TYPES.set("h", HEALING);
-["f", "e", "a", "w"].forEach((element)=>{
+LEADER_SKILL_TYPES.set("physical attack", PHYS);
+LEADER_SKILL_TYPES.set("healing effects", HEALING);
+["fire ", "earth", "air", "water"].forEach((element)=>{
     LEADER_SKILL_TYPES.set(element, getElementByName(element));
 });
 
