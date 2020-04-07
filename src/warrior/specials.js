@@ -1,6 +1,8 @@
+import {TYPES, verifyType} from "../util/verifyType.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {Stat, StatBoost} from "./stat.js";
 import {Terminable} from "../util/terminable.js";
+import {PartialMatchingMap} from "../util/partialMap.js";
 
 /*
 These are Special Moves, powerful attacks that warriors can use.
@@ -25,6 +27,10 @@ class Attack{
     getElementalDamage(){
         throw new Error("getPhysicalDamage not overridden for " + this.name);
     }
+
+    copy(){
+        throw new Error("classes inheriting from Attack must implement copy method");
+    }
 }
 
 
@@ -40,6 +46,10 @@ class NormalMove extends Attack{
 
     getElementalDamage(){
         return this.user.getStat(Stat.ELE);
+    }
+
+    copy(){
+        return new NormalMove();
     }
 }
 
@@ -136,6 +146,10 @@ class Beat extends SpecialMove {
             }
         }
     }
+
+    copy(){
+        return new Beat(this.shouldCheckEle);
+    }
 }
 
 class AOE extends SpecialMove{
@@ -164,6 +178,9 @@ class AOE extends SpecialMove{
     attack(){
         this.attackAll();
     }
+    copy(){
+        return new AOE();
+    }
 }
 
 class Boost extends SpecialMove{
@@ -183,6 +200,9 @@ class Boost extends SpecialMove{
 			}
 		});
     };
+    copy(){
+        return new Boost();
+    }
 }
 
 //manual gainEnergy
@@ -194,6 +214,9 @@ class Poison extends SpecialMove{
     attack(){
 		this.user.enemyTeam.active.poison(this.getPhysicalDamage());
         this.user.enemyTeam.gainEnergy();
+    }
+    copy(){
+        return new Poison();
     }
 }
 
@@ -234,6 +257,10 @@ class RollingThunder extends SpecialMove{
 		    targetTeam.check_if_ko();
 	    }
     }
+
+    copy(){
+        return new RollingThunder();
+    }
 }
 
 // User switches in, attacks,
@@ -246,6 +273,9 @@ class StealthStrike extends SpecialMove{
         super.attack();
 		this.user.team.switchin(this.user.team.switchback);
     }
+    copy(){
+        return new StealthStrike();
+    }
 }
 
 
@@ -257,6 +287,9 @@ class ArmorBreak extends SpecialMove{
     attack(){
         super.attack();
         this.user.enemyTeam.active.applyBoost(Stat.ARM, new StatBoost("Armor Break", -2, 3));
+    }
+    copy(){
+        return new ArmorBreak();
     }
 }
 
@@ -283,6 +316,9 @@ class Healing extends SpecialMove{
 			toHeal.heal(totalHeal * 0.8);
         }
     }
+    copy(){
+        return new Healing();
+    }
 }
 
 /*
@@ -297,6 +333,9 @@ class SoulSteal extends SpecialMove{
     attack(){
         this.user.heal(this.user.strike(this) * 0.3);
     }
+    copy(){
+        return new SoulSteal();
+    }
 }
 
 class Berserk extends SpecialMove{
@@ -310,6 +349,9 @@ class Berserk extends SpecialMove{
 			this.user.hp_rem = 1;
 		}
     }
+    copy(){
+        return new Berserk();
+    }
 }
 
 //manual gainEnergy
@@ -321,6 +363,9 @@ class PoisonHive extends SpecialMove{
     attack(){
 		this.user.enemyTeam.forEach((member)=>member.poison(this.getPhysicalDamage()));
         this.user.enemyTeam.gainEnergy();
+    }
+    copy(){
+        return new PoisonHive();
     }
 }
 
@@ -339,6 +384,9 @@ class Regeneration extends SpecialMove{
             }, 3));
 		});
     }
+    copy(){
+        return new Regeneration();
+    }
 }
 
 class Vengeance extends SpecialMove{
@@ -350,6 +398,9 @@ class Vengeance extends SpecialMove{
 	    let p = this.getPhysicalDamage() * mod;
 	    let e = this.getElementalDamage() * mod;
 	    this.user.strike(this, this.user.enemyTeam.active, p, e);
+    }
+    copy(){
+        return new Vengeance();
     }
 }
 
@@ -366,6 +417,9 @@ class Twister extends SpecialMove{
 			this.user.strike(this, member, p, e);
 		});
     }
+    copy(){
+        return new Twister();
+    }
 }
 
 
@@ -377,6 +431,9 @@ class StealthAssault extends SpecialMove{
     attack(){
 	    this.attackAll();
 	    this.user.team.switchin(this.user.team.switchback);
+    }
+    copy(){
+        return new StealthAssault();
     }
 }
 
@@ -400,6 +457,9 @@ class TeamStrike extends SpecialMove{
 			this.user.hp_rem = 1;
 		}
 	}
+    copy(){
+        return new TeamStrike();
+    }
 }
 
 class PhantomStrike extends SpecialMove{
@@ -437,6 +497,9 @@ class PhantomStrike extends SpecialMove{
             baseEle * 0.67
         );
 	}
+    copy(){
+        return new PhantomStrike();
+    }
 }
 
 //provides +3 armor for 3 turns
@@ -455,79 +518,51 @@ class PhantomShield extends SpecialMove{
             member.shield = true;
     	});
 	}
+    copy(){
+        return new PhantomShield();
+    }
 }
 
-//might want to change this to not use a huge switch statement
-function findSpecial(name){
-    switch(name.toLowerCase()){
-        case "thunder strike":
-            return new Beat(false);
-		case "beat":
-			return new Beat(true);
-        case "inferno":
-            return new Beat(true);
-        case "claw crush":
-            return new Beat(true);
-        case "tornado strike":
-            return new Beat(true);
-        case "frozen crunch":
-            return new Beat(true);
-		case "aoe":
-			return new AOE();
-        case "fire storm":
-            return new AOE();
-        case "boulder bash":
-            return new AOE();
-        case "tempest":
-            return new AOE();
-        case "ice storm":
-            return new AOE();
-		case "boost":
-			return new Boost();
-        case "fire boost":
-            return new Boost();
-        case "earth boost":
-            return new Boost();
-        case "air boost":
-            return new Boost();
-        case "water boost":
-            return new Boost();
-		case "poison":
-			return new Poison();
-		case "rolling thunder":
-			return new RollingThunder();
-		case "stealth strike":
-			return new StealthStrike();
-		case "armor break":
-			return new ArmorBreak();
-		case "healing":
-			return new Healing();
-		case "soul steal":
-			return new SoulSteal();
-		case "berserk":
-			return new Berserk();
-		case "poison hive":
-			return new PoisonHive();
-		case "regeneration":
-			return new Regeneration();
-		case "vengeance":
-			return new Vengeance();
-		case "twister":
-			return new Twister();
-		case "stealth assault":
-			return new StealthAssault();
-		case "team strike":
-			return new TeamStrike();
-		case "phantom strike":
-			return new PhantomStrike();
-		case "phantom shield":
-			return new PhantomShield();
-		default:
-			throw new Error("The Special move by the name of " + name + " does not exist.");
-	}
+
+
+const SPECIALS = new PartialMatchingMap();
+SPECIALS.set("thunder strike", new Beat(false));
+SPECIALS.set("inferno", new Beat(true));
+SPECIALS.set("claw crush", new Beat(true));
+SPECIALS.set("tornado strike", new Beat(true));
+SPECIALS.set("frozen crunch", new Beat(true));
+SPECIALS.set("aoe", new AOE());
+SPECIALS.set("fire storm", new AOE());
+SPECIALS.set("boulder bash", new AOE());
+SPECIALS.set("tempest", new AOE());
+SPECIALS.set("ice storm", new AOE());
+SPECIALS.set("boost", new Boost());
+SPECIALS.set("fire boost", new Boost());
+SPECIALS.set("earth boost", new Boost());
+SPECIALS.set("air boost", new Boost());
+SPECIALS.set("water boost", new Boost());
+SPECIALS.set("poison", new Poison());
+SPECIALS.set("rolling thunder", new RollingThunder());
+SPECIALS.set("stealth strike", new StealthStrike());
+SPECIALS.set("armor break", new ArmorBreak());
+SPECIALS.set("healing", new Healing());
+SPECIALS.set("soul steal", new SoulSteal());
+SPECIALS.set("berserk", new Berserk());
+SPECIALS.set("poison hive", new PoisonHive());
+SPECIALS.set("regeneration", new Regeneration());
+SPECIALS.set("vengeance", new Vengeance());
+SPECIALS.set("twister", new Twister());
+SPECIALS.set("stealth assault", new StealthAssault());
+SPECIALS.set("team strike", new TeamStrike());
+SPECIALS.set("phantom strike", new PhantomStrike());
+SPECIALS.set("phantom shield", new PhantomShield());
+
+function getSpecialByName(name){
+    verifyType(name, TYPES.string)
+    return SPECIALS.getPartialMatch(name.toLowerCase()).copy();
 }
 
 export {
     NormalMove,
-    findSpecial
+    getSpecialByName
 };

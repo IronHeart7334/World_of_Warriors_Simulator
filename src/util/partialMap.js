@@ -1,5 +1,4 @@
 import {notNull, TYPES, verifyType} from "./verifyType.js";
-import {AbstractBaseClass} from "./baseClass.js";
 
 /*
 The PartialMatchingMap class is used to store
@@ -105,7 +104,9 @@ class PartialMatchingMap{
                 possibly match, so see if the next
                 one matches as well.
                 */
-                if(idx + 1 >= this.keys.length){
+                if(closest === key){
+                    ret = true;
+                } else if(idx + 1 >= this.keys.length){
                     //next index is out of bounds,
                     //so idx is the closest match.
                     ret = true;

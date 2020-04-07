@@ -1,4 +1,4 @@
-import {NormalMove, findSpecial} from "./specials.js";
+import {NormalMove, getSpecialByName} from "./specials.js";
 import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkill} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
@@ -49,7 +49,7 @@ class Warrior{
         this.stats.set(Stat.HP, new Stat(Stat.HP, HP * hpMult, true));
 	    this.pip = pip;
 	    this.element = getElementByName(element);
-	    this.special = findSpecial(special);
+	    this.special = getSpecialByName(special);
         this.leaderSkill = new LeaderSkill(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
 
