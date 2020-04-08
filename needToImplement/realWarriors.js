@@ -84,13 +84,11 @@ export let warriors = [
     ["Blaine", [0.9167, 0.25, 0.75, 2, 2], "e", "regeneration", [15, "e"]],
 
     //["Wang"],
-    ["Ten Bears", [1, 0.25, 0.92, 0, 2], "a", "vengeance", [30, "a"]],
     //["Ragnar"],
     //["Yi Ho"],
 
     //["Bikili"],
     //["Waza"],
-    ["Kashta", [1, 0.1, 0.94, 0, 3], "e", "twister", [-30, "f"]],
     //?
 
     //Botheric
@@ -101,7 +99,6 @@ export let warriors = [
     //Ardo
     //Dao
     //Furio
-    ["Helios", [1.4, 0.2, 0.77, 2, 4], "a", "team strike", [30, "a"]],
 
  	["Sakuma", [1.1665, 0.15, 0.75, 2, 2], "a", "phantom strike", [5, "p"]],
  	["Zazan", [0.9, 0.25, 0.96, 1, 2], "f", "phantom shield", [15, "f"]],

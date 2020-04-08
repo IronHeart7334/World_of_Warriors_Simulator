@@ -393,11 +393,14 @@ class Vengeance extends SpecialMove{
     constructor(){
         super("Vengeance", 25, true);
     }
+    getPhysicalDamage(){
+        return super.getPhysicalDamage() * (1.5 - this.user.getPercHPRem());
+    }
+    getElementalDamage(){
+        return super.getElementalDamage() * (1.5 - this.user.getPercHPRem());
+    }
     attack(){
-	    let mod = (1.5 - this.user.getPercHPRem());
-	    let p = this.getPhysicalDamage() * mod;
-	    let e = this.getElementalDamage() * mod;
-	    this.user.strike(this, this.user.enemyTeam.active, p, e);
+	    this.user.strike(this);
     }
     copy(){
         return new Vengeance();
@@ -408,14 +411,19 @@ class Twister extends SpecialMove{
     constructor(){
         super("Twister", 10, true);
     }
+    getPhysicalDamage(){
+        return super.getPhysicalDamage() * (1.5 - this.user.getPercHPRem());
+    }
+    getElementalDamage(){
+        return super.getElementalDamage() * (1.5 - this.user.getPercHPRem());
+    }
     attack(){
-		let mod = (1.5 - this.user.getPercHPRem());
-	    let p = this.getPhysicalDamage() * mod;
-	    let e = this.getElementalDamage() * mod;
+        this.attackAll();
 		//can't use attackAll here
+        /*
 		this.user.enemyTeam.forEach((member)=>{
-			this.user.strike(this, member, p, e);
-		});
+			this.user.strike(this, member);
+		});*/
     }
     copy(){
         return new Twister();
@@ -442,16 +450,16 @@ class TeamStrike extends SpecialMove{
 	constructor(){
 		super("Team Strike", 40, true);
 	}
+    getPhysicalDamage(){
+        return super.getPhysicalDamage() * Math.pow(1.2, this.user.team.membersRem.length - 1);
+    }
+    getElementalDamage(){
+        return super.getElementalDamage() * Math.pow(1.2, this.user.team.membersRem.length - 1);
+    }
 	attack(){
-		let pow = this.user.team.membersRem.length - 1;
-		let mod = Math.pow(1.2, pow);
-		let p = this.getPhysicalDamage() * mod;
-		let e = this.getElementalDamage() * mod;
-
-		let dmg = this.user.strike(this, this.user.enemyTeam.active, p, e);
+		let dmg = this.user.strike(this);
 		this.user.team.forEach((member)=>{
 			member.takeDamage(dmg / 6, 0);
-			member.hp_rem = Math.round(member.hp_rem);
 		});
 		if (this.user.hp_rem <= 1){
 			this.user.hp_rem = 1;
