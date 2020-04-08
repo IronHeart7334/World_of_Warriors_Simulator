@@ -89,12 +89,8 @@ export class BattlePage extends View{
     //move some of this to warrior
     bomb(){
         if(!this.inAttackPhase){
-            let d = this.currTeam.active.percOfMaxHP(0.15);
-            this.currTeam.active.hp_rem -= d;
-            if(this.currTeam.active.hp_rem <= 1){
-                this.currTeam.active.hp_rem = 1;
-            }
-            this.currTeam.active.hp_rem = Math.round(this.currTeam.active.hp_rem);
+            this.currTeam.active.bomb();
+            
             this.attackPhaseFor();
         }
     }

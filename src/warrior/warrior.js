@@ -135,7 +135,40 @@ class Warrior{
         }
 	}
 
+    /*
+    If roundTo1 is set to true, this warrior
+    is guaranteed to survive with at lease 1 HP
+    */
+    takeDamage(phys, ele=0, roundTo1=false){
+        notNegative(phys);
+        notNegative(ele);
+        verifyType(roundTo1, TYPES.boolean);
 
+        let amount = phys + ele;
+        this.lastPhysDmg += phys;
+        this.lastEleDmg += ele;
+        this.hp_rem -= amount;
+        this.hp_rem = Math.round(this.hp_rem);
+        if(roundTo1 && this.hp_rem <= 0){
+            this.hp_rem = 1;
+        }
+        if(this.isKoed()){
+            this.knockOut();
+        }
+
+        this.damageListeners.forEach((f)=>{
+            f(amount);
+        });
+    }
+
+    /*
+    Strategically take damage instead
+    of heart collection.
+    */
+    bomb(){
+        let d = this.percOfMaxHP(0.15);
+        this.takeDamage(d, 0, true);
+    }
 
 
 
@@ -159,11 +192,7 @@ class Warrior{
         }
     }
 
-
-
-
-    
-
+    //will need to change this once I redo events
     /*
      * This is what all attacking should call.
      * this warrior performs an attack against a given target,
@@ -245,22 +274,8 @@ class Warrior{
         return event.physDmg + event.eleDmg; //for Soul Steal
     }
 
-    //shell here
-    takeDamage(phys, ele=0){
-        let amount = phys + ele;
-        this.lastPhysDmg += phys;
-        this.lastEleDmg += ele;
-        this.hp_rem -= amount;
-        this.hp_rem = Math.round(this.hp_rem);
 
-        if(this.isKoed()){
-            this.knockOut();
-        }
 
-        this.damageListeners.forEach((f)=>{
-            f(amount);
-        });
-    }
 
     useNormalMove(){
         this.strike(this.normalMove);

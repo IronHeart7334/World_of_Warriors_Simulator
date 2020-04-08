@@ -344,10 +344,7 @@ class Berserk extends SpecialMove{
     }
     attack(){
 		let recoil = this.user.strike(this) * 0.2;
-		this.user.takeDamage(recoil);
-		if (this.user.hp_rem < 1){
-			this.user.hp_rem = 1;
-		}
+		this.user.takeDamage(recoil, 0, true);
     }
     copy(){
         return new Berserk();
@@ -459,11 +456,10 @@ class TeamStrike extends SpecialMove{
 	attack(){
 		let dmg = this.user.strike(this);
 		this.user.team.forEach((member)=>{
-			member.takeDamage(dmg / 6, 0);
+            // Should not be able to KO user
+            let shoulSurviveWith1HP = (member === this.user);
+			member.takeDamage(dmg / 6, 0, shoulSurviveWith1HP);
 		});
-		if (this.user.hp_rem <= 1){
-			this.user.hp_rem = 1;
-		}
 	}
     copy(){
         return new TeamStrike();
