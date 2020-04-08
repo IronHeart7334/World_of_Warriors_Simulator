@@ -1,4 +1,4 @@
-import {notNull, TYPES, verifyType} from "./verifyType.js";
+import {notNull, TYPES, verifyType, inRange} from "./verifyType.js";
 
 /*
 The PartialMatchingMap class is used to store
@@ -10,32 +10,23 @@ essentially acting as a private constructor.
 The PartialMatchingMap acts as a map,
 connecting string keys to values.
 The unique feature this class supports is
-Partial Key Matching (PKM).
+Partial Key Matching (PKM), which "autocompletes"
+keys that don't match one in the key set.
 
-PKM:
-    Given a list of string keys in alphabetical order,
-    there exists a minimum number of characters, n, required
-    to identify a single key in the list. This value, n, is
-    stored in this class as this.minDiffChars.
-
-    For example, given a list of keys:
-        [a, ab, b]
-    The value n would be 2, as keys share a common first letter,
-    so it needs at least 2 characters to compare.
-
-    Using PKM, the PartialMatchingMap will return the closest matching
-    value when using the getPartialMatch(key) method.
-    For example, given a list of keys:
-        [air, earth, fire, water]
-    getPartialMatch("a") === getPartialMatch("air"), as it needs only one character to
-    verify that "a" is the start of one specific key.
-    However, getPartialMatch("z") would throw an error, as no key starts with 'z'.
+Using PKM, the PartialMatchingMap will return the
+value associated with the closest matching key
+if the key to match is the start of exactly one key
+in the key set when using the getPartialMatch(key) method.
+For example, given a list of keys:
+    [air, earth, fire, water]
+getPartialMatch("a") === getPartialMatch("air"), as it needs only one character to
+verify that "a" is the start of one specific key.
+However, getPartialMatch("z") would throw an error, as no key starts with 'z'.
 */
 class PartialMatchingMap{
     constructor(){
         this.keys = [];
         this.values = [];
-        this.minDiffChars = 1;
     }
 
     /*
@@ -47,15 +38,11 @@ class PartialMatchingMap{
     If the given key is already in the PartialMatchingMap,
     replaces the old value associated with the key
     with the value passed as a parameter.
-
-    This method also updates the minimum number of
-    characters needed to verify adjacent keys are
-    different.
     */
     set(key, value){
         verifyType(key, TYPES.string);
         notNull(value);
-        key = key.toLowerCase();
+        key = key.toLowerCase().trim();
 
         let index = this.findIndex(key, false);
         if(this.keys[index] === key){
@@ -67,17 +54,6 @@ class PartialMatchingMap{
 
             this.values.splice(index, 0, value);
             //                           and insert something there, shoving everything after it up one index
-
-            /*
-            The two closest matches to this new key are to
-            its immediate left and right.
-            Lets count how many of the letters we would have
-            to see in order to tell the two words apart.
-            */
-            let leftMatches = (index >= 1) ? countMatchingChars(this.keys[index - 1], key) + 1 : 0;
-            let rightMatches = (index + 1 < this.keys.length) ? countMatchingChars(this.keys[index + 1], key) + 1 : 0;
-
-            this.minDiffChars = Math.max(this.minDiffChars, leftMatches, rightMatches);
         }
     }
 
@@ -87,39 +63,58 @@ class PartialMatchingMap{
     */
     containsPartialKey(key){
         verifyType(key, TYPES.string);
-        key = key.toLowerCase();
+        key = key.toLowerCase().trim();
         let ret = false;
         let idx = this.findIndex(key, true);
         if(idx >= this.keys.length){
             ret = false;
             //key would be inserted at the end of the key array
         } else {
-            let closest = this.keys[idx];
-            if(key.length < this.minDiffChars){
-                /*
-                Key is too short to match keys.
-                Therefore, see how many keys it
-                could potentially match.
-                idx is the lowest index that could
-                possibly match, so see if the next
-                one matches as well.
-                */
-                if(closest === key){
-                    ret = true;
-                } else if(idx + 1 >= this.keys.length){
-                    //next index is out of bounds,
-                    //so idx is the closest match.
-                    ret = true;
-                } else if(closest.substring(0, key.length) === this.keys[idx + 1].substring(0, key.length)){
-                    // both (idx) and (idx + 1) match key, so cannot find a distinct match
-                    ret = false;
-                } else {
-                    // can tell the difference between (idx) and (idx + 1), so idx matches
-                    ret = true;
-                }
-            } else if(key.substring(0, this.minDiffChars) === closest.substring(0, this.minDiffChars)){
-                ret = true;
-            }
+            ret = this.isPartialMatch(key, idx);
+        }
+
+        return ret;
+    }
+
+    /*
+    Checks to see if the given
+    key is a partial match for
+    the key at the given index
+    in this' key set.
+
+    A key is considered a partial
+    match iff:
+    (*) it matches a key in the key set exactly
+    (*) the key to match is contained in the start of the key to match against
+        "bacon" may be a partial match for "bacon's rebellion",
+        but "bacon" is not a partial match for "I want bacon"
+    (*) the key to match does not have an "ambiguous match", where it can match two keys in the key set
+        For example, given key set ["apple", "application"],
+        "appl" has two potential matches, so it is ambiguous.
+        "appli" partially matches "application"
+    */
+    isPartialMatch(key, index){
+        verifyType(key, TYPES.string);
+        inRange(0, index, this.keys.length - 1);
+        key = key.toLowerCase().trim();
+        let ret = false;
+        let closest = this.keys[index];
+
+        if(closest === key){
+            ret = true;
+        } else if(closest.substring(0, key.length) !== key){
+            ret = false;
+        } else if(index + 1 >= this.keys.length){
+            //next index is out of bounds,
+            //so index is the closest match.
+            ret = true;
+        } else if(closest.substring(0, key.length) === this.keys[index + 1].substring(0, key.length)){
+            /*
+            Since the keys are in order, the next closest match to key is located immediately to its right.
+            */
+            ret = false;
+        } else {
+            ret = true;
         }
 
         return ret;
@@ -132,7 +127,7 @@ class PartialMatchingMap{
     */
     getPartialMatch(key){
         verifyType(key, TYPES.string);
-        key = key.toLowerCase();
+        key = key.toLowerCase().trim();
         if(!this.containsPartialKey(key)){
             throw new Error(`No partial match for key \"${key}\". This contains the following options: \n ${this.toString()}`);
         }
@@ -155,17 +150,13 @@ class PartialMatchingMap{
     If usePKM is set to false, searches for the entire key,
     otherwise, it uses PKM to search.
     For example, given a key set of: [a, ab, cde],
-    it needs to compare 2 letters, because the first two keys share a first letter.
     calling findIndex("abc", true) would return 1 in this example, because the first 2 letters match,
     but findIndex("abc", false) would return 2, because that's where it belongs in the array.
     */
     findIndex(key, usePKM){
         verifyType(key, TYPES.string);
         verifyType(usePKM, TYPES.boolean);
-        key = key.toLowerCase();
-        if(usePKM){
-            key = key.substring(0, this.minDiffChars);
-        }
+        key = key.toLowerCase().trim();
         let min = 0;
         let max = this.keys.length;
         let mid = parseInt((min + max) / 2);
@@ -173,10 +164,9 @@ class PartialMatchingMap{
         let found;
         while(min < max && !found){
             compareTo = this.keys[mid];
-            if(usePKM){
-                compareTo = compareTo.substring(0, this.minDiffChars);
-            }
-            if(compareTo === key){
+            if(usePKM && this.isPartialMatch(key, mid)){
+                found = true;
+            } else if(compareTo === key){
                 found = true;
             } else if(key < compareTo){
                 max = mid;
@@ -191,36 +181,11 @@ class PartialMatchingMap{
 
     toString(){
         let ret = "PARTIAL MATCHING MAP:"
-        for(let i = 0; i < this.keys.length; i++){                                        //.toString()
-            ret += `\n* ${this.keys[i].substring(0, this.minDiffChars)}: ${this.values[i]}`;
+        for(let i = 0; i < this.keys.length; i++){
+            ret += `\n* ${this.keys[i]}: ${this.values[i]}`;
         }
         return ret;
     }
-}
-
-/*
-Counts how many characters the two strings
-share, starting from the beginning of the
-string, until it finds a character that differs.
-
-For example,
-    countMatchingChars("bacon", "background") === 3
-    countMatchingChars("cattle", "battle") === 0
-    countMatchingChars("p", "pneumonoultramicroscopicsilicovolcanoconiosis") === 1
-*/
-function countMatchingChars(str1, str2){
-    verifyType(str1, TYPES.string);
-    verifyType(str2, TYPES.string);
-    let matches = 0;
-    let done = false;
-    for(let i = 0; i < str1.length && i < str2.length && !done; i++){
-        if(str1[i] === str2[i]){
-            matches++;
-        } else {
-            done = true;
-        }
-    }
-    return matches;
 }
 
 /*
