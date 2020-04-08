@@ -1,6 +1,6 @@
 import {NormalMove, getSpecialByName} from "./specials.js";
 import {Stat, StatBoost} from "./stat.js";
-import {getWarriorSkill} from "./warriorSkills.js";
+import {getWarriorSkillByName} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
@@ -54,7 +54,7 @@ class Warrior{
 	    this.level = 34;
 
         this.warriorSkills = [];
-        skills.forEach((skill)=>addSkill(getWarriorSkill(skill)));
+        skills.forEach((skill)=>this.addSkill(getWarriorSkillByName(skill)));
 
         this.normalMove = new NormalMove();
         this.normalMove.setUser(this);

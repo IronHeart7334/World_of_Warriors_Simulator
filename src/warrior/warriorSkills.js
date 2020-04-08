@@ -1,14 +1,21 @@
+import {verifyType, TYPES, inRange, verifyClass} from "../util/verifyType.js";
+import {PartialMatchingMap} from "../util/partialMap.js";
 import {OnHitAction} from "../actions/onHitAction.js";
+import {HitEvent} from "../actions/hitEvent.js";
 import {NormalMove} from "./specials.js";
+import {Warrior} from "./warrior.js";
 
 class WarriorSkill{
     constructor(name, pip=1){
+        verifyType(name, TYPES.string);
+        inRange(1, pip, 5);
         this.name = name;
         this.pip = pip;
         this.user = undefined;
     }
 
     setUser(warrior){
+        verifyClass(warrior, Warrior);
         this.user = warrior;
     }
 
@@ -50,6 +57,7 @@ class CriticalHit extends WarriorSkill{
     }
 
     run(hitEvent){
+        verifyClass(hitEvent, HitEvent);
         console.log("Critical hit!");
         hitEvent.physDmg *= 1.24;
         hitEvent.eleDmg *= 1.24;
@@ -57,6 +65,10 @@ class CriticalHit extends WarriorSkill{
 
     copy(){
         return new CriticalHit(this.pip);
+    }
+
+    toString(){
+        return `Critical Hit (${this.pip} pip)`;
     }
 }
 
@@ -81,6 +93,7 @@ class Guard extends WarriorSkill{
     }
 
     run(hitEvent){
+        verifyClass(hitEvent, HitEvent);
         console.log("Guard!");
         hitEvent.physDmg /= 1.24;
         hitEvent.eleDmg /= 1.24;
@@ -95,19 +108,15 @@ class Guard extends WarriorSkill{
     }
 }
 
-function getWarriorSkill(name, pip=1){
-    let ret = null;
-    switch(name.toLowerCase()){
-        case "critical hit":
-            ret = new CriticalHit(pip);
-            break;
-        case "guard":
-            ret = new Guard(pip);
-            break;
-    }
-    return ret;
+
+const SKILLS = new PartialMatchingMap();
+SKILLS.set("critical hit", new CriticalHit());
+SKILLS.set("guard", new Guard());
+
+function getWarriorSkillByName(name, pip=1){
+    return SKILLS.getPartialMatch(name).copy();
 }
 
 export {
-    getWarriorSkill
+    getWarriorSkillByName
 };

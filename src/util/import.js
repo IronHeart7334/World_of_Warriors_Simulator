@@ -67,7 +67,7 @@ async function loadWarriorFile(fileName, intoUser){
             split[colToIdx.get("lsstat")],
             split[colToIdx.get("special")],
             parseInt(split[colToIdx.get("pip")]),
-            []
+            [] //todo: add warrior skills?
         );
         intoUser.addWarrior(newWarrior);
     });
