@@ -136,6 +136,10 @@ class Warrior{
 	}
 
 
+
+
+
+
     //working below here
 
 
@@ -158,19 +162,7 @@ class Warrior{
 
 
 
-
-    // new attack stuff
-    calcPhysDmg(phys, attack){
-        return phys * (1 - this.getStatValue(Stat.ARM) * 0.12);
-    }
-
-    //...against this
-    calcEleDmg(ele, attack){
-        return ele * attack.user.element.getMultiplierAgainst(this.element);
-    }
-    calcDamage(phys, ele, attack){
-        return this.calcPhysDmg(phys, attack) + this.calcEleDmg(ele, attack);
-    }
+    
 
     /*
      * This is what all attacking should call.
@@ -211,9 +203,9 @@ class Warrior{
             ele = using.getElementalDamage();
         }
 
-        let physDmg = target.calcPhysDmg(phys, using);
-        let eleDmg = target.calcEleDmg(ele, using);
-        let dmg = target.calcDamage(phys, ele, using);
+        let physDmg = phys * (1 - target.getStatValue(Stat.ARM) * 0.12);
+        let eleDmg = ele * this.element.getMultiplierAgainst(target);
+        let dmg = phys + ele;
         let event = new HitEvent(this, target, using, physDmg, eleDmg);
 
         this.onHitActions.forEach((v, k)=>{

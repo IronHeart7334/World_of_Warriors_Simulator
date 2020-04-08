@@ -1,5 +1,6 @@
-import {verifyType, TYPES, notNull} from "../util/verifyType.js";
+import {verifyType, TYPES, notNull, verifyClass} from "../util/verifyType.js";
 import {PartialMatchingMap} from "../util/partialMap.js";
+import {Warrior} from "./warrior.js";
 
 /*
 The Element class is used to calculate how
@@ -20,12 +21,19 @@ class Element {
         notNull(target);
         let ele = null;
         let ret = 0;
-        if(target instanceof Element){
+
+        // instanceof doesn't work all the time
+        try{
+            verifyClass(target, Element);
             ele = target;
-        } else if(target instanceof Warrior){
-            ele = target.element;
-        } else {
-            throw new Error("parameter must be either an Element or a Warrior");
+        } catch(e){
+            //not an element, so see if it's a warrior
+            try{
+                verifyClass(target, Warrior);
+                ele = target.element;
+            } catch(e2){
+                throw new Error("parameter must be either an Element or a Warrior");
+            }
         }
 
         if(this.weakness === ele.name){
