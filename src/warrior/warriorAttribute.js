@@ -1,15 +1,12 @@
 import {verifyType, TYPES} from "./verifyType.js";
 
 /*
-The AbstractBaseClass class serves as the root
-for most of the classes used by the program.
+The WarriorAttribute class serves as the root
+for the warrior related classes used by the program.
 It ensures shared functionality between many
 different classes.
-
-This class will later be refactored for the
-various warrior-related classes
 */
-class AbstractBaseClass {
+class WarriorAttribute {
     constructor(name){
         verifyType(name, TYPES.string);
         this.name = name;
@@ -17,5 +14,5 @@ class AbstractBaseClass {
 }
 
 export {
-    AbstractBaseClass
+    WarriorAttribute
 };
