@@ -41,11 +41,11 @@ class NormalMove extends Attack{
     }
 
     getPhysicalDamage(){
-        return this.user.getStat(Stat.PHYS);
+        return this.user.getStatValue(Stat.PHYS);
     }
 
     getElementalDamage(){
-        return this.user.getStat(Stat.ELE);
+        return this.user.getStatValue(Stat.ELE);
     }
 
     copy(){
@@ -91,11 +91,11 @@ class SpecialMove extends Attack{
     }
 
     getPhysicalDamage(){
-        return this.user.getStat(Stat.PHYS) * this.mod;
+        return this.user.getStatValue(Stat.PHYS) * this.mod;
     }
 
     getElementalDamage(){
-        let ret = this.user.getStat(Stat.ELE);
+        let ret = this.user.getStatValue(Stat.ELE);
         if(this.ignoresEle){
             ret = 0;
         }else if(this.multipliesEle){
@@ -254,7 +254,7 @@ class RollingThunder extends SpecialMove{
                 }
 		    }
 			this.user.strike(this, target);
-		    targetTeam.check_if_ko();
+		    targetTeam.isKoed();
 	    }
     }
 
@@ -303,9 +303,9 @@ class Healing extends SpecialMove{
 		let lowest = 1;
 		this.user.team.forEach((member)=>{
 			if (member !== this.user){
-				if (member.hp_perc() < lowest){
+				if (member.getPercHPRem() < lowest){
                     toHeal = member;
-                    lowest = member.hp_perc();
+                    lowest = member.getPercHPRem();
                 }
 			}
 		});
@@ -394,7 +394,7 @@ class Vengeance extends SpecialMove{
         super("Vengeance", 25, true);
     }
     attack(){
-	    let mod = (1.5 - this.user.hp_perc());
+	    let mod = (1.5 - this.user.getPercHPRem());
 	    let p = this.getPhysicalDamage() * mod;
 	    let e = this.getElementalDamage() * mod;
 	    this.user.strike(this, this.user.enemyTeam.active, p, e);
@@ -409,7 +409,7 @@ class Twister extends SpecialMove{
         super("Twister", 10, true);
     }
     attack(){
-		let mod = (1.5 - this.user.hp_perc());
+		let mod = (1.5 - this.user.getPercHPRem());
 	    let p = this.getPhysicalDamage() * mod;
 	    let e = this.getElementalDamage() * mod;
 		//can't use attackAll here

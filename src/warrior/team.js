@@ -92,22 +92,22 @@ export class Team{
 		for (let member of this.membersRem){
 			member.update();
 		}
-		this.check_if_ko();
+		this.isKoed();
 	}
 
     addKoListener(f){
         this.koListeners.push(f);
     }
 
-	check_if_ko(){
+	isKoed(){
 		/*
          * Removes KOed warriors from the members remaining
          */
         let index = this.membersRem.indexOf(this.active);
-        this.membersRem = this.membersRem.filter((member)=>!member.check_if_ko());
+        this.membersRem = this.membersRem.filter((member)=>!member.isKoed());
 		if (this.membersRem.length === 0){
             this.koListeners.forEach((f)=>f(this));
-		} else if (this.active.check_if_ko()){
+		} else if (this.active.isKoed()){
             if(index >= this.membersRem.length){
 				index = 0;
 			}
@@ -121,7 +121,7 @@ export class Team{
 		Action phase
 		*/
         this.update(); //this comes first, otherwise leader skill doesn't apply
-        if (!this.leader.check_if_ko()){
+        if (!this.leader.isKoed()){
 			this.leader.leaderSkill.apply(this);
 		}
 
@@ -129,7 +129,7 @@ export class Team{
 		for (let member of this.membersRem){
 			member.reset_dmg();
 		}
-        this.check_if_ko();
+        this.isKoed();
 	}
 
     toString(){

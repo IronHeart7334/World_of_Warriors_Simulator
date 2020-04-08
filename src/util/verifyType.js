@@ -9,6 +9,7 @@ Module summary:
 -TYPES: object
 -notNull(val)
 -verifyType(val, type)*
+-array(val)
 -inRange(min, num, max)
 -notNegative(num)
 -positive(num)
@@ -129,6 +130,12 @@ function verifyClass(val, className){
     return true;
 }
 
+function array(value){
+    if(!Array.isArray(value)){
+        throw new Error(val + " must be an array");
+    }
+}
+
 /*
  * Returns the given parameter,
  * converted to an array if it
@@ -150,6 +157,7 @@ export {
     TYPES,
     notNull,
     verifyType,
+    array,
     inRange,
     notNegative,
     positive,

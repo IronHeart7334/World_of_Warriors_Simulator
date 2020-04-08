@@ -6,12 +6,18 @@ import {OnHitAction} from "../actions/onHitAction.js";
 import {HitEvent} from "../actions/hitEvent.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
-import {TYPES, notNull, verifyType, inRange, notNegative, positive} from "../util/verifyType.js";
+import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
 
 /*
 This module contains the following exports:
 - Warrior: the class representing player characters.
 */
+
+/*
+still have some work to do in the ctor.
+documented methods are done
+*/
+
 
 let nextId = 0;
 class Warrior{
@@ -25,8 +31,11 @@ class Warrior{
     - hpMult: a floating point number around 1.0. How high this warrior's HP is relative to the base.
     - leaderSkillAmount: the boost provided by this Warrior's leader skill. See leaderSkill.js for more details.
     - leaderSkillType: the stat boosted by this Warrior's leader skill. Must start with either f, e, a, w, p, or h. See leaderSkill.js for more details.
+    - specialName: the name of the Special Move of this Warrior
+    - pip: the relative power level of the special move (1-4)
+    - skills: an array of strings, the names of warrior skills this warrir has.
     */
-    constructor(name, element, offMult, eleRatio, armor, hpMult, leaderSkillAmount, leaderSkillType, special="Berserk", pip=2, skills=["Critical Hit"]){
+    constructor(name, element, offMult, eleRatio, armor, hpMult, leaderSkillAmount, leaderSkillType, specialName, pip, skills=[]){
         verifyType(name, TYPES.string);
         verifyType(element, TYPES.string);
         positive(offMult);
@@ -35,6 +44,10 @@ class Warrior{
         positive(hpMult);
         verifyType(leaderSkillAmount, TYPES.number);
         verifyType(leaderSkillType, TYPES.string);
+        verifyType(specialName, TYPES.string);
+        inRange(1, pip, 4);
+        array(skills);
+        skills.forEach((skill)=>verifyType(skill, TYPES.string));
 
         this.ctorArgs = Array.from(arguments);
         this.name = name;
@@ -45,7 +58,7 @@ class Warrior{
         this.stats.set(Stat.HP, new Stat(Stat.HP, hpMult));
 	    this.pip = pip;
 	    this.element = getElementByName(element);
-	    this.special = getSpecialByName(special);
+	    this.special = getSpecialByName(specialName);
         this.leaderSkill = new LeaderSkill(leaderSkillAmount, leaderSkillType);
 	    this.level = 34;
 
@@ -56,6 +69,7 @@ class Warrior{
         this.normalMove.setUser(this);
 	    this.special.setUser(this);
 
+        //will redo this to where it is a listener map
         this.damageListeners = [];
         this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
@@ -65,30 +79,74 @@ class Warrior{
         nextId++;
     }
 
-    addSkill(warriorSkill){
-        this.warriorSkills.push(warriorSkill);
-        warriorSkill.setUser(this);
+    /*
+    returns the base value for the given stat.
+    used by SpecialMove to calculate pip modifier
+    */
+    getBase(statEnum){
+        verifyType(statEnum, TYPES.number);
+        return this.stats.get(statEnum).getBase();
     }
 
-	calcStats(){
-		/*
-		Calculate a warrior's stats
-		Increases by 7% per level
-		*/
+    /*
+    returns the calculated value
+    for the given stat
+    */
+    getStatValue(statEnum){
+        verifyType(statEnum, TYPES.number);
+        return this.stats.get(statEnum).getValue();
+    }
+
+    /*
+    Returns the percentage of your HP remaining
+    AS A VALUE BETWEEN 0 AND 1
+    NOT 0 AND 100
+    */
+	getPercHPRem(){
+		return this.hp_rem / this.getStatValue(Stat.HP);
+	}
+
+    /*
+    Returns how much of your max HP will equal perc
+    Example:
+        With 200 HP, this.percOfMaxHP(0.5) will return 100
+    */
+	percOfMaxHP(perc){
+	    inRange(0, perc, 1.0);
+		return this.getStatValue(Stat.HP) * perc;
+    }
+
+    /*
+    returns whether or not
+    this warrior has been knocked out
+    */
+    isKoed(){
+		return this.hp_rem <= 0;
+	}
+
+    /*
+    Calculate a warrior's stats
+    Increases by 7% per level
+    */
+    calcStats(){
         //values is a generator, not an array
         for(let stat of this.stats.values()){
             stat.calc(this.level);
         }
 	}
 
-    getBase(statEnum){
-        return this.stats.get(statEnum).getBase();
+
+    //working below here
+
+
+
+    //change this to accept a string and verify skill combination is valid
+    addSkill(warriorSkill){
+        this.warriorSkills.push(warriorSkill);
+        warriorSkill.setUser(this);
     }
 
-    getStat(statEnum){
-        return this.stats.get(statEnum).getValue();
-    }
-
+    //I may want to change how stat boosts work
     applyBoost(statEnum, boost){
         if(this.stats.has(statEnum)){
             this.stats.get(statEnum).applyBoost(boost);
@@ -97,34 +155,13 @@ class Warrior{
         }
     }
 
-	hp_perc(){
-	    /*
-	    Returns the percentage of your HP remaining
-	    AS A VALUE BETWEEN 0 AND 1
-	    NOT 0 AND 100
-	    */
-		return this.hp_rem / this.getStat(Stat.HP);
-	}
 
-	perc_hp(perc){
-	    /*
-	    Returns how much of your max HP will equal perc
-		Example:
-			With 200 HP, this.perc_hp(0.5) will return 100
-	    */
-		return this.getStat(Stat.HP) * (perc);
-    }
 
-    check_if_ko(){
-        /*
-        An I dead yet?
-        */
-		return this.hp_rem <= 0;
-	}
+
 
     // new attack stuff
     calcPhysDmg(phys, attack){
-        return phys * (1 - this.getStat(Stat.ARM) * 0.12);
+        return phys * (1 - this.getStatValue(Stat.ARM) * 0.12);
     }
 
     //...against this
@@ -224,7 +261,7 @@ class Warrior{
         this.hp_rem -= amount;
         this.hp_rem = Math.round(this.hp_rem);
 
-        if(this.check_if_ko()){
+        if(this.isKoed()){
             this.knockOut();
         }
 
@@ -256,8 +293,8 @@ class Warrior{
         */
 		this.last_healed += Math.round(hp);
 		this.hp_rem += hp;
-		if (this.hp_rem > this.getStat(Stat.HP)){
-			this.hp_rem = this.getStat(Stat.HP);
+		if (this.hp_rem > this.getStatValue(Stat.HP)){
+			this.hp_rem = this.getStatValue(Stat.HP);
 		}
 		this.hp_rem = Math.round(this.hp_rem);
 
@@ -266,7 +303,7 @@ class Warrior{
         });
         /*
 		if(this.skills[0] === "shell"){
-		    if(this.hp_perc() > 0.5){
+		    if(this.getPercHPRem() > 0.5){
 		        this.in_shell = false;
 		    }
 		}*/
@@ -328,7 +365,7 @@ class Warrior{
 	// make this stuff better
 	init(){
 		this.calcStats();
-		this.hp_rem = this.getStat(Stat.HP);
+		this.hp_rem = this.getStatValue(Stat.HP);
 
 		this.poisoned = false;
 		this.regen = false;
@@ -421,10 +458,10 @@ class Warrior{
             Name: ${this.name}
             Level: ${this.level}
             Element: ${this.element.name}
-            Physical attack: ${this.getStat(Stat.PHYS)}
-            Elemental attack: ${this.getStat(Stat.ELE)}
-            Armor: ${this.getStat(Stat.ARM)}
-            Max HP: ${this.getStat(Stat.HP)}
+            Physical attack: ${this.getStatValue(Stat.PHYS)}
+            Elemental attack: ${this.getStatValue(Stat.ELE)}
+            Armor: ${this.getStatValue(Stat.ARM)}
+            Max HP: ${this.getStatValue(Stat.HP)}
             Leader Skill: ${this.leaderSkill.toString()}
             Special move: ${this.special.toString()}
             Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;

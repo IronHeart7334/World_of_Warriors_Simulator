@@ -79,7 +79,7 @@ Combo_rolling_thunder.prototype.attack = function(user){
 		}
 
 		target.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
-		target_team.check_if_ko();
+		target_team.isKoed();
 		hits -= 1;
 	}
 }
@@ -109,7 +109,7 @@ Bomb.prototype.attack = function(user){
 		}
 
 	while(hits !== 0){
-		if (target_team.check_if_ko()){return;}
+		if (target_team.isKoed()){return;}
 		for (var member of target_team.members_rem){
 			if (gained_energy){
 				target_team.energy -= 1;
@@ -121,7 +121,7 @@ Bomb.prototype.attack = function(user){
 				var coll_hearts = false;
 			}
 			member.calc_damage_taken(user, [Math.round(physical_damage), Math.round(elemental_damage)], coll_hearts);
-			target_team.check_if_ko();
+			target_team.isKoed();
 		}
 		hits -= 1;
 	}

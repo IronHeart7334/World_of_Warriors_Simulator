@@ -79,12 +79,12 @@ export class TeamBuilder extends View{
         $("#name").text(w.name);
         $("#special").text(w.special.name + " " + w.pip);
 
-        $("#phys").text(w.getStat(Stat.PHYS));
-        $("#ele").text(w.getStat(Stat.ELE));
-        $("#hp").text(w.getStat(Stat.HP));
+        $("#phys").text(w.getStatValue(Stat.PHYS));
+        $("#ele").text(w.getStatValue(Stat.ELE));
+        $("#hp").text(w.getStatValue(Stat.HP));
 
         let arm;
-        switch(w.getStat(Stat.ARM)){
+        switch(w.getStatValue(Stat.ARM)){
             case 0:
                 arm = "light";
                 break;
@@ -95,8 +95,8 @@ export class TeamBuilder extends View{
                 arm = "heavy";
                 break;
             default:
-                console.error("Invalid armor value for warrior: " + w.getStat(Stat.ARM));
-                console.error(w.getStat(Stat.ARM));
+                console.error("Invalid armor value for warrior: " + w.getStatValue(Stat.ARM));
+                console.error(w.getStatValue(Stat.ARM));
                 break;
         }
         $("#arm").text(arm);
