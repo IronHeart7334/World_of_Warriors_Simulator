@@ -103,7 +103,7 @@ class Warrior{
     NOT 0 AND 100
     */
 	getPercHPRem(){
-		return this.hp_rem / this.getStatValue(Stat.HP);
+		return this.hpRem / this.getStatValue(Stat.HP);
 	}
 
     /*
@@ -121,7 +121,7 @@ class Warrior{
     this warrior has been knocked out
     */
     isKoed(){
-		return this.hp_rem <= 0;
+		return this.hpRem <= 0;
 	}
 
     /*
@@ -147,19 +147,45 @@ class Warrior{
         let amount = phys + ele;
         this.lastPhysDmg += phys;
         this.lastEleDmg += ele;
-        this.hp_rem -= amount;
-        this.hp_rem = Math.round(this.hp_rem);
-        if(roundTo1 && this.hp_rem <= 0){
-            this.hp_rem = 1;
+        this.hpRem -= amount;
+        this.hpRem = Math.round(this.hpRem);
+        if(roundTo1 && this.hpRem <= 0){
+            this.hpRem = 1;
         }
         if(this.isKoed()){
-            this.knockOut();
+            //fire all KO listeners
+            this.koListeners.forEach((f)=>{
+                f(this);
+            });
         }
 
         this.damageListeners.forEach((f)=>{
             f(amount);
         });
     }
+
+    /*
+    Restore HP
+    Prevents from healing past full
+    Also rounds for you
+    */
+	heal(hp){
+		this.lastHealed += Math.round(hp);
+		this.hpRem += hp;
+		if (this.hpRem > this.getStatValue(Stat.HP)){
+			this.hpRem = this.getStatValue(Stat.HP);
+		}
+		this.hpRem = Math.round(this.hpRem);
+
+        this.healListeners.forEach((f)=>{
+            f(hp);
+        });
+	}
+
+    // update this once Resilience out
+	heartCollect(){
+		this.heal(this.healableDamage * 0.4);
+	}
 
     /*
     Strategically take damage instead
@@ -169,6 +195,45 @@ class Warrior{
         let d = this.percOfMaxHP(0.15);
         this.takeDamage(d, 0, true);
     }
+
+    /*
+    Sets all of this' damage related flags
+    back to 0. Note that this does not heal
+    the Warrior.
+    */
+	clearDamageFlags(){
+	    /*
+	    Reset your most recent damage to 0
+	    DOES NOT HEAL YOU
+	    Used for heart collection
+	    */
+		this.lastPhysDmg = 0;
+		this.lastEleDmg = 0;
+        this.healableDamage = 0;
+	}
+
+    /*
+    Sets the lastHealed flag to 0.
+    */
+	ClearHealingFlag(){
+	    this.lastHealed = 0;
+	}
+
+    useNormalMove(){
+        this.strike(this.normalMove);
+    }
+
+    /*
+    Use your powerful Special Move!
+    */
+    useSpecial(){
+		this.team.switchback = this.team.active;
+		this.team.switchin(this);
+		this.special.attack();
+		this.team.energy -= 2;
+	}
+
+
 
 
 
@@ -182,6 +247,32 @@ class Warrior{
         this.warriorSkills.push(warriorSkill);
         warriorSkill.setUser(this);
     }
+
+    /*
+    Initializes the warrior for battle,
+    clearing all flags and applying event
+    listeners from warrior skills.
+    */
+	init(){
+		this.calcStats();
+		this.hpRem = this.getStatValue(Stat.HP);
+
+		this.poisoned = false;
+		this.regen = false;
+		this.shield = false;
+
+		this.lastPhysDmg = 0; //these first two are just used for the GUI
+		this.lastEleDmg = 0;
+        this.healableDamage = 0; //damage that can be healed through heart collection
+		this.lastHealed = 0;
+
+        this.onUpdateActions = new Map();
+        this.onHitActions = new Map();
+
+        this.warriorSkills.forEach((skill)=>{
+            skill.apply();
+        });
+	}
 
     //I may want to change how stat boosts work
     applyBoost(statEnum, boost){
@@ -248,11 +339,7 @@ class Warrior{
             }
         });
 
-
-
         target.takeDamage(event.physDmg, event.eleDmg);
-        target.last_hitby = this;
-
 
         this.onHitActions.forEach((v, k)=>{
             if(!v.applyBeforeHit){
@@ -274,57 +361,14 @@ class Warrior{
         return event.physDmg + event.eleDmg; //for Soul Steal
     }
 
-
-
-
-    useNormalMove(){
-        this.strike(this.normalMove);
-    }
-
-    useSpecial(){
-		/*
-		Use your powerful Special Move!
-		*/
-		this.team.switchback = this.team.active;
-		this.team.switchin(this);
-		this.special.attack();
-		this.team.energy -= 2;
-	}
-
-    //shell here
-	heal(hp){
-        /*
-        Restore HP
-        Prevents from healing past full
-        Also rounds for you
-        */
-		this.last_healed += Math.round(hp);
-		this.hp_rem += hp;
-		if (this.hp_rem > this.getStatValue(Stat.HP)){
-			this.hp_rem = this.getStatValue(Stat.HP);
-		}
-		this.hp_rem = Math.round(this.hp_rem);
-
-        this.healListeners.forEach((f)=>{
-            f(hp);
-        });
-        /*
-		if(this.skills[0] === "shell"){
-		    if(this.getPercHPRem() > 0.5){
-		        this.in_shell = false;
-		    }
-		}*/
-	}
-
+    //replace these once I implement an equivalent to Orpheus' ActionRegister
     addOnHitAction(action){
         this.onHitActions.set(action.id, action);
         action.setUser(this);
     }
-
     addOnUpdateAction(action){
         this.onUpdateActions.set(action.id, action);
     }
-
     addDamageListener(f){
         this.damageListeners.push(f);
     }
@@ -337,93 +381,12 @@ class Warrior{
     addUpdateListener(f){
         this.updateListeners.push(f);
     }
-
-    knockOut(){
-        let warrior = this;
-        this.koListeners.forEach((f)=>{
-            f(warrior);
-        });
-    }
-
 	update(){
-        this.check_durations();
-		this.poisoned = false;
-		this.regen = false;
-
-		if(this.in_shell){
-            this.applyBoost(Stat.ARM, new StatBoost("shell", 3, 1));
-		}
-
-		let new_update = new Map();
-		for(let a of this.onUpdateActions.values()){
-		    a.run();
-		    if(!a.should_terminate){
-		        new_update.set(a.id, a);
-		    }
-		}
-		this.onUpdateActions = new_update;
-
-        let self = this;
-        this.updateListeners.forEach((f)=>{
-            f(self);
-        });
-	}
-
-	// make this stuff better
-	init(){
-		this.calcStats();
-		this.hp_rem = this.getStatValue(Stat.HP);
-
-		this.poisoned = false;
-		this.regen = false;
-		this.shield = false;
-
-		this.lastPhysDmg = 0; //these first two are just used for the GUI for now
-		this.lastEleDmg = 0;
-        this.healableDamage = 0; //damage that can be healed through heart collection
-		this.last_hitby = undefined;
-		this.last_healed = 0;
-
-		this.in_shell = false;
-
-        this.onUpdateActions = new Map();
-        this.onHitActions = new Map();
-
-        this.warriorSkills.forEach((skill)=>{
-            skill.apply();
-        });
-	}
-
-	// update this once Resilience out
-	nat_regen(){
-		let x = this;
-		this.heal(x.healableDamage * 0.4);
-	}
-	reset_dmg(){
-	    /*
-	    Reset your most recent damage to 0
-	    DOES NOT HEAL YOU
-	    Used for heart collection
-	    */
-		this.lastPhysDmg = 0;
-		this.lastEleDmg = 0;
-        this.healableDamage = 0;
-	}
-	reset_heal(){
-	    this.last_healed = 0;
-	}
-
-	check_durations(){
-	    /*
-	    Check to see how long each of your boosts has left
-	    Then push whatever ones are left to a new array
-	    Your boosts become the new array
-	    */
-
         this.stats.forEach((stat)=>{
             stat.update();
         });
 
+        //there has to be a better way to do this.
         this.boostIsUp = false;
         for(let boost of this.stats.get(Stat.ELE).boosts.values()){
             if(boost.id === this.element.name + " Boost"){
@@ -432,6 +395,7 @@ class Warrior{
             }
         }
 
+        //same for here
 		this.shield = false;
         for(let boost of this.stats.get(Stat.ARM).boosts.values()){
             if(boost.id === "Phantom Shield"){
@@ -439,7 +403,30 @@ class Warrior{
                 break;
             }
         }
+
+		this.poisoned = false;
+		this.regen = false;
+
+        //change this once I've added ActionRegister
+		let newUpdate = new Map();
+		for(let a of this.onUpdateActions.values()){
+		    a.run();
+		    if(!a.should_terminate){
+		        newUpdate.set(a.id, a);
+		    }
+		}
+		this.onUpdateActions = newUpdate;
+
+        this.updateListeners.forEach((f)=>{
+            f(this);
+        });
 	}
+
+
+
+
+
+
 
     poison(amount){
         this.addOnUpdateAction(new OnUpdateAction(

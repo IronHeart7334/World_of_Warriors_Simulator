@@ -127,7 +127,7 @@ export class Team{
 
 
 		for (let member of this.membersRem){
-			member.reset_dmg();
+			member.clearDamageFlags();
 		}
         this.isKoed();
 	}

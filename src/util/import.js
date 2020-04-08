@@ -54,6 +54,10 @@ async function loadWarriorFile(fileName, intoUser){
         }
     }
 
+    /*
+    TODO: change this to have better error messages. Maybe move the various
+    checks from Warrior?
+    */
     rows.filter((row)=>row.trim() !== "" && row[0] !== "#").forEach((row)=>{
         try{
             let split = row.split(",").map((cell)=>cell.trim());

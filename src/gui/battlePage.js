@@ -81,7 +81,7 @@ export class BattlePage extends View{
 
     heartColl(){
         if(!this.inAttackPhase){
-            this.currTeam.active.nat_regen();
+            this.currTeam.active.heartCollect();
             this.attackPhaseFor();
         }
     }
@@ -128,7 +128,7 @@ export class BattlePage extends View{
         right.append(effectList);
 
         let updateHp = (change)=>{
-            hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hp_rem);
+            hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hpRem);
         };
         warrior.addDamageListener(updateHp);
         warrior.addHealListener(updateHp);
@@ -150,8 +150,8 @@ export class BattlePage extends View{
             if (w.lastEleDmg !== 0){
                 effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
             }
-            if (w.last_healed !== 0){
-                effectList.append(`<li>+${Math.round(w.last_healed)}`);
+            if (w.lastHealed !== 0){
+                effectList.append(`<li>+${Math.round(w.lastHealed)}`);
             }
 
             //ew. change this later
@@ -214,7 +214,7 @@ export class BattlePage extends View{
         } //#################################STOPS HERE IF A TEAM WON
 
         $("#vs-text").text(`${this.currTeam.active.name} VS ${this.currTeam.enemyTeam.active.name}`);
-        this.currTeam.forEach((member)=>member.reset_heal());
+        this.currTeam.forEach((member)=>member.ClearHealingFlag());
 
         $(".recover").show();
         $(".attack").hide();
