@@ -1,6 +1,11 @@
 import {verifyType, TYPES, notNegative} from "../util/verifyType.js";
 import {Terminable, TerminableList} from "../util/terminable.js";
-import {PartialMatchingMap} from "../util/partialMap.js";
+
+
+
+// The base values for both stats
+const OFFENSE = 33.73;
+const HP = 107.0149;
 
 /*
 The Stat class represents one of a Warrior's
@@ -18,47 +23,52 @@ class Stat{
             - Stat.ELE
             - Stat.ARM
             - Stat.HP
-    base: the base value for the stat.
-    levelsUp: if set to false, the level of
-        the warrior this stat belongs to does
-        not affect the calculated value of this
-        stat. If set to true, the calculated value
-        of this stat is base * 1.07^LV
+    value: the multiplier for the stat relative to the base value.
     */
-    constructor(type, base, levelsUp=false){
+    constructor(type, multiplier){
         verifyType(type, TYPES.number);
-        notNegative(base);
-        verifyType(levelsUp, TYPES.boolean);
+        notNegative(multiplier);
         type = parseInt(type);
         switch(type){
             case Stat.PHYS:
+                this.name = "Physical attack";
                 this.type = type;
+                this.base = OFFENSE * multiplier;
+                this.levelsUp = true;
                 break;
             case Stat.ELE:
+                this.name = "Elemental attack";
                 this.type = type;
+                this.base = OFFENSE * multiplier;
+                this.levelsUp = true;
                 break;
             case Stat.ARM:
+                this.name = "Armor";
                 this.type = type;
+                this.base = multiplier;
+                this.levelsUp = false;
                 break;
             case Stat.HP:
+                this.name = "HP";
                 this.type = type;
+                this.base = HP * multiplier;
+                this.levelsUp = true;
                 break;
             default:
                 throw new Error(`type cannot be ${type}, it must be either Stat.PHYS, Stat.ELE, Stat.ARM, or Stat.HP`);
                 break;
         }
 
-        this.base = base;
-        this.levelsUp = levelsUp;
+        this.ctorMultiplier = multiplier;
         this.value = this.base;
         this.boosts = new Map();
     }
 
     copy(newBase=null){
         if(newBase===null){
-            newBase = this.base;
+            newBase = this.ctorMultiplier;
         }
-        let ret = new Stat(this.type, newBase, this.levelsUp);
+        let ret = new Stat(this.type, newBase);
         ret.value = this.value;
         ret.boosts = this.boosts;
         //need to do deep copy here
@@ -67,7 +77,7 @@ class Stat{
     }
 
     calc(lv){
-        this.boosts = new Map(); //reset boosts
+        this.boosts.clear();
         if(this.levelsUp){
             this.value = Math.round(this.base * Math.pow(1.07, lv));
         }
@@ -112,21 +122,6 @@ Stat.PHYS = 0;
 Stat.ELE = 1;
 Stat.ARM = 2;
 Stat.HP = 3;
-
-const STATS = new PartialMatchingMap();
-STATS.set("physical attack", new Stat(0, 1, true));
-STATS.set("elemental attack", new Stat(1, 1, true));
-STATS.set("armor", new Stat(2, 1, false));
-STATS.set("hp", new Stat(3, 1, true));
-
-
-
-function getStatByName(name, base){
-    verifyType(name, TYPES.string);
-    verifyType(base, TYPES.number);
-
-    return STATS.getPartialMatch(name).copy(base);
-}
 
 class StatBoost extends Terminable{
     constructor(id, amount, dur){

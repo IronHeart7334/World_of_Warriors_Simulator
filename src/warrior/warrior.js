@@ -13,10 +13,6 @@ This module contains the following exports:
 - Warrior: the class representing player characters.
 */
 
-// The base values for both stats
-const OFFENSE = 33.73;
-const HP = 107.0149;
-
 let nextId = 0;
 class Warrior{
     /*
@@ -43,10 +39,10 @@ class Warrior{
         this.ctorArgs = Array.from(arguments);
         this.name = name;
         this.stats = new Map();
-        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, OFFENSE * offMult * (1.0 - eleRatio), true));
-        this.stats.set(Stat.ELE, new Stat(Stat.ELE, OFFENSE * offMult * eleRatio, true));
+        this.stats.set(Stat.PHYS, new Stat(Stat.PHYS, offMult * (1.0 - eleRatio)));
+        this.stats.set(Stat.ELE, new Stat(Stat.ELE, offMult * eleRatio));
         this.stats.set(Stat.ARM, new Stat(Stat.ARM, armor));
-        this.stats.set(Stat.HP, new Stat(Stat.HP, HP * hpMult, true));
+        this.stats.set(Stat.HP, new Stat(Stat.HP, hpMult));
 	    this.pip = pip;
 	    this.element = getElementByName(element);
 	    this.special = getSpecialByName(special);
