@@ -214,7 +214,7 @@ export class BattlePage extends View{
         } //#################################STOPS HERE IF A TEAM WON
 
         $("#vs-text").text(`${this.currTeam.active.name} VS ${this.currTeam.enemyTeam.active.name}`);
-        this.currTeam.forEach((member)=>member.ClearHealingFlag());
+        this.currTeam.forEach((member)=>member.clearHealingFlag());
 
         $(".recover").show();
         $(".attack").hide();

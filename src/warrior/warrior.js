@@ -79,6 +79,16 @@ class Warrior{
         nextId++;
     }
 
+    // this will need to change if I change the constructor to accepting objects instead of strings
+    copy(){
+        let ret = new Warrior(...(this.ctorArgs));
+        //currenly need this, as constructor doesn't yet add warrior skills
+        this.warriorSkills.forEach((skill)=>{
+            ret.addSkill(skill.copy());
+        });
+        return ret;
+    }
+
     /*
     returns the base value for the given stat.
     used by SpecialMove to calculate pip modifier
@@ -182,6 +192,17 @@ class Warrior{
         });
 	}
 
+    //update this once poison amulet is implemented
+    poison(dmgPerTurn){
+        this.addOnUpdateAction(new OnUpdateAction(
+            "poison",
+            ()=>{
+                this.poisoned = true;
+                this.takeDamage(dmgPerTurn);
+            }, 3
+        ));
+    }
+
     // update this once Resilience out
 	heartCollect(){
 		this.heal(this.healableDamage * 0.4);
@@ -215,7 +236,7 @@ class Warrior{
     /*
     Sets the lastHealed flag to 0.
     */
-	ClearHealingFlag(){
+	clearHealingFlag(){
 	    this.lastHealed = 0;
 	}
 
@@ -233,14 +254,25 @@ class Warrior{
 		this.team.energy -= 2;
 	}
 
+    toString(){
+        return `Warrior:
+            Name: ${this.name}
+            Level: ${this.level}
+            Element: ${this.element.name}
+            Physical attack: ${this.getStatValue(Stat.PHYS)}
+            Elemental attack: ${this.getStatValue(Stat.ELE)}
+            Armor: ${this.getStatValue(Stat.ARM)}
+            Max HP: ${this.getStatValue(Stat.HP)}
+            Leader Skill: ${this.leaderSkill.toString()}
+            Special move: ${this.special.toString()}
+            Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;
+    }
 
 
 
-
-
-    //working below here
-
-
+    //######################
+    //working below here ###
+    //######################
 
     //change this to accept a string and verify skill combination is valid
     addSkill(warriorSkill){
@@ -422,44 +454,6 @@ class Warrior{
         });
 	}
 
-
-
-
-
-
-
-    poison(amount){
-        this.addOnUpdateAction(new OnUpdateAction(
-            "poison",
-            ()=>{
-                this.poisoned = true;
-                this.takeDamage(amount);
-            }, 3
-        ));
-    }
-
-    copy(){
-        let ret = new Warrior(...(this.ctorArgs));
-        //currenly need this, as constructor doesn't yet add warrior skills
-        this.warriorSkills.forEach((skill)=>{
-            ret.addSkill(skill.copy());
-        });
-        return ret;
-    }
-
-    toString(){
-        return `Warrior:
-            Name: ${this.name}
-            Level: ${this.level}
-            Element: ${this.element.name}
-            Physical attack: ${this.getStatValue(Stat.PHYS)}
-            Elemental attack: ${this.getStatValue(Stat.ELE)}
-            Armor: ${this.getStatValue(Stat.ARM)}
-            Max HP: ${this.getStatValue(Stat.HP)}
-            Leader Skill: ${this.leaderSkill.toString()}
-            Special move: ${this.special.toString()}
-            Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;
-    }
 }
 
 export {
