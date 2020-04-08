@@ -86,11 +86,9 @@ export class BattlePage extends View{
         }
     }
 
-    //move some of this to warrior
     bomb(){
         if(!this.inAttackPhase){
             this.currTeam.active.bomb();
-            
             this.attackPhaseFor();
         }
     }

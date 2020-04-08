@@ -55,21 +55,25 @@ async function loadWarriorFile(fileName, intoUser){
     }
 
     rows.filter((row)=>row.trim() !== "" && row[0] !== "#").forEach((row)=>{
-        let split = row.split(",").map((cell)=>cell.trim());
-        let newWarrior = new Warrior(
-            split[colToIdx.get("name")],
-            split[colToIdx.get("element")],
-            parseFloat(split[colToIdx.get("offense")]),
-            parseFloat(split[colToIdx.get("ratio")]),
-            parseInt(split[colToIdx.get("armor")]),
-            parseFloat(split[colToIdx.get("hp")]),
-            parseInt(split[colToIdx.get("lsamount")]),
-            split[colToIdx.get("lsstat")],
-            split[colToIdx.get("special")],
-            parseInt(split[colToIdx.get("pip")]),
-            [] //todo: add warrior skills?
-        );
-        intoUser.addWarrior(newWarrior);
+        try{
+            let split = row.split(",").map((cell)=>cell.trim());
+            let newWarrior = new Warrior(
+                split[colToIdx.get("name")],
+                split[colToIdx.get("element")],
+                parseFloat(split[colToIdx.get("offense")]),
+                parseFloat(split[colToIdx.get("ratio")]),
+                parseInt(split[colToIdx.get("armor")]),
+                parseFloat(split[colToIdx.get("hp")]),
+                parseInt(split[colToIdx.get("lsamount")]),
+                split[colToIdx.get("lsstat")],
+                split[colToIdx.get("special")],
+                parseInt(split[colToIdx.get("pip")]),
+                [] //todo: add warrior skills?
+            );
+            intoUser.addWarrior(newWarrior);
+        } catch(e){
+            console.error(e);
+        }
     });
 }
 async function loadTeamFile(fileName, intoUser){

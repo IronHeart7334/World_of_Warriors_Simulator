@@ -15,7 +15,6 @@ export let warriors = [
  	["Anil", [0.9, 0.4, 0.85, 0, 4], "f", "beat", [-30, "w"]],
 
     //["Pacorus", [], "e", "beat", [15, "e"]],
- 	["Doongara", [1.0334, 0.5, 0.96, 0, 3], "e", "beat", [-30, "e"]],
  	["Seni", [0.9665, 0.45, 0.84, 0, 4], "e", "beat", [-30, "f"]],
 
     //Mind Candy never implemented a 1 pip Tornado Strike
@@ -40,10 +39,8 @@ export let warriors = [
 
  	["Leon", [0.9, 0.45, 1.05, 1, 1], "w", "aoe", [15, "w"]],
  	["Cutbert", [1.0665, 0.32, 0.8, 1, 2], "w", "aoe", [30, "w"]],
- 	["Joan", [0.7334, 0.45, 0.9, 1, 3], "w", "aoe", [10, "p"]],
-    //["Alboin", [], "w", "aoe", []],
+ 	//["Alboin", [], "w", "aoe", []],
 
- 	["Tiberius", [0.9334, 0.4, 0.8, 2, 2], "f", "boost", [35, "p"]],
  	["Mohinder", [0.8334, 0.4, 1.1, 2, 2], "f", "boost", [-30, "f"]],
 
  	["Badda", [1.05, 0.4, 1.05, 1, 2], "e", "boost", [-30, "f"]],
@@ -53,7 +50,6 @@ export let warriors = [
  	["Utu", [1.0665, 0.4, 1.05, 1, 2], "a", "boost", [-30, "e"]],
  	["Labashi", [1.1665, 0.4, 0.81, 1, 2], "a", "boost", [30, "a"]],
 
- 	["Kwan", [0.9, 0.4, 1.02, 2, 2], "w", "boost", [-30, "a"]],
  	["Manawa", [1.1334, 0.4, 1, 0, 2], "w", "boost", [30, "w"]],
  	["Simo", [1.2334, 0.4, 0.7, 2, 2], "w", "boost", [10, "p"]],
 
@@ -75,13 +71,10 @@ export let warriors = [
 
  	["Brutus", [0.9334, 0.1, 0.8, 2, 2], "f", "soul steal", [-15, "f"]],
 
- 	["Gunnar", [1.0665, 0.1, 0.78, 2, 3], "e", "berserk", [15, "e"]],
  	["Kendrix", [0.9334, 0.1, 1.1, 1, 2], "a", "berserk", [-15, "e"]],
 
     //need to fix his stats
     ["Luuser Tarhu", [1, 0.25, 1, 1, 2], "e", "poison hive", [10, "h"]],
-
-    ["Blaine", [0.9167, 0.25, 0.75, 2, 2], "e", "regeneration", [15, "e"]],
 
     //["Wang"],
     //["Ragnar"],
