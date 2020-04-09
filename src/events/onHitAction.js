@@ -1,8 +1,8 @@
 
-export class OnHitAction{
+export class HitListener{
     constructor(id, preHitOrPostHit, func, duration=-1){
         this.id = id;
-        this.applyBeforeHit = preHitOrPostHit === OnHitAction.PRE_HIT;
+        this.applyBeforeHit = preHitOrPostHit === HitListener.PRE_HIT;
         this.func = func;
         this.duration = duration;
         this.shouldTerminate = false;
@@ -17,5 +17,5 @@ export class OnHitAction{
         this.shouldTerminate = this.duration === 0;
     }
 }
-OnHitAction.PRE_HIT = 0;  //trigger before inflicting final damage
-OnHitAction.POST_HIT = 1; //after inflicting damage
+HitListener.PRE_HIT = 0;  //trigger before inflicting final damage
+HitListener.POST_HIT = 1; //after inflicting damage

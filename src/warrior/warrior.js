@@ -1,8 +1,6 @@
 import {NormalMove, getSpecialByName} from "./specials.js";
 import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkillByName} from "./warriorSkills.js";
-import {OnHitAction} from "../events/onHitAction.js";
-import {HitEvent} from "../events/hitEvent.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
 import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
@@ -399,7 +397,7 @@ class Warrior{
     }
 
     //replace these once I implement an equivalent to Orpheus' ActionRegister
-    addOnHitAction(action){
+    addHitListener(action){
         this.onHitActions.set(action.id, action);
         action.setUser(this);
     }

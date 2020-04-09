@@ -1,9 +1,8 @@
 import {verifyType, TYPES, inRange, verifyClass} from "../util/verifyType.js";
 import {PartialMatchingMap} from "../util/partialMap.js";
-import {OnHitAction} from "../actions/onHitAction.js";
-import {HitEvent} from "../actions/hitEvent.js";
 import {NormalMove} from "./specials.js";
 import {Warrior} from "./warrior.js";
+import {EventListener, EVENT_TYPE} from "../events/events.js";
 
 class WarriorSkill{
     constructor(name, pip=1){
@@ -43,13 +42,17 @@ class CriticalHit extends WarriorSkill{
 
     apply(){
         let user = this.user;
-        user.addOnHitAction(new OnHitAction("Critical Hit", OnHitAction.PRE_HIT, (hitEvent)=>{
-            if(hitEvent.hitter === user && hitEvent.attackUsed instanceof NormalMove){
-                if(this.checkForTrigger()){
-                    this.run(hitEvent);
+        user.eventListener(new EventListener(
+            "Critical Hit",
+            EVENT_TYPE.preHit,
+            (hitEvent)=>{
+                if(hitEvent.hitter === user && hitEvent.attackUsed instanceof NormalMove){
+                    if(this.checkForTrigger()){
+                        this.run(hitEvent);
+                    }
                 }
             }
-        }));
+        ));
     }
 
     checkForTrigger(){
@@ -79,13 +82,17 @@ class Guard extends WarriorSkill{
 
     apply(){
         let user = this.user;
-        user.addOnHitAction(new OnHitAction("Guard", OnHitAction.PRE_HIT, (hitEvent)=>{
-            if(hitEvent.hittee === user && hitEvent.attackUsed instanceof NormalMove){
-                if(this.checkForTrigger()){
-                    this.run(hitEvent);
+        user.addEventListener(new EventListener(
+            "Guard",
+            EVENT_TYPE.preHit,
+            (hitEvent)=>{
+                if(hitEvent.hittee === user && hitEvent.attackUsed instanceof NormalMove){
+                    if(this.checkForTrigger()){
+                        this.run(hitEvent);
+                    }
                 }
             }
-        }));
+        ));
     }
 
     checkForTrigger(){

@@ -572,6 +572,7 @@ function getSpecialByName(name){
 }
 
 export {
+    Attack,
     NormalMove,
     getSpecialByName
 };

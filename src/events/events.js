@@ -1,6 +1,7 @@
-import {verifyClass, inRange} from "../util/verifyType.js";
+import {verifyClass, verifyType, TYPES, inRange} from "../util/verifyType.js";
 import {Terminable, TerminableList, INTERMINABLE} from "../util/terminable.js";
 import {Warrior} from "../warrior/warrior.js";
+import {Attack} from "../warrior/specials.js";
 
 /*
 The EventListenerRegister class
@@ -61,7 +62,24 @@ class Event {
         nextEventId++;
     }
 };
-
+class HitEvent extends Event {
+    constructor(hitter, hittee, using, physDmg, eleDmg){
+        super(EVENT_TYPE.hit);
+        verifyClass(hitter, Warrior);
+        verifyClass(hittee, Warrior);
+        verifyClass(using, Attack);
+        verifyType(physDmg, TYPES.number);
+        verifyType(eleDmg, TYPES.number);
+        this.hitter = hitter;
+        this.hittee = hittee;
+        this.attackUsed = using;
+        this.physDmg = physDmg;
+        this.eleDmg = eleDmg;
+    }
+    toString(){
+        return `Event #${this.id}: ${this.hitter.name} struck ${this.hittee.name} for (${this.physDmg}, ${this.eleDmg}) damage using ${this.attackUsed.name}`;
+    }
+};
 class UpdateEvent extends Event {
     constructor(warrior){
         super(EVENT_TYPE.warriorUpdated);
@@ -77,6 +95,8 @@ class UpdateEvent extends Event {
 
 const EVENT_TYPE = {};
 const EVENT_NAMES = [
+    "preHit",
+    "postHit",
     "warriorDamaged",
     "warriorHealed",
     "warriorKOed",
@@ -98,6 +118,7 @@ function mismatchedEventTypeError(shouldReceive, receivedInstead){
 export {
     EventListenerRegister,
     EventListener,
+    HitEvent,
     UpdateEvent,
     EVENT_TYPE
 };
