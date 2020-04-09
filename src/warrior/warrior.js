@@ -2,11 +2,12 @@ import {NormalMove, getSpecialByName} from "./specials.js";
 import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkillByName} from "./warriorSkills.js";
 import {OnUpdateAction} from "../actions/onUpdateAction.js";
-import {OnHitAction} from "../actions/onHitAction.js";
-import {HitEvent} from "../actions/hitEvent.js";
+import {OnHitAction} from "../events/onHitAction.js";
+import {HitEvent} from "../events/hitEvent.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
 import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
+import {EventListenerRegister, EVENT_TYPE} from "../events/events.js";
 
 /*
 This module contains the following exports:
@@ -14,7 +15,6 @@ This module contains the following exports:
 */
 
 /*
-still have some work to do in the ctor.
 documented methods are done
 */
 
@@ -70,16 +70,17 @@ class Warrior{
 	    this.special.setUser(this);
 
         //will redo this to where it is a listener map
+        /*
         this.damageListeners = [];
         this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
         this.updateListeners = [];
-
+        */
+        this.eventListenReg = new EventListenerRegister();
         this.id = nextId;
         nextId++;
     }
 
-    // this will need to change if I change the constructor to accepting objects instead of strings
     copy(){
         let ret = new Warrior(...(this.ctorArgs));
         //currenly need this, as constructor doesn't yet add warrior skills
@@ -298,8 +299,7 @@ class Warrior{
         this.healableDamage = 0; //damage that can be healed through heart collection
 		this.lastHealed = 0;
 
-        this.onUpdateActions = new Map();
-        this.onHitActions = new Map();
+        this.eventListenReg.clear();
 
         this.warriorSkills.forEach((skill)=>{
             skill.apply();
