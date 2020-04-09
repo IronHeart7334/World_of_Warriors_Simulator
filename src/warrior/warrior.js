@@ -322,25 +322,22 @@ class Warrior{
      *    reducing the physical damage of the attack by 12% for each point of armor the target has,
      *    and dealing more (+70%) or less (-70%) elemental damage based on the matchup between the user and target's elements
      * 2. generates a HitEvent to keep track of the details for this attack
-     * 3. calls all functions in this warrior's onHitActions that have their applyBeforeHit flag set to true
-     * 4. does the same for all the functions in the target's onHitActions that meet the same condition
-     * 5. Some things to note about these onHitActions:
-     *    (a): they should check if their user is the hitter or the hittee in the attack
-     *    (b): they should check if the attack used is an instance of NormalMove (see warriorSkills.js)
+     * 3. fires a hit event for the attacker, then the target, potentially modifying the damage
+     * 4. Some things to note about the hit event:
+     *    (a): EventListeners should check if their user is the hitter or the hittee in the attack
+     *    (b): EventListeners should check if the attack used is an instance of NormalMove (see warriorSkills.js)
      *    (c): they may modify the damage passed into the event, so you should never reference the local variables
      *         physDmg, eleDmg, and dmg in this function, only use the event's properties.
-     * 6. after running all of these pre-hit functions, the target takes damage
+     * 5. after running all of these pre-hit functions, the target takes damage
      *    using the damage values from the event.
-     * 7. runs any on hit functions in this and the target's onHitActions that have to applyBeforeHit flag set to false
-     *    (not using this currently, will need for poison edge I think)
-     * 8. if the target is the active warrior for his team, allows them to recover the damage during heart collection,
+     * 6. if the target is the active warrior for his team, allows them to recover the damage during heart collection,
      *    and gives their team energy.
      *
      * @param {Attack} using the NormalMove or SpecialMove the attack was made using.
      * @param {Warrior} target who the attack is made against. Defaults to the active enemy.
      * @param {number} phys the base physical damage of the attack. Defaults to using.getPhysicalDamage()
      * @param {number} ele the base elemental damage of the attack. Defaults to using.getElementalDamage()
-     * @returns {HitEvent.eleDmg|HitEvent.physDmg}
+     * @returns {the damage inflicted}
      */
     strike(using, target=undefined, phys=undefined, ele=undefined){
         if(target === undefined){
@@ -358,29 +355,10 @@ class Warrior{
         let dmg = phys + ele;
         let event = new HitEvent(this, target, using, physDmg, eleDmg);
 
-        this.onHitActions.forEach((v, k)=>{
-            if(v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        target.onHitActions.forEach((v, k)=>{
-            if(v.applyBeforeHit){
-                v.run(event);
-            }
-        });
+        this.eventListenReg.fireEventListeners(event);
+        target.eventListenReg.fireEventListeners(event);
 
         target.takeDamage(event.physDmg, event.eleDmg);
-
-        this.onHitActions.forEach((v, k)=>{
-            if(!v.applyBeforeHit){
-                v.run(event);
-            }
-        });
-        target.onHitActions.forEach((v, k)=>{
-            if(!v.applyBeforeHit){
-                v.run(event);
-            }
-        });
 
         if(target.team.active === target){
             //damage that can be healed from heart collection
@@ -397,10 +375,6 @@ class Warrior{
     }
 
     //replace these once I implement an equivalent to Orpheus' ActionRegister
-    addHitListener(action){
-        this.onHitActions.set(action.id, action);
-        action.setUser(this);
-    }
     addDamageListener(f){
         this.damageListeners.push(f);
     }

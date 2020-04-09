@@ -44,7 +44,7 @@ class CriticalHit extends WarriorSkill{
         let user = this.user;
         user.eventListener(new EventListener(
             "Critical Hit",
-            EVENT_TYPE.preHit,
+            EVENT_TYPE.hit,
             (hitEvent)=>{
                 if(hitEvent.hitter === user && hitEvent.attackUsed instanceof NormalMove){
                     if(this.checkForTrigger()){
@@ -84,7 +84,7 @@ class Guard extends WarriorSkill{
         let user = this.user;
         user.addEventListener(new EventListener(
             "Guard",
-            EVENT_TYPE.preHit,
+            EVENT_TYPE.hit,
             (hitEvent)=>{
                 if(hitEvent.hittee === user && hitEvent.attackUsed instanceof NormalMove){
                     if(this.checkForTrigger()){

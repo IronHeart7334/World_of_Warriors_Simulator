@@ -62,6 +62,10 @@ class Event {
         nextEventId++;
     }
 };
+
+//if I need pre-hit vs post-hit, add a transitionToPost method
+//which is invoked after firing it as a prehitevent,
+//converting its type to post-hit. 
 class HitEvent extends Event {
     constructor(hitter, hittee, using, physDmg, eleDmg){
         super(EVENT_TYPE.hit);
@@ -95,8 +99,7 @@ class UpdateEvent extends Event {
 
 const EVENT_TYPE = {};
 const EVENT_NAMES = [
-    "preHit",
-    "postHit",
+    "hit",
     "warriorDamaged",
     "warriorHealed",
     "warriorKOed",
