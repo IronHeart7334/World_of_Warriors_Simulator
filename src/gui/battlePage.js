@@ -1,7 +1,7 @@
 import {Stat} from "../warrior/stat.js";
 import {Controller} from "../controller.js";
 import {View} from "./view.js";
-import {UpdateListener, EVENT_TYPE} from "../event/events.js";
+import {EventListener, EVENT_TYPE} from "../event/events.js";
 
 export class BattlePage extends View{
     constructor(team1, team2){
@@ -128,36 +128,44 @@ export class BattlePage extends View{
         let effectList = $("<ul></ul>");
         right.append(effectList);
 
-        let updateHp = (change)=>{
+        let updateHp = (event)=>{
             hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hpRem);
         };
-        warrior.addDamageListener(updateHp);
+        warrior.addEventListener(new EventListener(
+            "update HP 1",
+            EVENT_TYPE.warriorDamaged,
+            updateHp
+        ));
         warrior.addHealListener(updateHp);
         warrior.addKoListener((w)=>{
             sel.css("background-color", "black");
             sel.empty();
         });
-        warrior.addEventListener(new UpdateListener("refresh UI", EVENT_TYPE.warriorUpdated, (w)=>{
-            effectList.empty();
-            if(w.boostIsUp){
-                effectList.append("<li>Elemental Boost</li>");
-            }
-            if(w.shield){
-                effectList.append("<li>Phantom Shield</li>");
-            }
-            if (w.lastPhysDmg !== 0){
-                effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
-            }
-            if (w.lastEleDmg !== 0){
-                effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
-            }
-            if (w.lastHealed !== 0){
-                effectList.append(`<li>+${Math.round(w.lastHealed)}`);
-            }
+        warrior.addEventListener(new EventListener(
+            "refresh UI",
+            EVENT_TYPE.warriorUpdated,
+            (w)=>{
+                effectList.empty();
+                if(w.boostIsUp){
+                    effectList.append("<li>Elemental Boost</li>");
+                }
+                if(w.shield){
+                    effectList.append("<li>Phantom Shield</li>");
+                }
+                if (w.lastPhysDmg !== 0){
+                    effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
+                }
+                if (w.lastEleDmg !== 0){
+                    effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
+                }
+                if (w.lastHealed !== 0){
+                    effectList.append(`<li>+${Math.round(w.lastHealed)}`);
+                }
 
-            //ew. change this later
-            hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
-        }));
+                //ew. change this later
+                hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
+            }
+        ));
     }
 
     linkSpecialMoveButton(id, warrior){

@@ -65,7 +65,7 @@ class Event {
 
 //if I need pre-hit vs post-hit, add a transitionToPost method
 //which is invoked after firing it as a prehitevent,
-//converting its type to post-hit. 
+//converting its type to post-hit.
 class HitEvent extends Event {
     constructor(hitter, hittee, using, physDmg, eleDmg){
         super(EVENT_TYPE.hit);
@@ -82,6 +82,14 @@ class HitEvent extends Event {
     }
     toString(){
         return `Event #${this.id}: ${this.hitter.name} struck ${this.hittee.name} for (${this.physDmg}, ${this.eleDmg}) damage using ${this.attackUsed.name}`;
+    }
+};
+//this will be used for shell
+class DamageEvent extends Event {
+    constructor(amount){
+        super(EVENT_TYPE.warriorDamaged);
+        verifyType(amount, TYPES.number);
+        this.amount = amount;
     }
 };
 class UpdateEvent extends Event {
@@ -122,6 +130,7 @@ export {
     EventListenerRegister,
     EventListener,
     HitEvent,
+    DamageEvent,
     UpdateEvent,
     EVENT_TYPE
 };

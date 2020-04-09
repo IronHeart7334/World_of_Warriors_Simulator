@@ -4,7 +4,14 @@ import {getWarriorSkillByName} from "./warriorSkills.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
 import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
-import {EventListenerRegister, EventListener, EVENT_TYPE, UpdateEvent} from "../events/events.js";
+import {
+    EventListenerRegister,
+    EventListener,
+    EVENT_TYPE,
+    HitEvent,
+    DamageEvent,
+    UpdateEvent
+} from "../events/events.js";
 
 /*
 This module contains the following exports:
@@ -68,7 +75,6 @@ class Warrior{
 
         //will redo this to where it is a listener map
         /*
-        this.damageListeners = [];
         this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
         */
@@ -166,9 +172,9 @@ class Warrior{
             });
         }
 
-        this.damageListeners.forEach((f)=>{
-            f(amount);
-        });
+        //this will change once I figure out what DamageEvents need to contain
+        let dmgEvent = new DamageEvent(amount);
+        this.eventListenReg.fireEventListeners(dmgEvent);
     }
 
     /*
@@ -313,7 +319,6 @@ class Warrior{
         }
     }
 
-    //will need to change this once I redo events
     /*
      * This is what all attacking should call.
      * this warrior performs an attack against a given target,
@@ -375,9 +380,6 @@ class Warrior{
     }
 
     //replace these once I implement an equivalent to Orpheus' ActionRegister
-    addDamageListener(f){
-        this.damageListeners.push(f);
-    }
     addHealListener(f){
         this.healListeners.push(f);
     }
