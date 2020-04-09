@@ -1,5 +1,5 @@
 import {TYPES, verifyType} from "../util/verifyType.js";
-import {EventListener, EVENT_TYPE} from "../events/events.js";
+import {EventListener, EVENT_TYPE, UpdateEvent} from "../events/events.js";
 import {Stat, StatBoost} from "./stat.js";
 import {Terminable} from "../util/terminable.js";
 import {PartialMatchingMap} from "../util/partialMap.js";
@@ -375,7 +375,7 @@ class Regeneration extends SpecialMove{
 		let healing = this.getPhysicalDamage();
 
 		this.user.team.forEach((member)=>{
-		    member.addEventListener(new EventListener(
+            let listen = new EventListener(
                 "regeneration",
                 EVENT_TYPE.warriorUpdated,
                 ()=>{
@@ -383,7 +383,12 @@ class Regeneration extends SpecialMove{
                     member.heal(healing);
                 },
                 3
-            ));
+            );
+            listen.run(new UpdateEvent(this.user));
+            //update events are fired at the start of the turn,
+            //but regeneration needs to start the turn it is used.
+
+		    member.addEventListener(listen);
 		});
     }
     copy(){

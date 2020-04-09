@@ -145,15 +145,18 @@ export class BattlePage extends View{
         let effectList = $("<ul></ul>");
         right.append(effectList);
 
-        let updateHp = (event)=>{
+        let updateHp = ()=>{
             hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hpRem);
+            if(warrior.regen){
+                hpBar.text(hpBar.text() + "+");
+            }
         };
 
         warrior.addEventListener(new EventListener(
             "update HP UI 1",
             EVENT_TYPE.warriorDamaged,
             (event)=>{
-                updateHp(event);
+                updateHp();
                 hpChanges["phys"].text(`-${event.physDmg}`);
                 hpChanges["ele"].text(`-${event.eleDmg}`);
             }
@@ -186,16 +189,8 @@ export class BattlePage extends View{
                 if(w.shield){
                     effectList.append("<li>Phantom Shield</li>");
                 }
-                /*
-                if (w.lastPhysDmg !== 0){
-                    effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
-                }
-                if (w.lastEleDmg !== 0){
-                    effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
-                }
-                if (w.lastHealed !== 0){
-                    effectList.append(`<li>+${Math.round(w.lastHealed)}`);
-                }*/
+
+                updateHp();
 
                 hpBar.css("background-color", (w.poisoned) ? "green" : "red");
             }
@@ -266,7 +261,6 @@ export class BattlePage extends View{
         } //#################################STOPS HERE IF A TEAM WON
 
         $("#vs-text").text(`${this.currTeam.active.name} VS ${this.currTeam.enemyTeam.active.name}`);
-        this.currTeam.forEach((member)=>member.clearHealingFlag());
 
         $(".recover").show();
         $(".attack").hide();

@@ -127,7 +127,7 @@ export class Team{
 
 
 		for (let member of this.membersRem){
-			member.clearDamageFlags();
+			member.healableDamage = 0;
 		}
         this.isKoed();
 	}

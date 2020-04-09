@@ -147,8 +147,6 @@ class Warrior{
         verifyType(roundTo1, TYPES.boolean);
 
         let amount = phys + ele;
-        this.lastPhysDmg += phys;
-        this.lastEleDmg += ele;
         this.hpRem -= amount;
         this.hpRem = Math.round(this.hpRem);
         if(roundTo1 && this.hpRem <= 0){
@@ -169,7 +167,6 @@ class Warrior{
     Also rounds for you
     */
 	heal(hp){
-		this.lastHealed += Math.round(hp);
 		this.hpRem += hp;
 		if (this.hpRem > this.getStatValue(Stat.HP)){
 			this.hpRem = this.getStatValue(Stat.HP);
@@ -206,29 +203,6 @@ class Warrior{
         let d = this.percOfMaxHP(0.15);
         this.takeDamage(d, 0, true);
     }
-
-    /*
-    Sets all of this' damage related flags
-    back to 0. Note that this does not heal
-    the Warrior.
-    */
-	clearDamageFlags(){
-	    /*
-	    Reset your most recent damage to 0
-	    DOES NOT HEAL YOU
-	    Used for heart collection
-	    */
-		this.lastPhysDmg = 0;
-		this.lastEleDmg = 0;
-        this.healableDamage = 0;
-	}
-
-    /*
-    Sets the lastHealed flag to 0.
-    */
-	clearHealingFlag(){
-	    this.lastHealed = 0;
-	}
 
     useNormalMove(){
         this.strike(this.normalMove);
@@ -277,10 +251,7 @@ class Warrior{
 		this.regen = false;
 		this.shield = false;
 
-		this.lastPhysDmg = 0; //these first two are just used for the GUI
-		this.lastEleDmg = 0;
         this.healableDamage = 0; //damage that can be healed through heart collection
-		this.lastHealed = 0;
 
         this.eventListenReg.clear();
 
@@ -383,7 +354,6 @@ class Warrior{
 
 		this.poisoned = false;
 		this.regen = false;
-
 
         this.eventListenReg.fireEventListeners(new UpdateEvent(this));
 	}
