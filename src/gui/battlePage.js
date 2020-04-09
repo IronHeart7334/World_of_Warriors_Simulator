@@ -1,6 +1,7 @@
 import {Stat} from "../warrior/stat.js";
 import {Controller} from "../controller.js";
 import {View} from "./view.js";
+import {UpdateListener, EVENT_TYPE} from "../event/events.js";
 
 export class BattlePage extends View{
     constructor(team1, team2){
@@ -136,7 +137,7 @@ export class BattlePage extends View{
             sel.css("background-color", "black");
             sel.empty();
         });
-        warrior.addUpdateListener((w)=>{
+        warrior.addEventListener(new UpdateListener("refresh UI", EVENT_TYPE.warriorUpdated, (w)=>{
             effectList.empty();
             if(w.boostIsUp){
                 effectList.append("<li>Elemental Boost</li>");
@@ -156,7 +157,7 @@ export class BattlePage extends View{
 
             //ew. change this later
             hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
-        });
+        }));
     }
 
     linkSpecialMoveButton(id, warrior){

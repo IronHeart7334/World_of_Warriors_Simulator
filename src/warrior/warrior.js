@@ -1,13 +1,12 @@
 import {NormalMove, getSpecialByName} from "./specials.js";
 import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkillByName} from "./warriorSkills.js";
-import {OnUpdateAction} from "../actions/onUpdateAction.js";
 import {OnHitAction} from "../events/onHitAction.js";
 import {HitEvent} from "../events/hitEvent.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
 import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
-import {EventListenerRegister, EVENT_TYPE} from "../events/events.js";
+import {EventListenerRegister, EventListener, EVENT_TYPE, UpdateEvent} from "../events/events.js";
 
 /*
 This module contains the following exports:
@@ -74,7 +73,6 @@ class Warrior{
         this.damageListeners = [];
         this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
-        this.updateListeners = [];
         */
         this.eventListenReg = new EventListenerRegister();
         this.id = nextId;
@@ -195,12 +193,14 @@ class Warrior{
 
     //update this once poison amulet is implemented
     poison(dmgPerTurn){
-        this.addOnUpdateAction(new OnUpdateAction(
+        this.addEventListener(new EventListener(
             "poison",
+            EVENT_TYPE.warriorUpdated,
             ()=>{
                 this.poisoned = true;
                 this.takeDamage(dmgPerTurn);
-            }, 3
+            },
+            3
         ));
     }
 
@@ -393,13 +393,15 @@ class Warrior{
         return event.physDmg + event.eleDmg; //for Soul Steal
     }
 
+    addEventListener(eventListener){
+        verifyClass(eventListener, EventListener);
+        this.eventListenReg.addEventListener(eventListener);
+    }
+
     //replace these once I implement an equivalent to Orpheus' ActionRegister
     addOnHitAction(action){
         this.onHitActions.set(action.id, action);
         action.setUser(this);
-    }
-    addOnUpdateAction(action){
-        this.onUpdateActions.set(action.id, action);
     }
     addDamageListener(f){
         this.damageListeners.push(f);
@@ -409,9 +411,6 @@ class Warrior{
     }
     addKoListener(f){
         this.koListeners.push(f);
-    }
-    addUpdateListener(f){
-        this.updateListeners.push(f);
     }
 	update(){
         this.stats.forEach((stat)=>{
@@ -439,19 +438,8 @@ class Warrior{
 		this.poisoned = false;
 		this.regen = false;
 
-        //change this once I've added ActionRegister
-		let newUpdate = new Map();
-		for(let a of this.onUpdateActions.values()){
-		    a.run();
-		    if(!a.should_terminate){
-		        newUpdate.set(a.id, a);
-		    }
-		}
-		this.onUpdateActions = newUpdate;
 
-        this.updateListeners.forEach((f)=>{
-            f(this);
-        });
+        this.eventListenReg.fireEventListeners(new UpdateEvent(this));
 	}
 
 }

@@ -1,5 +1,5 @@
 import {TYPES, verifyType} from "../util/verifyType.js";
-import {OnUpdateAction} from "../actions/onUpdateAction.js";
+import {EventListener, EVENT_TYPE} from "../events/events.js";
 import {Stat, StatBoost} from "./stat.js";
 import {Terminable} from "../util/terminable.js";
 import {PartialMatchingMap} from "../util/partialMap.js";
@@ -375,10 +375,15 @@ class Regeneration extends SpecialMove{
 		let healing = this.getPhysicalDamage();
 
 		this.user.team.forEach((member)=>{
-		    member.addOnUpdateAction(new OnUpdateAction("regeneration", ()=>{
-                member.regen = true;
-                member.heal(healing);
-            }, 3));
+		    member.addEventListener(new EventListener(
+                "regeneration",
+                EVENT_TYPE.warriorUpdated,
+                ()=>{
+                    member.regen = true;
+                    member.heal(healing);
+                },
+                3
+            ));
 		});
     }
     copy(){

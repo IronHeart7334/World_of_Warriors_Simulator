@@ -34,6 +34,7 @@ class Terminable {
 
 const INTERMINABLE = "forever";
 
+/*
 class TerminalNode {
     constructor(terminable){
         verifyClass(terminable, Terminable);
@@ -41,16 +42,19 @@ class TerminalNode {
         this.prev = null;
         this.next = null;
     }
-}
+}*/
 
 class TerminableList {
     constructor(){
-        this.head = null;
-        this.tail = null;
+        this.map = new Map();
+        //this.head = null;
+        //this.tail = null;
     }
 
     add(terminable){
         verifyClass(terminable, Terminable);
+        this.map.set(terminable.id, terminable);
+        /*
         let newNode = new TerminalNode(terminable);
         if(this.tail === null){
             //has no nodes yet
@@ -60,10 +64,18 @@ class TerminableList {
             this.tail.next = newNode;
             newNode.prev = this.tail;
             this.tail = newNode;
-        }
+        }*/
     }
 
     runAll(target=null){
+        //might be some k, v way of doing this, but google is slow now
+        Arrays.from(this.map.keys()).forEach((terminableId)=>{
+            this.map.get(terminableId).run(target);
+            if(this.map.get(terminableId).shouldTerminate){
+                this.map.delete(terminableId);
+            }
+        });
+        /*
         let currNode = this.head;
         let currTerm;
         while(currNode !== null){
@@ -85,7 +97,7 @@ class TerminableList {
                 }
             }
             currNode = currNode.next;
-        }
+        }*/
     }
 }
 
