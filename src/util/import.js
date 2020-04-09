@@ -76,7 +76,10 @@ async function loadWarriorFile(fileName, intoUser){
             );
             intoUser.addWarrior(newWarrior);
         } catch(e){
+            console.error("Encountered the following error while attempting to read warrior file " + fileName);
             console.error(e);
+            console.error(e.stack);
+            console.error("Caused by line: " + row);
         }
     });
 }
@@ -103,18 +106,25 @@ async function loadTeamFile(fileName, intoUser){
     }
 
     rows.filter((row)=>row.trim() !== "" && row[0] !== "#").forEach((row)=>{
-        let split = row.split(",").map((cell)=>cell.trim());
-        let warriorNames = [];
-        let warriorName;
-        for(let i = 1; i <= 3; i++){
-            warriorName = split[colToIdx.get(`warrior ${i} name`)];
-            if(warriorName === ""){
-                //team has less than 3 warriors
-            } else {
-                warriorNames.push(warriorName)
-            }
+        try{
+            let split = row.split(",").map((cell)=>cell.trim());
+            let warriorNames = [];
+            let warriorName;
+            for(let i = 1; i <= 3; i++){
+                warriorName = split[colToIdx.get(`warrior ${i} name`)];
+                if(warriorName === ""){
+                    //team has less than 3 warriors
+                } else {
+                    warriorNames.push(warriorName)
+                }
+            }        
+            intoUser.createTeam(split[colToIdx.get("team name")], warriorNames);
+        } catch(e){
+            console.error("Encountered the following error while attempting to read team file " + fileName);
+            console.error(e);
+            console.error(e.stack);
+            console.error("Caused by line: " + row);
         }
-        intoUser.createTeam(split[colToIdx.get("team name")], warriorNames);
     });
 }
 
