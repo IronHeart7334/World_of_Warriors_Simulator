@@ -9,7 +9,7 @@ loadAllDataInto(user).then(()=>{
     /*
     user.getAllWarriors().forEach((w)=>{
         console.log(w.toString());
-    });
+    }
     */
     /*
     user.getAllTeams().forEach((t)=>{

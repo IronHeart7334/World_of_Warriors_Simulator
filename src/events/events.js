@@ -84,14 +84,17 @@ class HitEvent extends Event {
         return `Event #${this.id}: ${this.hitter.name} struck ${this.hittee.name} for (${this.physDmg}, ${this.eleDmg}) damage using ${this.attackUsed.name}`;
     }
 };
+
 //this will be used for shell
 class DamageEvent extends Event {
-    constructor(warriorDamaged, amount){
+    constructor(warriorDamaged, physDmg, eleDmg){
         super(EVENT_TYPE.warriorDamaged);
         verifyClass(warriorDamaged, Warrior);
-        verifyType(amount, TYPES.number);
+        verifyType(physDmg, TYPES.number);
+        verifyType(eleDmg, TYPES.number);
         this.warriorDamaged = warriorDamaged;
-        this.amount = amount;
+        this.physDmg = physDmg;
+        this.eleDmg = eleDmg;
     }
 };
 class HealEvent extends Event {

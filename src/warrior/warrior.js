@@ -158,8 +158,8 @@ class Warrior{
             this.eventListenReg.fireEventListeners(new KOEvent(this));
         }
 
-        //this will change once I figure out what DamageEvents need to contain
-        let dmgEvent = new DamageEvent(this, amount);
+        //this may change once I figure out what DamageEvents need to contain
+        let dmgEvent = new DamageEvent(this, Math.round(phys), Math.round(ele));
         this.eventListenReg.fireEventListeners(dmgEvent);
     }
 
@@ -176,7 +176,7 @@ class Warrior{
 		}
 		this.hpRem = Math.round(this.hpRem);
 
-        let healEvent = new HealEvent(this, hp);
+        let healEvent = new HealEvent(this, Math.round(hp));
         this.eventListenReg.fireEventListeners(healEvent);
 	}
 
@@ -257,12 +257,6 @@ class Warrior{
             Special move: ${this.special.toString()}
             Warrior skills: ${this.warriorSkills.map((skill)=>skill.name).toString()}`;
     }
-
-
-
-    //######################
-    //working below here ###
-    //######################
 
     //change this to accept a string and verify skill combination is valid
     addSkill(warriorSkill){

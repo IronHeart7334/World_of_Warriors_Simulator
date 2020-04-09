@@ -25,7 +25,7 @@ export class BattlePage extends View{
         this.team2.enemyTeam = this.team1;
         this.team1.init();
         this.team2.init();
-
+        this.showingDataTextFor = null;
         let hud;
         let id;
         let page = this;
@@ -99,7 +99,12 @@ export class BattlePage extends View{
         let sel = $("#" + id);
         sel.addClass("container-fluid");
         sel.click(()=>{
-            page.setDataText(warrior);
+            //toggle data text for warrior
+            if(this.showingDataTextFor === warrior){
+                page.clearDataText();
+            } else {
+                page.setDataText(warrior);
+            }
             //console.log(warrior);
         });
 
@@ -117,6 +122,7 @@ export class BattlePage extends View{
 
         let right = $("<div></div>");
         right.addClass("col");
+        right.css("overflow", "scroll");
         row.append(right);
 
         let hpBar = $("<div></div>")
@@ -125,21 +131,40 @@ export class BattlePage extends View{
             .text(warrior.getStatValue(Stat.HP));
         right.append(hpBar);
 
+        let hpChangeList = $("<ul></ul>");
+        right.append(hpChangeList);
+        let hpChanges = {
+            "phys": $("<li></li>"),
+            "ele": $("<li></li>"),
+            "heal": $("<li></li>")
+        };
+        hpChangeList.append(hpChanges["phys"]);
+        hpChangeList.append(hpChanges["ele"]);
+        hpChangeList.append(hpChanges["heal"]);
+
         let effectList = $("<ul></ul>");
         right.append(effectList);
 
         let updateHp = (event)=>{
             hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hpRem);
         };
+
         warrior.addEventListener(new EventListener(
-            "update HP 1",
+            "update HP UI 1",
             EVENT_TYPE.warriorDamaged,
-            updateHp
+            (event)=>{
+                updateHp(event);
+                hpChanges["phys"].text(`-${event.physDmg}`);
+                hpChanges["ele"].text(`-${event.eleDmg}`);
+            }
         ));
         warrior.addEventListener(new EventListener(
-            "update HP 2",
+            "update HP UI 2",
             EVENT_TYPE.warriorHealed,
-            updateHp
+            (event)=>{
+                updateHp();
+                hpChanges["heal"].text(`+${event.amount}`);
+            }
         ));
         warrior.addEventListener(new EventListener(
             "update UI on KO",
@@ -150,7 +175,7 @@ export class BattlePage extends View{
             }
         ));
         warrior.addEventListener(new EventListener(
-            "refresh UI",
+            "update UI on update",
             EVENT_TYPE.warriorUpdated,
             (event)=>{
                 let w = event.warriorUpdated;
@@ -161,6 +186,7 @@ export class BattlePage extends View{
                 if(w.shield){
                     effectList.append("<li>Phantom Shield</li>");
                 }
+                /*
                 if (w.lastPhysDmg !== 0){
                     effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
                 }
@@ -169,10 +195,9 @@ export class BattlePage extends View{
                 }
                 if (w.lastHealed !== 0){
                     effectList.append(`<li>+${Math.round(w.lastHealed)}`);
-                }
+                }*/
 
-                //ew. change this later
-                hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
+                hpBar.css("background-color", (w.poisoned) ? "green" : "red");
             }
         ));
     }
@@ -218,6 +243,10 @@ export class BattlePage extends View{
         }
     }
 
+    clearDataText(){
+        $("#data-text").empty();
+        this.showingDataTextFor = null;
+    }
     setDataText(warrior){
         $("#data-text").empty().html(`${warrior.name}:\n
         * Special Move: ${warrior.special.name} ${warrior.pip}\n
@@ -226,6 +255,7 @@ export class BattlePage extends View{
         * Elemental: ${warrior.getStatValue(Stat.ELE)}\n
         * Max HP: ${warrior.getStatValue(Stat.HP)}\n
         * Armor: ${warrior.getStatValue(Stat.ARM)}\n`);
+        this.showingDataTextFor = warrior;
     }
 
     recoverPhaseFor(){
