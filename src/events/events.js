@@ -86,12 +86,23 @@ class HitEvent extends Event {
 };
 //this will be used for shell
 class DamageEvent extends Event {
-    constructor(amount){
+    constructor(warriorDamaged, amount){
         super(EVENT_TYPE.warriorDamaged);
+        verifyClass(warriorDamaged, Warrior);
         verifyType(amount, TYPES.number);
+        this.warriorDamaged = warriorDamaged;
         this.amount = amount;
     }
 };
+class HealEvent extends Event {
+    constructor(warriorHealed, amountHealed){
+        super(EVENT_TYPE.warriorHealed);
+        verifyClass(warriorHealed, Warrior);
+        verifyType(amountHealed, TYPES.number);
+        this.warriorHealed = warriorHealed;
+        this.amount = amountHealed;
+    }
+}
 class UpdateEvent extends Event {
     constructor(warrior){
         super(EVENT_TYPE.warriorUpdated);
@@ -131,6 +142,7 @@ export {
     EventListener,
     HitEvent,
     DamageEvent,
+    HealEvent,
     UpdateEvent,
     EVENT_TYPE
 };

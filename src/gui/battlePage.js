@@ -136,7 +136,11 @@ export class BattlePage extends View{
             EVENT_TYPE.warriorDamaged,
             updateHp
         ));
-        warrior.addHealListener(updateHp);
+        warrior.addEventListener(new EventListener(
+            "update HP 2",
+            EVENT_TYPE.warriorHealed,
+            updateHp
+        ));
         warrior.addKoListener((w)=>{
             sel.css("background-color", "black");
             sel.empty();

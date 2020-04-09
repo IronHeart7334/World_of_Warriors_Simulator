@@ -10,6 +10,7 @@ import {
     EVENT_TYPE,
     HitEvent,
     DamageEvent,
+    HealEvent,
     UpdateEvent
 } from "../events/events.js";
 
@@ -75,7 +76,6 @@ class Warrior{
 
         //will redo this to where it is a listener map
         /*
-        this.healListeners = [];
         this.koListeners = []; //fired when this is KOed
         */
         this.eventListenReg = new EventListenerRegister();
@@ -173,7 +173,7 @@ class Warrior{
         }
 
         //this will change once I figure out what DamageEvents need to contain
-        let dmgEvent = new DamageEvent(amount);
+        let dmgEvent = new DamageEvent(this, amount);
         this.eventListenReg.fireEventListeners(dmgEvent);
     }
 
@@ -190,9 +190,8 @@ class Warrior{
 		}
 		this.hpRem = Math.round(this.hpRem);
 
-        this.healListeners.forEach((f)=>{
-            f(hp);
-        });
+        let healEvent = new HealEvent(this, hp);
+        this.eventListenReg.fireEventListeners(healEvent);
 	}
 
     //update this once poison amulet is implemented
@@ -380,9 +379,6 @@ class Warrior{
     }
 
     //replace these once I implement an equivalent to Orpheus' ActionRegister
-    addHealListener(f){
-        this.healListeners.push(f);
-    }
     addKoListener(f){
         this.koListeners.push(f);
     }
