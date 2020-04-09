@@ -152,7 +152,8 @@ export class BattlePage extends View{
         warrior.addEventListener(new EventListener(
             "refresh UI",
             EVENT_TYPE.warriorUpdated,
-            (w)=>{
+            (event)=>{
+                let w = event.warriorUpdated;
                 effectList.empty();
                 if(w.boostIsUp){
                     effectList.append("<li>Elemental Boost</li>");
