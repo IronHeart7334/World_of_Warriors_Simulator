@@ -11,17 +11,10 @@ import {
     HitEvent,
     DamageEvent,
     HealEvent,
+    KOEvent,
     UpdateEvent
 } from "../events/events.js";
 
-/*
-This module contains the following exports:
-- Warrior: the class representing player characters.
-*/
-
-/*
-documented methods are done
-*/
 
 
 let nextId = 0;
@@ -74,10 +67,6 @@ class Warrior{
         this.normalMove.setUser(this);
 	    this.special.setUser(this);
 
-        //will redo this to where it is a listener map
-        /*
-        this.koListeners = []; //fired when this is KOed
-        */
         this.eventListenReg = new EventListenerRegister();
         this.id = nextId;
         nextId++;
@@ -166,10 +155,7 @@ class Warrior{
             this.hpRem = 1;
         }
         if(this.isKoed()){
-            //fire all KO listeners
-            this.koListeners.forEach((f)=>{
-                f(this);
-            });
+            this.eventListenReg.fireEventListeners(new KOEvent(this));
         }
 
         //this will change once I figure out what DamageEvents need to contain
@@ -378,10 +364,6 @@ class Warrior{
         this.eventListenReg.addEventListener(eventListener);
     }
 
-    //replace these once I implement an equivalent to Orpheus' ActionRegister
-    addKoListener(f){
-        this.koListeners.push(f);
-    }
 	update(){
         this.stats.forEach((stat)=>{
             stat.update();

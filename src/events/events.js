@@ -103,6 +103,13 @@ class HealEvent extends Event {
         this.amount = amountHealed;
     }
 }
+class KOEvent extends Event {
+    constructor(warriorKOed){
+        super(EVENT_TYPE.warriorKOed);
+        verifyClass(warriorKOed, Warrior);
+        this.warriorKOed = warriorKOed;
+    }
+};
 class UpdateEvent extends Event {
     constructor(warrior){
         super(EVENT_TYPE.warriorUpdated);
@@ -143,6 +150,7 @@ export {
     HitEvent,
     DamageEvent,
     HealEvent,
+    KOEvent,
     UpdateEvent,
     EVENT_TYPE
 };

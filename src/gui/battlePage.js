@@ -141,10 +141,14 @@ export class BattlePage extends View{
             EVENT_TYPE.warriorHealed,
             updateHp
         ));
-        warrior.addKoListener((w)=>{
-            sel.css("background-color", "black");
-            sel.empty();
-        });
+        warrior.addEventListener(new EventListener(
+            "update UI on KO",
+            EVENT_TYPE.warriorKOed,
+            (koEvent)=>{
+                sel.css("background-color", "black");
+                sel.empty();
+            }
+        ));
         warrior.addEventListener(new EventListener(
             "refresh UI",
             EVENT_TYPE.warriorUpdated,
@@ -179,9 +183,13 @@ export class BattlePage extends View{
             .text(warrior.special.name)
             .css("background-color", warrior.element.color)
             .click(()=>page.specialMove(warrior));
-        warrior.addKoListener((w)=>{
-            $(".owner-" + w.id).remove();
-        });
+        warrior.addEventListener(new EventListener(
+            "remove special button on KO",
+            EVENT_TYPE.warriorKOed,
+            (event)=>{
+                $(".owner-" + event.warriorKOed.id).remove();
+            }
+        ));
     }
 
     updateEnergy(){
