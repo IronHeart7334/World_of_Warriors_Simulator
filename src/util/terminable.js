@@ -44,9 +44,7 @@ class TerminalNode {
 }
 
 class TerminableList {
-    constructor(target){
-        notNull(target);
-        this.target = target;
+    constructor(){
         this.head = null;
         this.tail = null;
     }
@@ -65,12 +63,12 @@ class TerminableList {
         }
     }
 
-    runAll(){
+    runAll(target=null){
         let currNode = this.head;
         let currTerm;
         while(currNode !== null){
             currTerm = currNode.terminable;
-            currTerm.run(this.target);
+            currTerm.run(target);
             if(currTerm.shouldTerminate){
                 //delete current node
                 if(currNode.prev === null){
