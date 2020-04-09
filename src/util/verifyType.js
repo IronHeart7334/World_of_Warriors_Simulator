@@ -99,6 +99,8 @@ function positive(num){
     }
 }
 
+
+//this does not work with imported classes
 /*
  * checks if the given value inherits from a class with the given name.
  * className can be either a string, function, or class (classes are functions, oddly enough)
@@ -117,6 +119,7 @@ function verifyClass(val, className){
     verifyType(className, TYPES.string);
     let proto = Object.getPrototypeOf(val);
     while(proto !== null){
+        //console.log(proto.constructor.name);
         if(proto.constructor.name === className){
             break;
         }else{

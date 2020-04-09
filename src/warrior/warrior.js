@@ -3,7 +3,7 @@ import {Stat, StatBoost} from "./stat.js";
 import {getWarriorSkillByName} from "./warriorSkills.js";
 import {getElementByName} from "./element.js";
 import {LeaderSkill} from "./leaderSkill.js";
-import {TYPES, notNull, verifyType, inRange, notNegative, positive, array} from "../util/verifyType.js";
+import {TYPES, notNull, verifyType, verifyClass, inRange, notNegative, positive, array} from "../util/verifyType.js";
 import {
     EventListenerRegister,
     EventListener,

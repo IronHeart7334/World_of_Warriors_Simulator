@@ -23,13 +23,13 @@ class EventListenerRegister {
         if(!this.listeners.has(eventListener.eventType)){
             this.listeners.set(eventListener.eventType, new TerminableList());
         }
-        this.listeners.get(eventListener.eventType).add(EventListener);
+        this.listeners.get(eventListener.eventType).add(eventListener);
     }
 
     fireEventListeners(event){
         verifyClass(event, Event);
         if(this.listeners.has(event.eventType)){
-            this.listeners.get(event.eventType).run(event);
+            this.listeners.get(event.eventType).runAll(event);
         }
     }
 };
@@ -44,12 +44,12 @@ class EventListener extends Terminable{
         this.eventType = eventType;
     }
 
-    fire(event){
+    run(event){
         verifyClass(event, Event);
         if(event.eventType !== this.eventType){
             mismatchedEventTypeError(this.eventType, event.eventType);
         }
-        run(event);
+        super.run(event);
     }
 };
 

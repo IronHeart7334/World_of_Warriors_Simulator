@@ -1,7 +1,7 @@
 import {Stat} from "../warrior/stat.js";
 import {Controller} from "../controller.js";
 import {View} from "./view.js";
-import {EventListener, EVENT_TYPE} from "../event/events.js";
+import {EventListener, EVENT_TYPE} from "../events/events.js";
 
 export class BattlePage extends View{
     constructor(team1, team2){

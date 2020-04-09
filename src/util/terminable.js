@@ -52,7 +52,7 @@ class TerminableList {
     }
 
     add(terminable){
-        verifyClass(terminable, Terminable);
+        //verifyClass(terminable, Terminable);
         this.map.set(terminable.id, terminable);
         /*
         let newNode = new TerminalNode(terminable);
@@ -69,7 +69,7 @@ class TerminableList {
 
     runAll(target=null){
         //might be some k, v way of doing this, but google is slow now
-        Arrays.from(this.map.keys()).forEach((terminableId)=>{
+        Array.from(this.map.keys()).forEach((terminableId)=>{
             this.map.get(terminableId).run(target);
             if(this.map.get(terminableId).shouldTerminate){
                 this.map.delete(terminableId);
