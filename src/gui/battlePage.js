@@ -1,48 +1,49 @@
 import {Stat} from "../warrior/stat.js";
 import {Controller} from "../controller.js";
 import {View} from "./view.js";
+import {EventListener, EVENT_TYPE} from "../events/events.js";
 
 export class BattlePage extends View{
     constructor(team1, team2){
         super();
         this.team1 = team1;
         this.team2 = team2;
-        
+
         let alertLoss = (team)=>{
             alert(team.enemyTeam.name + " wins!");
             this.getController().setView(Controller.MAIN_MENU);
         };
         team1.addKoListener(alertLoss);
         team2.addKoListener(alertLoss);
-        
+
         this.currTeam = null; //current team whose turn it is
         this.inAttackPhase = false;
     }
-    
+
     linkToPage(){
         this.team1.enemyTeam = this.team2;
         this.team2.enemyTeam = this.team1;
         this.team1.init();
         this.team2.init();
-        
+        this.showingDataTextFor = null;
         let hud;
         let id;
         let page = this;
-        
+
         for(let i = 0; i < 3; i++){
             //team 1
             id = `t1-member-${i + 1}`;
             //               change this
             this.linkHud(id, this.team1.members[i]);
             this.linkSpecialMoveButton("t1-spec-" + (i + 1), this.team1.members[i]);
-            
+
             //team 2
             id = `t2-member-${i + 1}`;
             //               change this
             this.linkHud(id, this.team2.members[i]);
             this.linkSpecialMoveButton("t2-spec-" + (i + 1), this.team2.members[i]);
         }
-        
+
         $("#back-button").click(()=>{
             this.getController().setView(Controller.MAIN_MENU);
         });
@@ -55,12 +56,12 @@ export class BattlePage extends View{
         $("#nm-button").click(()=>{
             page.normalMove();
         });
-        
-        
+
+
         this.currTeam = (Math.random() >= 0.5) ? this.team1 : this.team2;
         this.attackPhaseFor(this.currTeam);
     }
-    
+
     normalMove(){
         if(this.inAttackPhase){
             this.currTeam.active.useNormalMove();
@@ -68,7 +69,7 @@ export class BattlePage extends View{
             this.recoverPhaseFor();
         }
     }
-    
+
     specialMove(warrior){
         if(this.inAttackPhase){
             if(this.currTeam === warrior.team){
@@ -78,40 +79,39 @@ export class BattlePage extends View{
             }
         }
     }
-    
+
     heartColl(){
         if(!this.inAttackPhase){
-            this.currTeam.active.nat_regen();
+            this.currTeam.active.heartCollect();
             this.attackPhaseFor();
         }
     }
-    
-    //move some of this to warrior
+
     bomb(){
         if(!this.inAttackPhase){
-            let d = this.currTeam.active.perc_hp(0.15);
-            this.currTeam.active.hp_rem -= d;
-            if(this.currTeam.active.hp_rem <= 1){
-                this.currTeam.active.hp_rem = 1;
-            }
-            this.currTeam.active.hp_rem = Math.round(this.currTeam.active.hp_rem);
+            this.currTeam.active.bomb();
             this.attackPhaseFor();
         }
     }
-    
+
     linkHud(id, warrior){
         let page = this;
         let sel = $("#" + id);
         sel.addClass("container-fluid");
         sel.click(()=>{
-            page.setDataText(warrior);
+            //toggle data text for warrior
+            if(this.showingDataTextFor === warrior){
+                page.clearDataText();
+            } else {
+                page.setDataText(warrior);
+            }
             //console.log(warrior);
         });
-        
+
         let row = $("<div></div>");
         row.addClass("row").addClass("h-100");
         sel.append(row);
-        
+
         let icon = $("<div></div>").addClass("circle").addClass("col").css({
             "width": "50%",
             "height": "100%",
@@ -119,52 +119,84 @@ export class BattlePage extends View{
         });
         row.append(icon);
         icon.append(`<p>${warrior.name}</p>`);
-        
+
         let right = $("<div></div>");
         right.addClass("col");
+        right.css("overflow", "scroll");
         row.append(right);
-        
+
         let hpBar = $("<div></div>")
             .addClass("h-50")
             .css("background-color", "red")
-            .text(warrior.getStat(Stat.HP));
+            .text(warrior.getStatValue(Stat.HP));
         right.append(hpBar);
-        
+
+        let hpChangeList = $("<ul></ul>");
+        right.append(hpChangeList);
+        let hpChanges = {
+            "phys": $("<li></li>"),
+            "ele": $("<li></li>"),
+            "heal": $("<li></li>")
+        };
+        hpChangeList.append(hpChanges["phys"]);
+        hpChangeList.append(hpChanges["ele"]);
+        hpChangeList.append(hpChanges["heal"]);
+
         let effectList = $("<ul></ul>");
         right.append(effectList);
-        
-        let updateHp = (change)=>{
-            hpBar.css("width", `${warrior.hp_perc() * 100}%`).text(warrior.hp_rem);
-        };
-        warrior.addDamageListener(updateHp);
-        warrior.addHealListener(updateHp);
-        warrior.addKoListener((w)=>{
-            sel.css("background-color", "black");
-            sel.empty();
-        });
-        warrior.addUpdateListener((w)=>{
-            effectList.empty();
-            if(w.boostIsUp){
-                effectList.append("<li>Elemental Boost</li>");
-            }
-            if(w.shield){
-                effectList.append("<li>Phantom Shield</li>");
-            }
-            if (w.lastPhysDmg !== 0){
-                effectList.append(`<li>-${Math.round(w.lastPhysDmg)}`);
-            }
-            if (w.lastEleDmg !== 0){
-                effectList.append(`<li>-${Math.round(w.lastEleDmg)}`);
-            }
-            if (w.last_healed !== 0){
-                effectList.append(`<li>+${Math.round(w.last_healed)}`);
-            }
 
-            //ew. change this later
-            hpBar.css("background-color", (w.poisoned !== false) ? "green" : "red");
-        });
+        let updateHp = ()=>{
+            hpBar.css("width", `${warrior.getPercHPRem() * 100}%`).text(warrior.hpRem);
+            if(warrior.regen){
+                hpBar.text(hpBar.text() + "+");
+            }
+        };
+
+        warrior.addEventListener(new EventListener(
+            "update HP UI 1",
+            EVENT_TYPE.warriorDamaged,
+            (event)=>{
+                updateHp();
+                hpChanges["phys"].text(`-${event.physDmg}`);
+                hpChanges["ele"].text(`-${event.eleDmg}`);
+            }
+        ));
+        warrior.addEventListener(new EventListener(
+            "update HP UI 2",
+            EVENT_TYPE.warriorHealed,
+            (event)=>{
+                updateHp();
+                hpChanges["heal"].text(`+${event.amount}`);
+            }
+        ));
+        warrior.addEventListener(new EventListener(
+            "update UI on KO",
+            EVENT_TYPE.warriorKOed,
+            (koEvent)=>{
+                sel.css("background-color", "black");
+                sel.empty();
+            }
+        ));
+        warrior.addEventListener(new EventListener(
+            "update UI on update",
+            EVENT_TYPE.warriorUpdated,
+            (event)=>{
+                let w = event.warriorUpdated;
+                effectList.empty();
+                if(w.boostIsUp){
+                    effectList.append("<li>Elemental Boost</li>");
+                }
+                if(w.shield){
+                    effectList.append("<li>Phantom Shield</li>");
+                }
+
+                updateHp();
+
+                hpBar.css("background-color", (w.poisoned) ? "green" : "red");
+            }
+        ));
     }
-    
+
     linkSpecialMoveButton(id, warrior){
         let page = this;
         $("#" + id)
@@ -172,11 +204,15 @@ export class BattlePage extends View{
             .text(warrior.special.name)
             .css("background-color", warrior.element.color)
             .click(()=>page.specialMove(warrior));
-        warrior.addKoListener((w)=>{
-            $(".owner-" + w.id).remove();
-        });
+        warrior.addEventListener(new EventListener(
+            "remove special button on KO",
+            EVENT_TYPE.warriorKOed,
+            (event)=>{
+                $(".owner-" + event.warriorKOed.id).remove();
+            }
+        ));
     }
-    
+
     updateEnergy(){
         $(".team-1-energy").hide();
         $(".team-2-energy").hide();
@@ -187,41 +223,45 @@ export class BattlePage extends View{
             $("#t2-energy-" + (i + 1)).show();
         }
     }
-    
+
     updateSpecials(){
         $(".t1-spec").hide();
         $(".t2-spec").hide();
         if(!this.inAttackPhase){
             return;
         }
-        
+
         if(this.currTeam === this.team1 && this.team1.energy >= 2){
             $(".t1-spec").show();
         } else if(this.currTeam === this.team2 && this.team2.energy >= 2){
             $(".t2-spec").show();
         }
     }
-    
+
+    clearDataText(){
+        $("#data-text").empty();
+        this.showingDataTextFor = null;
+    }
     setDataText(warrior){
         $("#data-text").empty().html(`${warrior.name}:\n
         * Special Move: ${warrior.special.name} ${warrior.pip}\n
         * Element: ${warrior.element.name}\n
-        * Physical: ${warrior.getStat(Stat.PHYS)}\n
-        * Elemental: ${warrior.getStat(Stat.ELE)}\n
-        * Max HP: ${warrior.getStat(Stat.HP)}\n
-        * Armor: ${warrior.getStat(Stat.ARM)}\n`);
+        * Physical: ${warrior.getStatValue(Stat.PHYS)}\n
+        * Elemental: ${warrior.getStatValue(Stat.ELE)}\n
+        * Max HP: ${warrior.getStatValue(Stat.HP)}\n
+        * Armor: ${warrior.getStatValue(Stat.ARM)}\n`);
+        this.showingDataTextFor = warrior;
     }
-    
+
     recoverPhaseFor(){
         this.inAttackPhase = false;
-        this.currTeam.check_if_ko();
+        this.currTeam.isKoed();
         if(this.team1.won || this.team2.won){
             return;
         } //#################################STOPS HERE IF A TEAM WON
-        
+
         $("#vs-text").text(`${this.currTeam.active.name} VS ${this.currTeam.enemyTeam.active.name}`);
-        this.currTeam.forEach((member)=>member.reset_heal());
-        
+
         $(".recover").show();
         $(".attack").hide();
         if (this.currTeam.active.healableDamage <= 0){
@@ -230,18 +270,18 @@ export class BattlePage extends View{
         }
         this.draw();
     }
-    
+
     attackPhaseFor(){
         this.inAttackPhase = true;
-        
+
         this.currTeam.turn_part2(); //lots of non-GUI stuff done here
         $(".attack").show();
         $(".recover").hide();
         this.updateSpecials();
-        
+
         this.draw();
     }
-    
+
     draw(){
         this.updateEnergy();
     }

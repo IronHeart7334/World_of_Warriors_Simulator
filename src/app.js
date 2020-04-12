@@ -1,29 +1,22 @@
-import {User} from "./util/user.js";
+import {DEFAULT_USER} from "./util/user.js";
 import {Controller} from "./controller.js";
-import {warriors} from "./warrior/realWarriors.js";
-import {Team} from "./warrior/team.js";
-import {Warrior} from "./warrior/warrior.js";
+import {loadAllDataInto} from "./util/import.js";
 
-import {CriticalHit, Guard} from "./warrior/warriorSkills.js";
+let user = DEFAULT_USER;
 
-let user = new User();
-user.warriors = warriors;
-user.teams = [
-    new Team("Starter Team", [
-        new Warrior("Abu"), 
-        new Warrior("Toki"), 
-        new Warrior("Zenghis")
-    ]),
-    new Team("Arena Favorites", [
-        new Warrior("Ironhart"), 
-        new Warrior("Erika"), 
-        new Warrior("Boris")
-    ])
-];
-user.loadModules();
-//user.teams[0].members[0].addSkill(new CriticalHit());
-//user.teams[0].members[1].addSkill(new Guard());
-
-let controller = new Controller();
-controller.setUser(user);
-controller.setView(Controller.MAIN_MENU);
+//need to use then, as 'await' doesn't work, given that this isn't wrapped in an async function
+loadAllDataInto(user).then(()=>{
+    /*
+    user.getAllWarriors().forEach((w)=>{
+        console.log(w.toString());
+    }
+    */
+    /*
+    user.getAllTeams().forEach((t)=>{
+        console.log(t.toString());
+    });
+    */
+    let controller = new Controller();
+    controller.setUser(user);
+    controller.setView(Controller.MAIN_MENU);
+});
